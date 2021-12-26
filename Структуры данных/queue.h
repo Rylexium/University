@@ -93,9 +93,11 @@ public:
 	}
 	T& front()const{
 		if(!isEmpty()) return head->info;
+		else throw "None elements";
 	}
 	T& back()const{
 		if(!isEmpty()) return tail->info;
+		else throw "None elements";
 	}
 	int size()const{
 		return size_q;
