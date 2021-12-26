@@ -1,3 +1,6 @@
 Это моя курсовая работа по базам данных.
 Десктопное приложение написанное на Java для учёта работы мастерской по ремонту часов.
 Делал приложение в Apache NetBeans IDE 12.0
+
+Использовалась СУБД PostgreSQL 13. Данные находятся тут:
+https://drive.google.com/drive/folders/1p9hRySUXZkGZ8kkF_mG3rwU_gqfJRZoH?usp=sharing
