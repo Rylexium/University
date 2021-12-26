@@ -119,7 +119,7 @@ public:
 			tmp = tmp->next;
 		}
 		if (tmpNext == nullptr) {
-			cout << "έλεμενς νε αϋλ νΰιδεν" << endl;
+			cout << "ΓΓ«Γ¥Γ¬Γ¥Γ­Γ² Γ­Γ¥ Γ΅Γ»Γ« Γ­Γ Γ©Γ¤Γ¥Γ­" << endl;
 			return;
 		}
 		tmp->next = tmpNext->next;
@@ -172,10 +172,12 @@ public:
 	T& front() { 
 		if(!isEmpty())
 			return head->value; 
+		else throw "None elements";
 	}
 	T& back() { 
 		if(!isEmpty()) 
 			return tail->value; 
+		else throw "None elements";
 	}
 
 	int getSize() { return size; }
