@@ -1,0 +1,10 @@
+com\laba6\page\repo\YearRepository.class
+com\laba6\page\repo\StudentRepository.class
+com\laba6\page\models\Teacher.class
+com\laba6\page\controllers\MainController.class
+com\laba6\page\models\Year.class
+com\laba6\page\repo\TeacherRepository.class
+com\laba6\page\models\Work.class
+com\laba6\page\repo\WorkRepository.class
+com\laba6\page\models\Student.class
+com\laba6\page\PageApplication.class

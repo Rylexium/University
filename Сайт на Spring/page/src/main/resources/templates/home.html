@@ -1,0 +1,81 @@
+<!DOCTYPE HTML>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Поиск курсовых и дипломных работ</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link th:href="@{/styles/style.css}" rel="stylesheet"/>
+</head>
+<body>
+<div id="header">
+    <img id="img1" th:src="@{/image/logo-white-ru.png}">
+</div>
+<div id="maininfo">
+    <form action="/" method="get">
+        <table id=t1  align="left">
+            <tr>
+                <td>Выберите вид работы</td>
+                <td>Выберите научного руководителя</td>
+                <td>Выберите ФИО студента</td>
+            </tr>
+            <tr>
+                <td><select id="listOfWork" name="valueOfWork" th:attr="data-model=${valueOfWork}">
+                    <option value = "">Любая</option>
+                    <option th:each="work: ${works}"
+                            th:value="${work.id}"
+                            th:text="${work.type}"
+                    />
+                </select> </td>
+                <td><select id = "listOfTeachers" name="valueOfTeacher" th:attr="data-model=${valueOfTeacher}">
+                    <option value = "">Любой</option>
+                    <option th:each="teacher: ${teachers}"
+                            th:value="${teacher.id}"
+                            th:text="${teacher.patronymic} ? ${teacher.family + ' ' + teacher.name + ' ' + teacher.patronymic} : ${teacher.family + ' ' + teacher.name}"
+                    />
+                </select></td>
+                <td><select id = "listOfStudents" name="valueOfStudent" th:attr="data-model=${valueOfStudent}">
+                    <option value = "">Любой</option>
+                    <option th:each="student: ${students}"
+                            th:value="${student.id}"
+                            th:text="${student.patronymic} ? ${student.family + ' ' + student.name + ' ' + student.patronymic} : ${student.family + ' ' + student.name}"
+                    />
+                </select></td>
+            </tr>
+        </table><br>
+        <table align="center"><tr><td><h1 id ="theme">Выберите тему</h1></td><td align="right"><h2>Выберите оценку</h2></td><td><h2>Выберите год сдачи</h2></td></tr>
+
+            <tr><td id="tableforthemelist" rowspan="3">
+                <select id = "listOfTheme" multiple="true" size="14" name="valueOfTheme" th:attr="data-model=${valueOfTheme}">
+                    <option value = "">Любая</option>
+                    <option th:each="theme: ${themes}"
+                            th:value="${theme.id}"
+                            th:text="${theme.name}"/></select></td>
+                <td align="right">
+                    <select id = "listOfGrade" multiple="true" name="valuesOfGrade" th:attr="data-model=${valuesOfGrade}" size="6">
+                        <option value = "">Любая</option>
+                        <option value = "3">3</option>
+                        <option value = "4">4</option>
+                        <option value = "5">5</option>
+                    </select>
+                </td>
+                <td><select id = "listOfYear" multiple="true" size="6" name="valuesOfYear" th:attr="data-model=${valuesOfYear}">
+                    <option value = "">Любой</option>
+                    <option th:each = "year : ${years}"
+                            th:value="${year.year}"
+                            th:text="${year.year}"/>
+                </select></td>
+            </tr>
+            <tr><td colspan="2"><h1 align="center">Ключевые слова</h1></td></tr>
+            <tr><td colspan="2" align="center"><select id = "listOfKeyWords" multiple="true" name="valuesOfKeyWords" th:attr="data-model=${valuesOfKeyWords}" size="9">
+                <option value = "">Нет</option>
+                <option th:each="key_word: ${key_words}"
+                        th:value="${key_word.id}"
+                        th:text="${key_word.word}"
+                />
+            </select></td></tr>
+            <tr align="center"><td colspan="3"><button id="btn1" type="submit">Поиск</button></td></tr>
+        </table>
+    </form>
+</div>
+<script type="text/javascript" th:src="@{/js/scr.js}"></script>
+</body>
+</html>

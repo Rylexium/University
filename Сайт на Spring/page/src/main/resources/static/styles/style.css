@@ -1,0 +1,130 @@
+#maininfo
+{
+    margin-top: calc(10px + (105 — 10) * ((100vh — 500px) / (1920 — 500)));
+}
+#img1
+{
+    height: calc(30px + (140 — 30) * ((100vh — 500px) / (1920 — 500)));
+}
+
+#header
+{
+    position: fixed;
+    background: #237bde;
+    width: 100vw;
+    top:0;
+    left: 0;
+    z-index: -1;
+    height: calc(50px + (100 — 50) * ((100vh — 500px) / (1920 — 500)));
+}
+#t1
+{
+    white-space: nowrap;
+    padding-left: calc(130px + (210 — 150) * ((100vw — 500px) / (1920 — 500)));;
+    font-size: calc(6px + (24 — 6) * ((100vw — 500px) / (1920 — 500)));;
+    color: aliceblue;
+    font-family: sans-serif;
+    border-spacing: 10px 2px;
+}
+select
+{
+    background-color: #237bde;
+    color: #fff;
+    font-size: inherit;
+    padding: .5em;
+    padding-right: 2.5em;
+    border: 0;
+    margin: 0;
+    border-radius: 3px;
+    text-indent: 0.01px;
+    text-overflow: '';
+    width:inherit;
+}
+#listOfWork
+{
+    font-size: calc(1px + (19 — 1) * ((100vw — 500px) / (1920 — 500)));;
+    width: calc(80px + (230 — 80) * ((100vw — 500px) / (1920 — 500)));
+}
+#listOfTeachers
+{
+    width: calc(120px + (350 — 120) * ((100vw — 500px) / (1920 — 500)));
+    font-size: calc(1px + (19 — 1) * ((100vw — 500px) / (1920 — 500)));;
+}
+#listOfStudents
+{
+    width: calc(140px + (210 — 140) * ((100vw — 500px) / (1920 — 500)));
+    font-size: calc(1px + (19 — 1) * ((100vw — 500px) / (1920 — 500)));;
+
+}
+select
+{
+    width: inherit;
+}
+h1
+{
+    color: #237bde;
+    font-family: sans-serif;
+    white-space: nowrap;
+    font-size: calc(4px + (28 — 4) * ((100vw — 500px) / (1920 — 500)));
+}
+h2
+{
+    color: #237bde;
+    font-family: sans-serif;
+    white-space: nowrap;
+    font-size: 17px;
+}
+
+#theme
+{
+    margin-right: calc(180px + (400 — 180) * ((100vw — 500px) / (1920 — 500)));
+}
+#tableforthemelist
+{
+    text-align: right;
+    vertical-align: top;
+}
+#listOfTheme
+{
+    width: calc(130px + (700 — 130) * ((100vw — 500px) / (1920 — 500)));
+    height: 445px;
+    border-radius: 10px;
+}
+
+#listOfKeyWords
+{
+    width: 260px;
+}
+#listOfYear
+{
+    width: 137px;
+}
+
+#btn1
+{
+   text-decoration: none;
+  display: inline-block;
+  width: 140px;
+  height: 45px;
+  line-height: 43px;
+  border-radius: 20px;
+  margin: 10px 20px;
+  font-family: sans-serif;
+  font-size: 13px;
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 1px;
+  font-weight: 600;
+  color: #fff;
+    border-color: #237bde;
+  background: #237bde;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, .1);
+  transition: .3s;
+}
+#btn1:hover
+{
+   background: #46c4ff;
+  box-shadow: 0 15px 20px rgba(70, 163, 255, .8);
+  color: white;
+  transform: translateY(-7px);
+}
