@@ -157,7 +157,7 @@ public:
 		cout << endl;
 	}
 
-	int find(int _value) {
+	int find(T _value) {
 		if (isEmpty())return -1;
 		TNode<T>* tmp = head;
 		int index = 0;
