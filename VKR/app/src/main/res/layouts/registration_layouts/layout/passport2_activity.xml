@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/passport2_scroll_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blue_200"
+    android:fillViewport="true"
+    tools:context=".registrationActivity.Passport2Activity">
+
+    <LinearLayout
+        android:id="@+id/passport2_layout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:focusableInTouchMode="true" >
+
+        <Button
+            android:id="@+id/button10"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginStart="9dp"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="9dp"
+            android:background="@drawable/round_btn"
+            android:text="Введите данные и загрузите стр.2 паспорта"
+            android:textColor="@color/white"
+            android:textColorHint="@color/grey"
+            android:textSize="15sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="9dp"
+            android:paddingLeft="9dp"
+            android:paddingBottom="9dp"
+            android:orientation="horizontal">
+
+            <android.support.design.widget.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="179dp"
+                android:layout_height="wrap_content"
+                android:hint="Серия паспорта"
+                android:textColorHint="@color/grey"
+                app:boxStrokeColor="@color/blue_700"
+                app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout"
+                >
+
+                <AutoCompleteTextView
+                    android:textCursorDrawable="@drawable/cursor_black"
+                    android:textColorHighlight="@color/blue_700"
+                    android:id="@+id/textbox_passport_series"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="@string/only_numbers"
+                    android:inputType="phone"
+                    android:maxLength="5"
+                    android:textColor="@color/white"
+                    tools:ignore="TouchTargetSizeCheck" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Номер паспорта"
+                android:textColorHint="@color/grey"
+                app:boxStrokeColor="@color/blue_700"
+                app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout"
+                >
+
+                <AutoCompleteTextView
+                    android:textCursorDrawable="@drawable/cursor_black"
+                    android:textColorHighlight="@color/blue_700"
+                    android:id="@+id/textbox_passport_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="@string/only_numbers"
+                    android:inputType="phone"
+                    android:maxLength="6"
+                    android:textColor="@color/white"
+                    tools:ignore="TouchTargetSizeCheck" />
+            </android.support.design.widget.TextInputLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="9dp"
+            android:paddingBottom="9dp"
+            android:orientation="horizontal">
+
+            <android.support.design.widget.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="179dp"
+                android:layout_height="wrap_content"
+                android:hint="Дата выдачи"
+                android:textColorHint="@color/grey"               app:boxStrokeColor="@color/blue_700"
+                app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout"
+                >
+
+                <AutoCompleteTextView
+                    android:id="@+id/textbox_date_issuing_of_passport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="@string/only_numbers"
+                    android:drawableStart="@drawable/calendar_icon"
+                    android:drawablePadding="8dp"
+                    android:focusable="false"
+                    android:inputType="phone"
+                    android:maxLength="10"
+                    android:textColor="@color/white"
+                    android:textColorHighlight="@color/blue_700"
+                    android:textCursorDrawable="@drawable/cursor_black"
+                    tools:ignore="TouchTargetSizeCheck" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Код подразделения"
+                android:textColorHint="@color/grey"
+                app:boxStrokeColor="@color/blue_700"
+                app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout"
+                >
+
+                <AutoCompleteTextView
+                    android:textCursorDrawable="@drawable/cursor_black"
+                    android:textColorHighlight="@color/blue_700"
+                    android:id="@+id/textbox_code_unit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="@string/only_numbers"
+                    android:inputType="phone"
+                    android:maxLength="7"
+                    android:textColor="@color/white"
+                    tools:ignore="TouchTargetSizeCheck" />
+            </android.support.design.widget.TextInputLayout>
+
+        </LinearLayout>
+
+        <android.support.design.widget.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="9dp"
+            android:layout_marginRight="9dp"
+            android:hint="Место рождения"
+            android:textColorHint="@color/grey"
+            app:boxStrokeColor="@color/blue_700"
+            app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout"
+            >
+
+            <AutoCompleteTextView
+                android:textCursorDrawable="@drawable/cursor_black"
+                android:textColorHighlight="@color/blue_700"
+                android:id="@+id/textbox_issued_by"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:digits="@string/alfavit_for_name"
+                android:gravity="left"
+                android:inputType="textPersonName"
+                android:maxLength="128"
+                android:textColor="@color/white"
+                tools:ignore="TouchTargetSizeCheck" />
+        </android.support.design.widget.TextInputLayout>
+
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/layout_for_image_passport2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:layout_marginStart="9dp"
+            android:layout_marginEnd="9dp"
+            android:orientation="vertical"
+            >
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="9dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="9dp"
+            android:layout_marginBottom="50dp"
+            android:layout_weight="3"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/button7"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:layout_weight="1"
+                android:background="@drawable/image_previous_btn"
+                android:baselineAligned="false"
+                android:text="" />
+
+            <TextView
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:layout_marginStart="35dp"
+                android:layout_marginEnd="35dp"
+                android:gravity="center"
+                android:text="@string/reg_step_3"
+                android:textColor="@color/white"
+                android:textSize="36dp" />
+
+            <Button
+                android:id="@+id/button3"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:layout_weight="1"
+                android:background="@drawable/image_next_btn"
+                android:text="" />
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

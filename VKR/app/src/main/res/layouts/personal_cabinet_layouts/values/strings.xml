@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="exams">
+        <item>Русский язык</item>
+        <item>Математика</item>
+        <item>Физика</item>
+        <item>Химия</item>
+        <item>Информатика и ИКТ</item>
+        <item>Биология</item>
+        <item>История</item>
+        <item>География</item>
+        <item>Английский язык</item>
+        <item>Немецкий язык</item>
+        <item>Французский язык</item>
+        <item>Обществознание</item>
+        <item>Испанский язык</item>
+        <item>Литература</item>
+    </string-array>
+
+    <string-array name="date_of_exams">
+        <item>2022</item>
+        <item>2021</item>
+        <item>2020</item>
+        <item>2019</item>
+        <item>2018</item>
+    </string-array>
+</resources>
