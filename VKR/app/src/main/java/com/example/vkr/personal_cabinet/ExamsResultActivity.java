@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -14,18 +16,27 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vkr.R;
+import com.example.vkr.connectDB.Database;
+import com.example.vkr.support_class.ConvertClass;
 import com.example.vkr.support_class.HideKeyboardClass;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class ExamsResultActivity extends AppCompatActivity {
 
     private LinearLayout examsLayout;
     private SharedPreferences sharedPreferences;
+    private ImageView imageCabinetPassport1;
 
     private final String KEY_NAME_EXAM   = "exam";
     private final String KEY_POINTS_EXAM = "points";
@@ -129,7 +140,7 @@ public class ExamsResultActivity extends AppCompatActivity {
 
     private void appleEvents(){
         findViewById(R.id.button_next_to_lk).setOnClickListener(view -> {
-            if(examsLayout.getChildCount() >= 3)
+            if(examsLayout.getChildCount() > 3)
                 startActivity(new Intent(ExamsResultActivity.this, PersonalCabinetActivity.class));
             else
                 Toast.makeText(this, "Экзаменов не может быть меньше 3", Toast.LENGTH_SHORT).show();
@@ -151,5 +162,26 @@ public class ExamsResultActivity extends AppCompatActivity {
     private void initComponents(){
         examsLayout = findViewById(R.id.exams_layout);
         sharedPreferences = getPreferences(MODE_PRIVATE);
+        imageCabinetPassport1 = findViewById(R.id.image_cabinet_passport1);
+        new Thread(()->{
+            Connection connection = new Database().connect();
+            PreparedStatement statement = null;
+            try {
+                statement = connection.prepareStatement("select image_passport1 from abit where login=?");
+                statement.setString(1, "rylexium");
+                ResultSet picture = statement.executeQuery();
+                if(picture.next()){
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        try {
+                            imageCabinetPassport1.setImageBitmap(ConvertClass.convertStringToBitmap(picture.getString("image_passport1")));
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
+                        }
+                    });
+                }
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }).start();
     }
 }

@@ -20,12 +20,16 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.example.vkr.R;
+import com.example.vkr.authorizationActivity.AuthorizationActivity;
+import com.example.vkr.connectDB.Database;
 import com.example.vkr.support_class.ConvertClass;
 import com.example.vkr.support_class.EditLinearLayout;
 import com.example.vkr.support_class.HideKeyboardClass;
 import com.example.vkr.support_class.SelectImageClass;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 public class DownloadPrivilegesActivity extends AppCompatActivity {
     private Button buttonNext;
@@ -75,7 +79,11 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
             new Thread(this::sendToBdSnills).start();
             new Thread(this::sendToBdEducationDocument).start();
 
+            System.out.println(generateSalt());
+
             Toast.makeText(this, "Регистрация произошла успешна!!!", Toast.LENGTH_SHORT).show();
+            this.finish();
+            startActivity(new Intent(this, AuthorizationActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
         });
 
         buttonPrevious.setOnClickListener(view -> onBackPressed());
@@ -103,6 +111,16 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
         String nationality = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_NATIONALITY, null);
         String sex = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_SEX, null);
         String imagePassport1 = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_IMAGE_PASSPORT, null);
+
+        System.out.println(imagePassport1);
+        try {
+            Connection connection = new Database().connect();
+            PreparedStatement statement = connection.prepareStatement("UPDATE public.abit SET image_passport1=? WHERE login=?;");
+            statement.setString(2, "rylexium");
+            statement.setString(1, imagePassport1);
+            statement.execute();
+        }
+        catch (Exception ingored){}
 
         String[] items = new String[]{family, name, patronymic, date, nationality, sex};
         for(String item : items)
@@ -164,6 +182,14 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
         String[] items = new String[]{idEducation, registrationNumber, typeEducationPosition, dateOfIssueOfEducation, withHonors};
         for(String item : items)
             System.out.println(item);
+    }
+
+    private static StringBuilder generateSalt(){
+        String alfavit = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ<,.>/?;:]}[{-=+*!1@2#3$4%5^6&78(9)0";
+        StringBuilder res = new StringBuilder();
+        for(int i=0; i<32; i++)
+            res.append(alfavit.charAt( (int) (Math.random() * alfavit.length()) ));
+        return res;
     }
 
     @Override
