@@ -4,15 +4,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.example.vkr.R;
 import com.example.vkr.support_class.ConvertClass;
@@ -58,6 +61,8 @@ public class SnillsActivity extends AppCompatActivity {
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (getCurrentFocus() != null) {
             HideKeyboardClass.hideKeyboard(this);
+            LinearLayout ll = findViewById(R.id.snills_layout);
+            ll.requestFocus();
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -65,10 +70,18 @@ public class SnillsActivity extends AppCompatActivity {
     private void ApplyEvents(){
 
         previousButton.setOnClickListener(view -> onBackPressed());
-        nextButton.setOnClickListener(view -> startActivity(new Intent(SnillsActivity.this, EducationdocumentActivity.class)));
+        nextButton.setOnClickListener(view -> {
+            saveLastState();
+            startActivity(new Intent(SnillsActivity.this, EducationdocumentActivity.class));
+        });
         buttonMakePhoto.setOnClickListener(view -> SelectImageClass.showMenu(this, false));
 
         snills.addTextChangedListener(new CorrectText(snills, "###-###-### ##"));
+
+        snills.setOnFocusChangeListener((view, isFocus) -> {
+            if(!isFocus && snills.getText().length() < 14) snills.setTextColor(Color.RED);
+            else snills.setTextColor(ContextCompat.getColor(this, R.color.white));
+        });
     }
 
     private void comebackAfterOnBackPressed(){
@@ -77,10 +90,10 @@ public class SnillsActivity extends AppCompatActivity {
             snills.setText(restoredText);
         }
         restoredText = sharedPreferences.getString(KEY_PHOTO_SNILLS, null);
-        if(!TextUtils.isEmpty(restoredText)){
+        if(!TextUtils.isEmpty(restoredText)) {
             imageSnills.setImageBitmap(ConvertClass.convertStringToBitmap(restoredText));
         }
-
+        snills.setTextColor(isCorrectSnills(snills.getText().toString())? Color.RED : ContextCompat.getColor(this, R.color.white));
     }
 
     public static void clearComponents() {
@@ -118,7 +131,9 @@ public class SnillsActivity extends AppCompatActivity {
             if(bitmap != null) imageSnills.setImageBitmap(bitmap);
         }
     }
-
+    public static boolean isCorrectSnills(String text){
+        return text.length() < 14;
+    }
     private void initComponents(){
         snills = findViewById(R.id.textbox_snills);
         imageSnills = findViewById(R.id.imageViewSnills);

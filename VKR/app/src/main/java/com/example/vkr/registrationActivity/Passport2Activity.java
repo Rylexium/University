@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
@@ -28,13 +29,13 @@ import com.example.vkr.support_class.EditLinearLayout;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 public class Passport2Activity extends AppCompatActivity {
     private EditText passport_series;
     private EditText date_issuing;
     private EditText passport_number;
     private EditText code_unit;
-    private EditText issued_by;
     private LinearLayout layoutForImagePassport2;
 
     private static Bitmap bitmap;
@@ -48,7 +49,6 @@ public class Passport2Activity extends AppCompatActivity {
     public final static String KEY_DATE_ISSUING    = "date_issuing";
     public final static String KEY_PASSPORT_NUMBER = "passport_number";
     public final static String KEY_CODE_UNIT       = "code_unit";
-    public final static String KEY_ISSUED_BY       = "issued_by";
     public final static String KEY_IMAGE_PASSPORT  = "imagePassport";
 
     @Override
@@ -74,12 +74,23 @@ public class Passport2Activity extends AppCompatActivity {
         wrapper(KEY_DATE_ISSUING,    date_issuing::setText);
         wrapper(KEY_PASSPORT_NUMBER, passport_number::setText);
         wrapper(KEY_CODE_UNIT,       code_unit::setText);
-        wrapper(KEY_ISSUED_BY,       issued_by::setText);
 
         String restoredText = getPreferences(MODE_PRIVATE).getString(KEY_IMAGE_PASSPORT, null);
         if(!TextUtils.isEmpty(restoredText)) {
             EditLinearLayout.onAddField(ConvertClass.convertStringToBitmap(restoredText), layoutForImagePassport2, this);
         }
+
+
+        if(passport_series.getText().length() < 5) passport_series.setTextColor(Color.RED);
+        else passport_series.setTextColor(ContextCompat.getColor(this, R.color.white));
+
+        if(passport_number.getText().length() < 6) passport_number.setTextColor(Color.RED);
+        else passport_number.setTextColor(ContextCompat.getColor(this, R.color.white));
+
+
+        if(code_unit.getText().length() < 7) code_unit.setTextColor(Color.RED);
+        else code_unit.setTextColor(ContextCompat.getColor(this, R.color.white));
+
 
     }
 
@@ -92,6 +103,8 @@ public class Passport2Activity extends AppCompatActivity {
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (getCurrentFocus() != null) {
             HideKeyboardClass.hideKeyboard(this);
+            LinearLayout ll = findViewById(R.id.passport2_layout);
+            ll.requestFocus();
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -110,6 +123,26 @@ public class Passport2Activity extends AppCompatActivity {
         passport_series.addTextChangedListener(new CorrectText(passport_series, "## ##"));
         code_unit.addTextChangedListener(new CorrectText(code_unit, "###-###"));
 
+
+        passport_series.setOnFocusChangeListener((view, isFocus) -> {
+            if(!isFocus && passport_series.getText().length() < 6)
+                passport_series.setTextColor(Color.RED);
+            else passport_series.setTextColor(ContextCompat.getColor(this, R.color.white));
+        });
+
+        passport_number.setOnFocusChangeListener((view, isFocus) -> {
+            if(!isFocus && passport_number.getText().length() < 6)
+                passport_number.setTextColor(Color.RED);
+            else passport_number.setTextColor(ContextCompat.getColor(this, R.color.white));
+        });
+
+
+        code_unit.setOnFocusChangeListener((view, isFocus) -> {
+            if(!isFocus && code_unit.getText().length() < 7)
+                code_unit.setTextColor(Color.RED);
+            else code_unit.setTextColor(ContextCompat.getColor(this, R.color.white));
+        });
+
     }
 
     private void saveLastState(){
@@ -121,7 +154,6 @@ public class Passport2Activity extends AppCompatActivity {
                             .putString(KEY_DATE_ISSUING, date_issuing.getText().toString())
                             .putString(KEY_PASSPORT_NUMBER, passport_number.getText().toString())
                             .putString(KEY_CODE_UNIT, code_unit.getText().toString())
-                            .putString(KEY_ISSUED_BY, issued_by.getText().toString())
                             .putString(KEY_IMAGE_PASSPORT, ConvertClass.convertBitmapToString(bitmap))
                             .apply();
                 })).start();
@@ -167,7 +199,6 @@ public class Passport2Activity extends AppCompatActivity {
         date_issuing = findViewById(R.id.textbox_date_issuing_of_passport);
         passport_number = findViewById(R.id.textbox_passport_number);
         code_unit = findViewById(R.id.textbox_code_unit);
-        issued_by = findViewById(R.id.textbox_issued_by);
 
         sharedPreferences = getPreferences(MODE_PRIVATE);
 

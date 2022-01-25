@@ -20,21 +20,29 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 
 
 import com.example.vkr.R;
+import com.example.vkr.connectDB.Database;
 import com.example.vkr.support_class.ConvertClass;
 import com.example.vkr.support_class.HideKeyboardClass;
+import com.example.vkr.support_class.MySpinnerAdapter;
 import com.example.vkr.support_class.SelectDateClass;
 import com.example.vkr.support_class.SelectImageClass;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 public class Passport1Activity extends AppCompatActivity {
     private EditText  name;
@@ -44,7 +52,7 @@ public class Passport1Activity extends AppCompatActivity {
     private Switch    sex;
     private Spinner   nationality;
     private ImageView imagePassport1;
-
+    private static List<String> listRes;
     private static Bitmap bitmap;
     public static SharedPreferences sharedPreferences;
 
@@ -115,6 +123,16 @@ public class Passport1Activity extends AppCompatActivity {
         if(!TextUtils.isEmpty(restoredText)) {
             nationality.setSelection(Integer.parseInt(restoredText));
         }
+
+        if(family.getText().length() < 2) family.setTextColor(Color.RED);
+        else family.setTextColor(ContextCompat.getColor(this, R.color.white));
+
+        if(name.getText().length() < 2) name.setTextColor(Color.RED);
+        else name.setTextColor(ContextCompat.getColor(this, R.color.white));
+
+        if(patronymic.getText().length() < 2) patronymic.setTextColor(Color.RED);
+        else patronymic.setTextColor(ContextCompat.getColor(this, R.color.white));
+
     }
 
     private void wrapper (String key, Consumer<String> editText) {
@@ -132,6 +150,8 @@ public class Passport1Activity extends AppCompatActivity {
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (getCurrentFocus() != null) {
             HideKeyboardClass.hideKeyboard(this);
+            LinearLayout ll = findViewById(R.id.passport1_layout);
+            ll.clearFocus();
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -160,6 +180,21 @@ public class Passport1Activity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) { }
         });
 
+        family.setOnFocusChangeListener((view, isFocus) -> {
+            if(!isFocus && family.getText().length() < 2)
+                family.setTextColor(Color.RED);
+            else family.setTextColor(ContextCompat.getColor(this, R.color.white));
+        });
+        name.setOnFocusChangeListener((view, isFocus) -> {
+            if(!isFocus && name.getText().length() < 2)
+                name.setTextColor(Color.RED);
+            else name.setTextColor(ContextCompat.getColor(this, R.color.white));
+        });
+        patronymic.setOnFocusChangeListener((view, isFocus) -> {
+            if(!isFocus && patronymic.getText().length() < 2)
+                patronymic.setTextColor(Color.RED);
+            else patronymic.setTextColor(ContextCompat.getColor(this, R.color.white));
+        });
     }
 
     @Override
@@ -199,28 +234,32 @@ public class Passport1Activity extends AppCompatActivity {
         buttonNext      = findViewById(R.id.button4);
         buttonMakePhoto = findViewById(R.id.button8);
 
-
-        nationality.setAdapter(new ArrayAdapter<String>(this, R.layout.spinner_item,
-                Arrays.stream(getResources().getString(R.string.nationality).split(";"))
-                        .toArray(String[]::new)){
-            @Override
-            public boolean isEnabled(int position) {
-                // Отключаем первый итем у спиннера
-                // Делаем его как hint
-                return position != 0;
+        buttonNext.setEnabled(false);
+        if(listRes == null) new Thread(()->{
+            Connection connection = new Database().connect();
+            try {
+                ResultSet res = connection.createStatement().executeQuery("select name from nationality");
+                listRes = new ArrayList<>();
+                listRes.add("Выберите гражданство");
+                while(res.next())
+                    listRes.add(res.getString("name"));
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    nationality.setAdapter(new MySpinnerAdapter(this, R.layout.spinner_item, listRes));
+                    String restoredText = getPreferences(MODE_PRIVATE).getString(KEY_NATIONALITY, null);
+                    if(!TextUtils.isEmpty(restoredText)) {
+                        nationality.setSelection(Integer.parseInt(restoredText));
+                    }
+                    buttonNext.setEnabled(true);
+                });
+                res.close();
+                connection.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
             }
-
-            @Override
-            public View getDropDownView(int position, View convertView,
-                                        ViewGroup parent) {
-                View view = super.getDropDownView(position, convertView, parent);
-                TextView tv = (TextView) view;
-                if(position == 0)// Set the hint text color gray
-                    tv.setTextColor(Color.GRAY);
-                else
-                    tv.setTextColor(Color.BLACK);
-                return view;
-            }
-        });
+        }).start();
+        else{
+            nationality.setAdapter(new MySpinnerAdapter(this, R.layout.spinner_item, listRes));
+            buttonNext.setEnabled(true);
+        }
     }
 }

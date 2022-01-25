@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.example.vkr.R;
 import com.example.vkr.support_class.ConvertClass;
@@ -78,6 +79,8 @@ public class Passport3Activity extends AppCompatActivity {
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (getCurrentFocus() != null) {
             HideKeyboardClass.hideKeyboard(this);
+            LinearLayout ll = findViewById(R.id.passport3_layout);
+            ll.requestFocus();
         }
         return super.dispatchTouchEvent(ev);
     }

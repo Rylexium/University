@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 
 public class ConvertClass {
@@ -18,6 +19,8 @@ public class ConvertClass {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
         byte[] byteArray = stream.toByteArray();
+        try { stream.close(); }
+        catch (IOException ignored) { }
         return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }
 }

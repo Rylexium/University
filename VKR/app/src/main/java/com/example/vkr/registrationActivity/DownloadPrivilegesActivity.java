@@ -1,5 +1,7 @@
 package com.example.vkr.registrationActivity;
 
+import static com.example.vkr.authorizationActivity.AuthorizationActivity.sha256;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -28,8 +30,14 @@ import com.example.vkr.support_class.HideKeyboardClass;
 import com.example.vkr.support_class.SelectImageClass;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class DownloadPrivilegesActivity extends AppCompatActivity {
     private Button buttonNext;
@@ -72,117 +80,168 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
 
         buttonNext.setOnClickListener(view -> {
             //вывод данных проверка
-            new Thread(this::sendToBdRegistration).start();
-            new Thread(this::sendToBdPassport1).start();
-            new Thread(this::sendToBdPassport2).start();
-            new Thread(this::sendToBdPassport3).start();
-            new Thread(this::sendToBdSnills).start();
-            new Thread(this::sendToBdEducationDocument).start();
+            String login = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_LOGIN, null);
+            String pass = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_PASS, null);
+            String pass2 = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_PASS2, null);
+            if(!pass.equals(pass2)) {
+                Toast.makeText(this, "Пароли разные", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String email = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_EMAIL, null);
+            if(RegistrationActivity.isCorrectEmail(email)){
+                Toast.makeText(this, "Почта некорректна", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            String phone = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_PHONE, null);
 
-            System.out.println(generateSalt());
+            if(RegistrationActivity.isCorrectPhone(phone)){
+                Toast.makeText(this, "Номер телефона некорректен", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String family = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_FAMILY, null);
+            String name = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_NAME, null);
+            String patronymic = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_PATRONYMIC, null);
+            String dateIssingBirthday = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_DATE_OF_BIRTH, null);
+            String nationality = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_NATIONALITY, null);
+            String sex = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_SEX, null);
+            String imagePassport1 = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_IMAGE_PASSPORT, null);
+
+            String passportSeries = Passport2Activity.sharedPreferences.getString(Passport2Activity.KEY_PASSPORT_SERIES, null);
+            String passportNumber = Passport2Activity.sharedPreferences.getString(Passport2Activity.KEY_PASSPORT_NUMBER, null);
+            String codeUnit = Passport2Activity.sharedPreferences.getString(Passport2Activity.KEY_CODE_UNIT, null);
+            String dateIssuingPassport = Passport2Activity.sharedPreferences.getString(Passport2Activity.KEY_DATE_ISSUING, null);
+            String imagePassport2 = Passport2Activity.sharedPreferences.getString(Passport2Activity.KEY_IMAGE_PASSPORT, null);
+
+            String postIndexReg = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_POST_INDEX_REG, null);
+            String subjectReg = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_SUBJECT_REG, null);
+            String cityReg = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_CITY_REG, null);
+            String residenceStreetReg = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_RESIDENCE_STREET_REG, null);
+
+            String postIndexActual = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_POST_INDEX_ACTUAL, null);
+            String subjectActual = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_SUBJECT_ACTUAL, null);
+            String cityActual = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_CITY_ACTUAL, null);
+            String residenceStreetActual = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_RESIDENCE_STREET_ACTUAL, null);
+
+            String snills = SnillsActivity.sharedPreferences.getString(SnillsActivity.KEY_SNILLS, null);
+            if(SnillsActivity.isCorrectSnills(snills)){
+                Toast.makeText(this, "СНИЛС некорректен", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String imageSnills = SnillsActivity.sharedPreferences.getString(SnillsActivity.KEY_PHOTO_SNILLS, null);
+
+            String typeEducationPosition = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_TYPE_EDUCATION_POSITION, null);
+            String idEducation = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_ID_EDUCATION, null);
+            String registrationNumber = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_REGISTRATION_NUMBER, null);
+            String dateOfIssueOfEducation = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_DATE_OF_ISSUE_OF_EDUCATION, null);
+            String withHonors = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_WITH_HONORS, null);
+            String imageEducation1 = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_EDUCATION_PICTURE1, null);
+            String imageEducation2 = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_EDUCATION_PICTURE2, null);
+            if(family.equals("") || name.equals("") || patronymic.equals("") || dateIssingBirthday.equals("")
+                    || sex.equals("Пол:") || nationality.equals("0") || nationality.equals("-1")
+                    || passportSeries.equals("") || passportNumber.equals("") || codeUnit.equals("")
+                    || dateIssuingPassport.equals("") || idEducation.equals("")){
+                Toast.makeText(this, "Введите данные в пустые поля", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+
+            new Thread(()->{
+               Connection connection = new Database().connect();
+                try {
+                    PreparedStatement statement = connection.prepareStatement("INSERT INTO public.abit(\n" +
+                            "\tid, phone, email, " +
+                            "family, name, patronymic, sex, " +
+                            "id_nationality, passport, departament_code, date_of_issing_passport, " +
+                            "const_address, actual_address, " +
+                            "id_education, number_education, reg_number_education, date_of_issing_education, " +
+                            "date_of_birthday)\n" +
+                            "\tVALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+                    statement.setLong(1, Long.parseLong(snills.replace(" ", "").replace("-", "")));
+                    statement.setString(2, phone.replace("-", ""));
+                    statement.setString(3, email);
+
+                    statement.setString(4, family);
+                    statement.setString(5, name);
+                    statement.setString(6, patronymic);
+                    statement.setBoolean(7, sex.equals("Пол: Мужской"));
+
+                    statement.setInt(8, Integer.parseInt(nationality));
+                    statement.setLong(9, Long.parseLong(passportNumber + passportSeries.replace(" ", "")));
+                    statement.setInt(10, Integer.parseInt(codeUnit.replace("-", "")));
+                    statement.setDate(11, new java.sql.Date(new SimpleDateFormat("dd.MM.yyyy").parse(dateIssuingPassport).getTime()));
+
+                    statement.setString(12, postIndexReg + ", " + subjectReg + ", " + cityReg + ", " + residenceStreetReg);
+                    statement.setString(13, postIndexActual + ", " + subjectActual + ", " + cityActual + ", " + residenceStreetActual);
+
+                    statement.setInt(14, Integer.parseInt(typeEducationPosition) +  (withHonors.equals("true") ? 1 : 0) );
+                    statement.setLong(15, Long.parseLong(idEducation.equals("")? "0" : idEducation.replace(" ", "")));
+                    statement.setLong(16, Long.parseLong(registrationNumber.equals("")? "0" : registrationNumber.replace("-", "")));
+                    statement.setDate(17, new java.sql.Date(new SimpleDateFormat("dd.MM.yyyy").parse(dateOfIssueOfEducation).getTime()));
+
+                    statement.setDate(18, new java.sql.Date(new SimpleDateFormat("dd.MM.yyyy").parse(dateIssingBirthday).getTime()));
+
+                    statement.execute();
+                    statement.close();
+                    connection.close();
+                } catch (SQLException | ParseException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+
+            new Thread(()->{
+                Connection connection = new Database().connect();
+                try {
+                    PreparedStatement statement = connection.prepareStatement("INSERT INTO public.users(\n" +
+                            "\tlogin, password, salt1, salt2, id_abit, is_entry)\n" +
+                            "\tVALUES (?, ?, ?, ?, ?, false);");
+                    statement.setString(1, login);
+                    String salt1 = generateSalt().toString();
+                    String salt2 = generateSalt().toString();
+                    statement.setString(2, sha256(sha256(   sha256(pass) + salt1)+ salt2));
+                    statement.setString(3, salt1);
+                    statement.setString(4, salt2);
+                    statement.setLong(5, Long.parseLong(snills.replace("-", "").replace(" ", "")));
+
+                    statement.execute();
+
+                    statement.close();
+                    connection.close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }).start();
+            //Прописать загрузку фотографий
+            new Thread(()->{
+               Connection connection = new Database().connect();
+               try{
+                   PreparedStatement statement = connection.prepareStatement("INSERT INTO public.abit_passport(\n" +
+                           "\tid_abit, passport1, passport2, snills)\n" +
+                           "\tVALUES (?, ?, ?, ?);");
+                   statement.setLong(1, Long.parseLong(snills.replace("-", "").replace(" ", "")));
+                   statement.setString(2, imagePassport1);
+                   statement.setString(3, imagePassport2);
+                   statement.setString(4, imageSnills);
+
+                   statement.execute();
+                   statement.close();
+                   connection.close();
+               }
+               catch (SQLException e){
+                   e.printStackTrace();
+               }
+            }).start();
 
             Toast.makeText(this, "Регистрация произошла успешна!!!", Toast.LENGTH_SHORT).show();
-            this.finish();
-            startActivity(new Intent(this, AuthorizationActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
+            //finish();
+            //startActivity(new Intent(this, AuthorizationActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
         });
 
         buttonPrevious.setOnClickListener(view -> onBackPressed());
         buttonAddPrivileges.setOnClickListener(view -> SelectImageClass.showMenu(this, false));
     }
 
-    private void sendToBdRegistration(){
-        String login = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_LOGIN, null);
-        String pass = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_PASS, null);
-        String pass2 = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_PASS2, null);
-        String email = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_EMAIL, null);
-        String phone = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_PHONE, null);
-
-        String[] items = new String[]{phone, email, login, pass, pass2};
-        for(String item: items)
-            System.out.println(item);
-        System.out.println("----------------------------");
-    }
-
-    private void sendToBdPassport1(){
-        String family = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_FAMILY, null);
-        String name = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_NAME, null);
-        String patronymic = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_PATRONYMIC, null);
-        String date = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_DATE_OF_BIRTH, null);
-        String nationality = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_NATIONALITY, null);
-        String sex = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_SEX, null);
-        String imagePassport1 = Passport1Activity.sharedPreferences.getString(Passport1Activity.KEY_IMAGE_PASSPORT, null);
-
-        System.out.println(imagePassport1);
-        try {
-            Connection connection = new Database().connect();
-            PreparedStatement statement = connection.prepareStatement("UPDATE public.abit SET image_passport1=? WHERE login=?;");
-            statement.setString(2, "rylexium");
-            statement.setString(1, imagePassport1);
-            statement.execute();
-        }
-        catch (Exception ingored){}
-
-        String[] items = new String[]{family, name, patronymic, date, nationality, sex};
-        for(String item : items)
-            System.out.println(item);
-        System.out.println("----------------------------");
-    }
-
-    private void sendToBdPassport2(){
-        String passportSeries = Passport2Activity.sharedPreferences.getString(Passport2Activity.KEY_PASSPORT_SERIES, null);
-        String passportNumber = Passport2Activity.sharedPreferences.getString(Passport2Activity.KEY_PASSPORT_NUMBER, null);
-        String codeUnit = Passport2Activity.sharedPreferences.getString(Passport2Activity.KEY_CODE_UNIT, null);
-        String dateIssuing = Passport2Activity.sharedPreferences.getString(Passport2Activity.KEY_DATE_ISSUING, null);
-        String issuedBy = Passport2Activity.sharedPreferences.getString(Passport2Activity.KEY_ISSUED_BY, null);
-        String imagePassport2 = Passport2Activity.sharedPreferences.getString(Passport2Activity.KEY_IMAGE_PASSPORT, null);
-
-        String[] items = new String[]{passportSeries, passportNumber, codeUnit, dateIssuing, issuedBy};
-        for(String item : items)
-            System.out.println(item);
-        System.out.println("----------------------------");
-    }
-
-    private void sendToBdPassport3(){
-        String postIndexReg = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_POST_INDEX_REG, null);
-        String subjectReg = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_SUBJECT_REG, null);
-        String cityReg = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_CITY_REG, null);
-        String residenceStreetReg = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_RESIDENCE_STREET_REG, null);
-
-        String postIndexActual = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_POST_INDEX_ACTUAL, null);
-        String subjectActual = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_SUBJECT_ACTUAL, null);
-        String cityActual = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_CITY_ACTUAL, null);
-        String residenceStreetActual = Passport3Activity.sharedPreferences.getString(Passport3Activity.KEY_RESIDENCE_STREET_ACTUAL, null);
-
-        String[] items = new String[]{postIndexReg, subjectReg, cityReg, residenceStreetReg, postIndexActual, subjectActual, cityActual, residenceStreetActual};
-        for(String item : items)
-            System.out.println(item);
-        System.out.println("----------------------------");
-    }
-
-    private void sendToBdSnills(){
-        String snills = SnillsActivity.sharedPreferences.getString(SnillsActivity.KEY_SNILLS, null);
-        String imageSnills = SnillsActivity.sharedPreferences.getString(SnillsActivity.KEY_PHOTO_SNILLS, null);
-
-        String[] items = new String[]{snills};
-        for(String item : items)
-            System.out.println(item);
-
-        System.out.println("----------------------------");
-    }
-
-    private void sendToBdEducationDocument(){
-        String idEducation = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_ID_EDUCATION, null);
-        String registrationNumber = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_REGISTRATION_NUMBER, null);
-        String typeEducationPosition = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_TYPE_EDUCATION_POSITION, null);
-        String dateOfIssueOfEducation = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_DATE_OF_ISSUE_OF_EDUCATION, null);
-        String withHonors = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_WITH_HONORS, null);
-        String imageEducation1 = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_EDUCATION_PICTURE1, null);
-        String imageEducation2 = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_EDUCATION_PICTURE2, null);
-
-        String[] items = new String[]{idEducation, registrationNumber, typeEducationPosition, dateOfIssueOfEducation, withHonors};
-        for(String item : items)
-            System.out.println(item);
-    }
 
     private static StringBuilder generateSalt(){
         String alfavit = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ<,.>/?;:]}[{-=+*!1@2#3$4%5^6&78(9)0";

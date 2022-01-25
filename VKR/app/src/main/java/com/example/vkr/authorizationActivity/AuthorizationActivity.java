@@ -101,10 +101,10 @@ public class AuthorizationActivity extends AppCompatActivity {
                         }
                         //от sql-инъекций PreparedStatement
 
-                        PreparedStatement statementSalt = connection.prepareStatement("select salt1, salt2 from abit where login=?");
-                        statementSalt.setString(1, textBoxLogin.getText().toString());
-                        ResultSet resSalt = statementSalt.executeQuery();
-                        if(!resSalt.next()){ //ничего не пришло
+                        PreparedStatement statement = connection.prepareStatement("select login, password, salt1, salt2 from users where login=?");
+                        statement.setString(1, textBoxLogin.getText().toString());
+                        ResultSet res = statement.executeQuery();
+                        if(!res.next()){ //ничего не пришло
                             new Handler(Looper.getMainLooper()).post(() -> {
                                 Toast.makeText(AuthorizationActivity.this, "Неверный логин или пароль", Toast.LENGTH_SHORT).show();
                             });
@@ -115,15 +115,12 @@ public class AuthorizationActivity extends AppCompatActivity {
                         String hashPass = sha256(
                                 sha256(
                                         sha256(textBoxPassword.getText().toString()) // hash(123)
-                                                + resSalt.getString("salt1"))          // hash( hash(123) + salt1 )
-                                        + resSalt.getString("salt2"));                 // hash( hash( hash(123) + salt1 ) + salt2 )
+                                                + res.getString("salt1"))          // hash( hash(123) + salt1 )
+                                        + res.getString("salt2"));                 // hash( hash( hash(123) + salt1 ) + salt2 )
 
-                        PreparedStatement statement = connection.prepareStatement("SELECT login, password FROM abit WHERE login=? AND password=?");
 
-                        statement.setString(1, textBoxLogin.getText().toString());
-                        statement.setString(2, hashPass);
-                        ResultSet res = statement.executeQuery();
-                        if (res.next()) { //что-то пришло
+
+                        if (res.getString("password").equals(hashPass)) { //что-то пришло
                             new Handler(Looper.getMainLooper()).post(() -> { //в главном потоке что-то делаю
                                 Toast.makeText(AuthorizationActivity.this, "Успешно", Toast.LENGTH_SHORT).show();
                                 startActivity(new Intent(this, ExamsResultActivity.class));
@@ -133,11 +130,13 @@ public class AuthorizationActivity extends AppCompatActivity {
                                 Toast.makeText(AuthorizationActivity.this, "Неверный логин или пароль", Toast.LENGTH_SHORT).show();
                             });
                         }
-                    } catch (Exception e) {
-                        new Handler(Looper.getMainLooper()).post(() -> {
-                            Toast.makeText(AuthorizationActivity.this, "Что-то с сервером", Toast.LENGTH_SHORT).show();
-                        });
-                    }
+                        statement.close();
+                        connection.close();
+                        } catch (Exception e) {
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                Toast.makeText(AuthorizationActivity.this, "Что-то с сервером", Toast.LENGTH_SHORT).show();
+                            });
+                        }
                 });
                 threadConnectToBD.start();
                 saveLastState();

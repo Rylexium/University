@@ -22,19 +22,27 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.vkr.R;
+import com.example.vkr.connectDB.Database;
 import com.example.vkr.support_class.ConvertClass;
 import com.example.vkr.support_class.CorrectText;
 import com.example.vkr.support_class.HideKeyboardClass;
+import com.example.vkr.support_class.MySpinnerAdapter;
 import com.example.vkr.support_class.SelectDateClass;
 import com.example.vkr.support_class.SelectImageClass;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -56,6 +64,7 @@ public class EducationdocumentActivity extends AppCompatActivity {
     private static Bitmap bitmap1;
     private static Bitmap bitmap2;
     public static SharedPreferences sharedPreferences;
+    private static List<String> listRes;
 
     public static final String KEY_TYPE_EDUCATION_POSITION = "selected_position";
     public static final String KEY_ID_EDUCATION = "id_education";
@@ -89,6 +98,8 @@ public class EducationdocumentActivity extends AppCompatActivity {
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (getCurrentFocus() != null) {
             HideKeyboardClass.hideKeyboard(this);
+            LinearLayout ll = findViewById(R.id.education_document_layout);
+            ll.requestFocus();
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -242,28 +253,34 @@ public class EducationdocumentActivity extends AppCompatActivity {
 
         withHonors = findViewById(R.id.checkBox_with_honors);
 
-        dropDownList.setAdapter(new ArrayAdapter<String>(this, R.layout.spinner_item,
-                            Arrays.stream(getResources().getString(R.string.documents_of_education).split(";"))
-                                    .toArray(String[]::new)){
-                        @Override
-                        public boolean isEnabled(int position) {
-                            // Отключаем первый итем у спиннера
-                            // Делаем его как hint
-                            return position != 0;
-                        }
 
-                        @Override
-                        public View getDropDownView(int position, View convertView,
-                                                    ViewGroup parent) {
-                            View view = super.getDropDownView(position, convertView, parent);
-                            TextView tv = (TextView) view;
-                            if(position == 0)// Set the hint text color gray
-                                tv.setTextColor(Color.GRAY);
-                            else
-                                tv.setTextColor(Color.BLACK);
-                            return view;
+        nextButton.setEnabled(false);
+        if(listRes == null) new Thread(()->{
+                Connection connection = new Database().connect();
+                try {
+                    ResultSet res = connection.createStatement().executeQuery("select DISTINCT name from education");
+                    listRes = new ArrayList<>();
+                    listRes.add("Выберите образование");
+                    while(res.next())
+                        listRes.add(res.getString("name"));
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        dropDownList.setAdapter(new MySpinnerAdapter(this, R.layout.spinner_item, listRes));
+                        String restoredText = sharedPreferences.getString(KEY_TYPE_EDUCATION_POSITION, null);
+                        if(!TextUtils.isEmpty(restoredText)) {
+                            dropDownList.setSelection(Integer.parseInt(restoredText));
                         }
+                        nextButton.setEnabled(true);
                     });
+                    res.close();
+                    connection.close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
+                }
+            }).start();
+        else{
+            dropDownList.setAdapter(new MySpinnerAdapter(this, R.layout.spinner_item, listRes));
+            nextButton.setEnabled(true);
+        }
 
     }
 }
