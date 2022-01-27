@@ -24,6 +24,7 @@ import com.example.vkr.support_class.HideKeyboardClass;
 import com.example.vkr.support_class.SelectImageClass;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 public class SnillsActivity extends AppCompatActivity {
 
@@ -79,7 +80,7 @@ public class SnillsActivity extends AppCompatActivity {
         snills.addTextChangedListener(new CorrectText(snills, "###-###-### ##"));
 
         snills.setOnFocusChangeListener((view, isFocus) -> {
-            if(!isFocus && snills.getText().length() < 14) snills.setTextColor(Color.RED);
+            if(!isFocus && !isCorrectSnills(snills.getText().toString())) snills.setTextColor(Color.RED);
             else snills.setTextColor(ContextCompat.getColor(this, R.color.white));
         });
     }
@@ -93,7 +94,7 @@ public class SnillsActivity extends AppCompatActivity {
         if(!TextUtils.isEmpty(restoredText)) {
             imageSnills.setImageBitmap(ConvertClass.convertStringToBitmap(restoredText));
         }
-        snills.setTextColor(isCorrectSnills(snills.getText().toString())? Color.RED : ContextCompat.getColor(this, R.color.white));
+        snills.setTextColor(!isCorrectSnills(snills.getText().toString())? Color.RED : ContextCompat.getColor(this, R.color.white));
     }
 
     public static void clearComponents() {
@@ -132,7 +133,7 @@ public class SnillsActivity extends AppCompatActivity {
         }
     }
     public static boolean isCorrectSnills(String text){
-        return text.length() < 14;
+        return text.length() == 14 && Pattern.matches("^\\d{3}-\\d{3}-\\d{3} \\d{2}$", text);
     }
     private void initComponents(){
         snills = findViewById(R.id.textbox_snills);

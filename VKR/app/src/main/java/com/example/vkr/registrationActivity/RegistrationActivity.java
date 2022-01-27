@@ -9,6 +9,7 @@ import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -101,16 +102,16 @@ public class RegistrationActivity extends AppCompatActivity {
             saveLastState();
         });
 
-        phone.addTextChangedListener(new CorrectText(phone, "8-###-##-##-###"));
+        phone.addTextChangedListener(new CorrectText(phone, "8 (###) ##-##-###"));
 
 
         phone.setOnFocusChangeListener((view, isFocus) -> {
-            if(!isFocus && isCorrectPhone(phone.getText().toString())) phone.setTextColor(Color.RED);
+            if(!isFocus && !isCorrectPhone(phone.getText().toString())) phone.setTextColor(Color.RED);
             else phone.setTextColor(ContextCompat.getColor(this, R.color.white));
         });
 
         email.setOnFocusChangeListener((view, isFocus) -> {
-            if(!isFocus && isCorrectEmail(email.getText().toString())) email.setTextColor(Color.RED);
+            if(!isFocus && !isCorrectEmail(email.getText().toString())) email.setTextColor(Color.RED);
             else email.setTextColor(ContextCompat.getColor(this, R.color.white));
         });
 
@@ -140,8 +141,8 @@ public class RegistrationActivity extends AppCompatActivity {
         radioButton_isAgree.setChecked(isAgree);
 
 
-        phone.setTextColor(isCorrectPhone(phone.getText().toString())? Color.RED : ContextCompat.getColor(this, R.color.white));
-        email.setTextColor(isCorrectEmail(email.getText().toString())? Color.RED : ContextCompat.getColor(this, R.color.white));
+        phone.setTextColor(!isCorrectPhone(phone.getText().toString())? Color.RED : ContextCompat.getColor(this, R.color.white));
+        email.setTextColor(!isCorrectEmail(email.getText().toString())? Color.RED : ContextCompat.getColor(this, R.color.white));
         pass2.setTextColor(!pass.getText().toString().equals(pass2.getText().toString())? Color.RED : ContextCompat.getColor(this, R.color.white));
     }
     private void wrapper (String key, Consumer<String> editText) {
@@ -149,10 +150,10 @@ public class RegistrationActivity extends AppCompatActivity {
                 .ifPresent(editText);
     }
     public static boolean isCorrectPhone(String text){
-        return text.length() != 15 || !Pattern.matches("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}$", text);
+        return text.length() == 17 && Pattern.matches("^((8|\\+7)[\\- ]?)?(\\(?\\d{3}\\)?[\\- ]?)?[\\d\\- ]{7,10}", text);
     }
     public static boolean isCorrectEmail(String text){
-        return !Pattern.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", text);
+        return Pattern.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", text);
     }
     public static void clearComponents(){
         sharedPreferences.edit().clear().apply();

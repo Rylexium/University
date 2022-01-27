@@ -3,6 +3,7 @@ package com.example.vkr.support_class;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.widget.EditText;
 
 public class CorrectText implements TextWatcher {
