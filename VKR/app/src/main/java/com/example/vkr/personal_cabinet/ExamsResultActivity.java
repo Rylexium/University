@@ -1,9 +1,11 @@
 package com.example.vkr.personal_cabinet;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
@@ -12,9 +14,11 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -26,20 +30,21 @@ import com.example.vkr.R;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.support_class.ConvertClass;
 import com.example.vkr.support_class.HideKeyboardClass;
+import com.example.vkr.support_class.MySpinnerAdapter;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public class ExamsResultActivity extends AppCompatActivity {
 
     private LinearLayout examsLayout;
-    private SharedPreferences sharedPreferences;
-    private ImageView imageCabinetPassport1;
-
-    private final String KEY_NAME_EXAM   = "exam";
-    private final String KEY_POINTS_EXAM = "points";
+    private static List<String> exams;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,31 +55,43 @@ public class ExamsResultActivity extends AppCompatActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         initComponents();
         appleEvents();
-        comebackAfterOnBackPressed();
     }
 
-    @Override
-    public void onBackPressed(){
-        saveLastState();
-        super.onBackPressed();
-    }
-
-    private void comebackAfterOnBackPressed(){
-        String idSelectedExam = sharedPreferences.getString(KEY_NAME_EXAM + "0", null);
-        if(TextUtils.isEmpty(idSelectedExam)) return;
-        for(int i = 0; !TextUtils.isEmpty(idSelectedExam); i++){
-            idSelectedExam = sharedPreferences.getString(KEY_NAME_EXAM + i, null);
-            String pointsExam = sharedPreferences.getString(KEY_POINTS_EXAM + i, null);
-            onAddField(Integer.parseInt(idSelectedExam), pointsExam);
-            idSelectedExam = sharedPreferences.getString(KEY_NAME_EXAM + (i+1), null);
-        }
-    }
 
     public void onAddField(View v){
         LayoutInflater inflater=(LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View rowView=inflater.inflate(R.layout.field_for_exam, null);
         EditText pointsExam = rowView.findViewById(R.id.text_points_of_exam);
+        Spinner spinnerExams = rowView.findViewById(R.id.exam);
 
+        Spinner spinnerYear = rowView.findViewById(R.id.spinner_date_exam);
+        spinnerYear.setAdapter(new MySpinnerAdapter(this, R.layout.spinner_item, Arrays.asList(getResources().getStringArray(R.array.date_of_exams))));
+        spinnerYear.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position > 0) { //выбран какой
+                    TextView text = (TextView) view;
+                    Optional.ofNullable(text).ifPresent(e -> text.setTextColor(Color.BLACK));
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
+        spinnerExams.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position > 0) { //выбран какой
+                    TextView text = (TextView) view;
+                    Optional.ofNullable(text).ifPresent(e -> text.setTextColor(Color.BLACK));
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) { }
+        });
+
+        spinnerExams.setAdapter(new MySpinnerAdapter(this, R.layout.spinner_item, exams));
         pointsExam.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
@@ -94,35 +111,6 @@ public class ExamsResultActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) { }
         });
-        examsLayout.addView(rowView, examsLayout.getChildCount() - 1);
-    }
-    private void onAddField(int selectedItem, String points){
-        LayoutInflater inflater= (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final View rowView=inflater.inflate(R.layout.field_for_exam, null);
-        Spinner nameExam = rowView.findViewById(R.id.exam);
-        EditText pointsExam = rowView.findViewById(R.id.text_points_of_exam);
-
-        pointsExam.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                try {
-                    if (Integer.parseInt(charSequence.toString()) < 0)
-                        pointsExam.setText("0");
-                    else if (Integer.parseInt(charSequence.toString()) > 100) {
-                        pointsExam.setText("100");
-                        pointsExam.setSelection(3);
-                    }
-                } catch (Exception ignored){}
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) { }
-        });
-        nameExam.setSelection(selectedItem);
-        pointsExam.setText(points);
         examsLayout.addView(rowView, examsLayout.getChildCount() - 1);
     }
     public void onDelete(View v) {
@@ -140,48 +128,84 @@ public class ExamsResultActivity extends AppCompatActivity {
 
     private void appleEvents(){
         findViewById(R.id.button_next_to_lk).setOnClickListener(view -> {
-            if(examsLayout.getChildCount() > 3)
-                startActivity(new Intent(ExamsResultActivity.this, PersonalCabinetActivity.class));
+            if(examsLayout.getChildCount() > 3){
+                if(isCorrectData()){
+                    new Thread(()->{
+                        Connection connection = new Database().connect();
+                        String resQuery = "";
+                        for(int i=0; i<examsLayout.getChildCount() - 1; ++i){
+                            Spinner exam = examsLayout.getChildAt(i).findViewById(R.id.exam);
+                            Spinner year = examsLayout.getChildAt(i).findViewById(R.id.spinner_date_exam);
+                            EditText points = examsLayout.getChildAt(i).findViewById(R.id.text_points_of_exam);
+                            resQuery += String.format("INSERT INTO public.abit_exams(\n" +
+                                                    "\tid_abit, id_exam, points, year)\n" +
+                                                    "\tVALUES (%s, %d, %s, %s);\n",
+                                                    getIntent().getStringExtra("id_abit"),
+                                                    exam.getSelectedItemPosition(),
+                                                    points.getText().toString(),
+                                                    year.getSelectedItem().toString());
+                        }
+                        try {
+                            connection.createStatement().execute(resQuery);
+                            connection.createStatement().execute("UPDATE public.users\n" +
+                                    "\tSET is_entry=true\n" +
+                                    "\tWHERE id_abit=" + getIntent().getStringExtra("id_abit"));
+                            connection.close();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }).start();
+                    finish();
+                    startActivity(new Intent(ExamsResultActivity.this, PersonalCabinetActivity.class)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
+                }
+            }
             else
                 Toast.makeText(this, "Экзаменов не может быть меньше 3", Toast.LENGTH_SHORT).show();
         });
     }
 
-    private void saveLastState(){
-        sharedPreferences.edit().clear().apply();
-        for(int i=0; i<examsLayout.getChildCount() - 1; i++){
-            Spinner nameExam = examsLayout.getChildAt(i).findViewById(R.id.exam);
-            EditText pointsExam = examsLayout.getChildAt(i).findViewById(R.id.text_points_of_exam);
-            sharedPreferences.edit()
-                    .putString(KEY_NAME_EXAM + i,   String.valueOf(nameExam.getSelectedItemPosition()))
-                    .putString(KEY_POINTS_EXAM + i, pointsExam.getText().toString())
-                    .apply();
+    private boolean isCorrectData(){
+        for(int i=0; i<examsLayout.getChildCount() - 1; ++i){
+            Spinner exam = examsLayout.getChildAt(i).findViewById(R.id.exam);
+            Spinner year = examsLayout.getChildAt(i).findViewById(R.id.spinner_date_exam);
+            EditText points = examsLayout.getChildAt(i).findViewById(R.id.text_points_of_exam);
+            if(exam.getSelectedItemPosition() == 0 //проверка на пустоту полей
+                    || year.getSelectedItemPosition() == 0
+                    || points.getText().toString().equals("")){
+                Toast.makeText(this, "Есть пустые поля", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+            else{
+                for(int j=i+1; j<examsLayout.getChildCount() - 1; ++j){
+                    Spinner exam1 = examsLayout.getChildAt(j).findViewById(R.id.exam);
+                    if(exam.getSelectedItemPosition() == exam1.getSelectedItemPosition()){
+                        Toast.makeText(this, "Одинаковые экзамены не могут быть", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                }
+            }
+
         }
+        return true;
     }
 
     private void initComponents(){
         examsLayout = findViewById(R.id.exams_layout);
-        sharedPreferences = getPreferences(MODE_PRIVATE);
-        imageCabinetPassport1 = findViewById(R.id.image_cabinet_passport1);
         new Thread(()->{
-            Connection connection = new Database().connect();
-            PreparedStatement statement = null;
+            Connection connect = new Database().connect();
             try {
-                statement = connection.prepareStatement("select image_passport1 from abit where login=?");
-                statement.setString(1, "rylexium");
-                ResultSet picture = statement.executeQuery();
-                if(picture.next()){
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        try {
-                            imageCabinetPassport1.setImageBitmap(ConvertClass.convertStringToBitmap(picture.getString("image_passport1")));
-                        } catch (SQLException throwables) {
-                            throwables.printStackTrace();
-                        }
-                    });
+                exams = new ArrayList<>();
+                exams.add("Выберите экзамен");
+                ResultSet res = connect.createStatement().executeQuery("select name from exams where id<12");
+                while (res.next()){
+                    exams.add(res.getString("name"));
                 }
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }).start();
     }
+
+
 }

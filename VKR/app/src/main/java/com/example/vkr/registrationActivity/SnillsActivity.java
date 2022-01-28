@@ -11,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.MotionEvent;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -73,7 +72,7 @@ public class SnillsActivity extends AppCompatActivity {
         previousButton.setOnClickListener(view -> onBackPressed());
         nextButton.setOnClickListener(view -> {
             saveLastState();
-            startActivity(new Intent(SnillsActivity.this, EducationdocumentActivity.class));
+            startActivity(new Intent(SnillsActivity.this, EducationDocumentActivity.class));
         });
         buttonMakePhoto.setOnClickListener(view -> SelectImageClass.showMenu(this, false));
 

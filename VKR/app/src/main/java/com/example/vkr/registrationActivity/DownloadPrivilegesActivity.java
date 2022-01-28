@@ -30,13 +30,10 @@ import com.example.vkr.support_class.HideKeyboardClass;
 import com.example.vkr.support_class.SelectImageClass;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -134,13 +131,13 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
 
             String imageSnills = SnillsActivity.sharedPreferences.getString(SnillsActivity.KEY_PHOTO_SNILLS, null);
 
-            String typeEducationPosition = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_TYPE_EDUCATION_POSITION, null);
-            String idEducation = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_ID_EDUCATION, null);
-            String registrationNumber = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_REGISTRATION_NUMBER, null);
-            String dateOfIssueOfEducation = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_DATE_OF_ISSUE_OF_EDUCATION, null);
-            String withHonors = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_WITH_HONORS, null);
-            String imageEducation1 = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_EDUCATION_PICTURE1, null);
-            String imageEducation2 = EducationdocumentActivity.sharedPreferences.getString(EducationdocumentActivity.KEY_EDUCATION_PICTURE2, null);
+            String typeEducationPosition = EducationDocumentActivity.sharedPreferences.getString(EducationDocumentActivity.KEY_TYPE_EDUCATION_POSITION, null);
+            String idEducation = EducationDocumentActivity.sharedPreferences.getString(EducationDocumentActivity.KEY_ID_EDUCATION, null);
+            String registrationNumber = EducationDocumentActivity.sharedPreferences.getString(EducationDocumentActivity.KEY_REGISTRATION_NUMBER, null);
+            String dateOfIssueOfEducation = EducationDocumentActivity.sharedPreferences.getString(EducationDocumentActivity.KEY_DATE_OF_ISSUE_OF_EDUCATION, null);
+            String withHonors = EducationDocumentActivity.sharedPreferences.getString(EducationDocumentActivity.KEY_WITH_HONORS, null);
+            String imageEducation1 = EducationDocumentActivity.sharedPreferences.getString(EducationDocumentActivity.KEY_EDUCATION_PICTURE1, null);
+            String imageEducation2 = EducationDocumentActivity.sharedPreferences.getString(EducationDocumentActivity.KEY_EDUCATION_PICTURE2, null);
             if(family.equals("") || name.equals("") || patronymic.equals("") || dateIssingBirthday.equals("")
                     || sex.equals("Пол:") || nationality.equals("0") || nationality.equals("-1")
                     || passportSeries.equals("") || passportNumber.equals("") || codeUnit.equals("")

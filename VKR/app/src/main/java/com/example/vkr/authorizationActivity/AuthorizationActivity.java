@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.example.vkr.R;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.personal_cabinet.ExamsResultActivity;
+import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
 import com.example.vkr.registrationActivity.RegistrationActivity;
 import com.example.vkr.registrationActivity.SnillsActivity;
 import com.example.vkr.support_class.HideKeyboardClass;
@@ -27,6 +28,7 @@ import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 public class AuthorizationActivity extends AppCompatActivity {
@@ -101,13 +103,16 @@ public class AuthorizationActivity extends AppCompatActivity {
                         }
                         //от sql-инъекций PreparedStatement
 
-                        PreparedStatement statement = connection.prepareStatement("select login, password, salt1, salt2 from users where login=?");
+                        PreparedStatement statement = connection.prepareStatement("select * from users where login=?");
                         statement.setString(1, textBoxLogin.getText().toString());
                         ResultSet res = statement.executeQuery();
                         if(!res.next()){ //ничего не пришло
                             new Handler(Looper.getMainLooper()).post(() -> {
                                 Toast.makeText(AuthorizationActivity.this, "Неверный логин или пароль", Toast.LENGTH_SHORT).show();
                             });
+                            res.close();
+                            statement.close();
+                            connection.close();
                             return;
                         }
 
@@ -121,10 +126,20 @@ public class AuthorizationActivity extends AppCompatActivity {
 
 
                         if (res.getString("password").equals(hashPass)) { //что-то пришло
-                            new Handler(Looper.getMainLooper()).post(() -> { //в главном потоке что-то делаю
-                                Toast.makeText(AuthorizationActivity.this, "Успешно", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(this, ExamsResultActivity.class));
-                            });
+                            if(res.getString("is_entry").equals("t")){
+                                new Handler(Looper.getMainLooper()).post(() -> {
+                                    Toast.makeText(AuthorizationActivity.this, "Успешно", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(this, PersonalCabinetActivity.class));
+                                });
+                            }
+                            else {
+                                String id_abit = res.getString("id_abit");
+                                new Handler(Looper.getMainLooper()).post(() -> { //в главном потоке что-то делаю
+                                    Toast.makeText(AuthorizationActivity.this, "Успешно", Toast.LENGTH_SHORT).show();
+                                    startActivity(new Intent(this, ExamsResultActivity.class)
+                                            .putExtra("id_abit", id_abit));
+                                });
+                            }
                         } else {
                             new Handler(Looper.getMainLooper()).post(() -> {
                                 Toast.makeText(AuthorizationActivity.this, "Неверный логин или пароль", Toast.LENGTH_SHORT).show();
@@ -132,11 +147,12 @@ public class AuthorizationActivity extends AppCompatActivity {
                         }
                         statement.close();
                         connection.close();
-                        } catch (Exception e) {
-                            new Handler(Looper.getMainLooper()).post(() -> {
-                                Toast.makeText(AuthorizationActivity.this, "Что-то с сервером", Toast.LENGTH_SHORT).show();
-                            });
-                        }
+                    }
+                    catch (Exception e) {
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            Toast.makeText(AuthorizationActivity.this, "Что-то с сервером", Toast.LENGTH_SHORT).show();
+                        });
+                    }
                 });
                 threadConnectToBD.start();
                 saveLastState();
