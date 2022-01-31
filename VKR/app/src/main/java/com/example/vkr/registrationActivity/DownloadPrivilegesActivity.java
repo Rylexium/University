@@ -271,7 +271,8 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
                     Toast.makeText(this, "Регистрация произошла успешна!!!", Toast.LENGTH_SHORT).show();
                     finish();
                     RegistrationActivity.clearComponents();
-                    startActivity(new Intent(this, AuthorizationActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
+                    startActivity(new Intent(this, AuthorizationActivity.class)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
                 });
             }).start();
 

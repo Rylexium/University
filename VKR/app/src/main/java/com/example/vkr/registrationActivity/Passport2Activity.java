@@ -125,7 +125,7 @@ public class Passport2Activity extends AppCompatActivity {
 
 
         passport_series.setOnFocusChangeListener((view, isFocus) -> {
-            if(!isFocus && passport_series.getText().length() < 6)
+            if(!isFocus && passport_series.getText().length() < 5)
                 passport_series.setTextColor(Color.RED);
             else passport_series.setTextColor(ContextCompat.getColor(this, R.color.white));
         });

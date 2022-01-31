@@ -17,10 +17,9 @@ import android.widget.Toast;
 
 import com.example.vkr.R;
 import com.example.vkr.connectDB.Database;
-import com.example.vkr.personal_cabinet.ExamsResultActivity;
+import com.example.vkr.registrationActivity.ExamsResultActivity;
 import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
 import com.example.vkr.registrationActivity.RegistrationActivity;
-import com.example.vkr.registrationActivity.SnillsActivity;
 import com.example.vkr.support_class.HideKeyboardClass;
 
 import java.nio.charset.StandardCharsets;
@@ -28,8 +27,6 @@ import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 public class AuthorizationActivity extends AppCompatActivity {
     private AutoCompleteTextView textBoxLogin;
@@ -126,10 +123,11 @@ public class AuthorizationActivity extends AppCompatActivity {
 
 
                         if (res.getString("password").equals(hashPass)) { //что-то пришло
-                            if(res.getString("is_entry").equals("t")){
+                            if(res.getString("is_entry") != null && res.getString("is_entry").equals("t")){
                                 new Handler(Looper.getMainLooper()).post(() -> {
                                     Toast.makeText(AuthorizationActivity.this, "Успешно", Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(this, PersonalCabinetActivity.class));
+                                    startActivity(new Intent(this, PersonalCabinetActivity.class)
+                                            .putExtra("login", textBoxLogin.getText().toString()));
                                 });
                             }
                             else {
@@ -149,6 +147,7 @@ public class AuthorizationActivity extends AppCompatActivity {
                         connection.close();
                     }
                     catch (Exception e) {
+                        e.printStackTrace();
                         new Handler(Looper.getMainLooper()).post(() -> {
                             Toast.makeText(AuthorizationActivity.this, "Что-то с сервером", Toast.LENGTH_SHORT).show();
                         });
