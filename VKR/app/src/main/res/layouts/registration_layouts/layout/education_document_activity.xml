@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/blue_200"
     android:fillViewport="true"
-    tools:context=".registrationActivity.EducationdocumentActivity">
+    tools:context=".registrationActivity.EducationDocumentActivity">
 
     <LinearLayout
         android:id="@+id/education_document_layout"
@@ -17,6 +17,7 @@
         android:layout_marginStart="9dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="9dp"
+        android:focusable="true"
         android:focusableInTouchMode="true"
         android:gravity="center"
         >
@@ -139,13 +140,13 @@
             android:id="@+id/education_document1"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:src="@drawable/attestat" />
+            />
 
         <ImageView
             android:id="@+id/education_document2"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:src="@drawable/grade_attestat"/>
+            />
 
          <LinearLayout
             android:layout_width="match_parent"

@@ -24,8 +24,7 @@
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="4.5"
-            android:background="@color/white"
-            android:entries="@array/exams"/>
+            android:background="@color/white" />
 
         <EditText
             android:id="@+id/text_points_of_exam"

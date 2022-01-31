@@ -15,6 +15,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:focusable="true"
         android:focusableInTouchMode="true" >
 
         <Button
@@ -142,33 +143,6 @@
             </android.support.design.widget.TextInputLayout>
 
         </LinearLayout>
-
-        <android.support.design.widget.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="9dp"
-            android:layout_marginRight="9dp"
-            android:hint="Место рождения"
-            android:textColorHint="@color/grey"
-            app:boxStrokeColor="@color/blue_700"
-            app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout"
-            >
-
-            <AutoCompleteTextView
-                android:textCursorDrawable="@drawable/cursor_black"
-                android:textColorHighlight="@color/blue_700"
-                android:id="@+id/textbox_issued_by"
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:digits="@string/alfavit_for_name"
-                android:gravity="left"
-                android:inputType="textPersonName"
-                android:maxLength="128"
-                android:textColor="@color/white"
-                tools:ignore="TouchTargetSizeCheck" />
-        </android.support.design.widget.TextInputLayout>
-
 
         <LinearLayout
             xmlns:android="http://schemas.android.com/apk/res/android"

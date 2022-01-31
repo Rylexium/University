@@ -97,22 +97,7 @@
     <string name="reg_step_7">7/8</string>
     <string name="reg_step_8">8/8</string>
 
-    <string name="documents_of_education">
-        Выберите документ об образовании;
-        Аттестат;
-        Диплом бакалавра;
-        Диплом специалиста;
-        Диплом магистра;
-    </string>
 
-    <string name="nationality">
-        Гражданство;
-        Россия;
-        Украина;
-        Белоруссия;
-        Индия;
-        Франция;
-    </string>
     <string name="title_activity_personal_cabinet">PersonalCabinetActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

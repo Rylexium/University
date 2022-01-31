@@ -8,18 +8,50 @@
     <fragment
         android:id="@+id/nav_home"
         android:name="com.example.vkr.personal_cabinet.ui.home.HomeFragment"
-        android:label="@string/menu_home"
+        android:label="Главная"
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/nav_gallery"
-        android:name="com.example.vkr.personal_cabinet.ui.gallery.GalleryFragment"
-        android:label="@string/menu_gallery"
-        tools:layout="@layout/fragment_gallery" />
+        android:id="@+id/nav_education"
+        android:name="com.example.vkr.personal_cabinet.ui.education.EducationFragment"
+        android:label="Образование"
+        tools:layout="@layout/fragment_education" />
 
     <fragment
-        android:id="@+id/nav_slideshow"
-        android:name="com.example.vkr.personal_cabinet.ui.slideshow.SlideshowFragment"
-        android:label="@string/menu_slideshow"
-        tools:layout="@layout/fragment_slideshow" />
+        android:id="@+id/nav_egu"
+        android:name="com.example.vkr.personal_cabinet.ui.result_egu.ResultEguFragment"
+        android:label="Результаты ЕГЭ"
+        tools:layout="@layout/fragment_result_egu" />
+
+    <fragment
+        android:id="@+id/nav_achievement"
+        android:name="com.example.vkr.personal_cabinet.ui.achievements.AchievementsFragment"
+        android:label="Достижения"
+        tools:layout="@layout/fragment_achievements" />
+
+    <fragment
+        android:id="@+id/nav_speciality"
+        android:name="com.example.vkr.personal_cabinet.ui.speciality.SpecialityFragment"
+        android:label="Направления подготовки"
+        tools:layout="@layout/fragment_speciality" />
+
+    <fragment
+        android:id="@+id/nav_statement"
+        android:name="com.example.vkr.personal_cabinet.ui.statement.StatementFragment"
+        android:label="Образование"
+        tools:layout="@layout/fragment_statement" />
+
+    <fragment
+        android:id="@+id/nav_agreement"
+        android:name="com.example.vkr.personal_cabinet.ui.agreement.AgreementFragment"
+        android:label="Образование"
+        tools:layout="@layout/fragment_agreement" />
+
+    <fragment
+        android:id="@+id/nav_exit"
+        android:name="com.example.vkr.personal_cabinet.ui.logout.LogoutFragment"
+        android:label="Выйти"
+        tools:layout="@layout/fragment_logout" >
+    </fragment>
+
 </navigation>
