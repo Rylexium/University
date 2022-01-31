@@ -1,10 +1,14 @@
 package com.example.vkr.personal_cabinet;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.support.design.widget.Snackbar;
@@ -40,7 +44,6 @@ public class PersonalCabinetActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         binding = PersonalCabinetActivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -97,21 +100,21 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                         })
                 .setNegativeButton("Нет", (dialog, which) -> {
                     dialog.dismiss();
-                    navigationView.getMenu().findItem(R.id.nav_home).setChecked(true);
                 })
+                .setOnDismissListener(dialogInterface -> navigationView.getMenu().findItem(R.id.nav_home).setChecked(true))
                 .create()
                 .show();
     }
 
     private void initComponents(){
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.getMenu().findItem(R.id.nav_exit).setOnMenuItemClickListener(menuItem -> {
             onBackPressed();
             return true;
         });
         View headerView = navigationView.getHeaderView(0);
-        fio = (TextView) headerView.findViewById(R.id.header_textView_FIO);
-        emailPhone = (TextView) headerView.findViewById(R.id.header_textView_email_phone);
+        fio = headerView.findViewById(R.id.header_textView_FIO);
+        emailPhone = headerView.findViewById(R.id.header_textView_email_phone);
 
         new Thread(()->{
             Connection connect = new Database().connect();
