@@ -115,7 +115,8 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                                             "(select name from sex where id=abit.sex) as sex, \n" +
                                             "(select name from nationality where id=abit.id_nationality) as nationality, \n" +
                                             "passport, departament_code, date_of_issing_passport, const_address, actual_address, \n" +
-                                            "id_education, number_education, reg_number_education, date_of_issing_education, date_of_birthday\n" +
+                                            "(select name from education where id=id_education) as id_education, \n" +
+                                            "number_education, reg_number_education, date_of_issing_education, date_of_birthday\n" +
                                             "\tFROM abit, users where id_abit=id and login=?");
                 statement.setString(1, getIntent().getStringExtra("login"));
                 ResultSet res = statement.executeQuery();
@@ -131,14 +132,33 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                     String sex = res.getString("sex");
                     String passport = res.getString("passport");
                     String nationality = res.getString("nationality");
+                    String departament_code = res.getString("departament_code");
+                    String date_of_issing_passport = res.getString("date_of_issing_passport");
+                    String const_address = res.getString("const_address");
+                    String actual_address = res.getString("actual_address");
+                    String id_education = res.getString("id_education");
+                    String number_education = res.getString("number_education");
+                    String reg_number_education = res.getString("reg_number_education");
+                    String date_of_issing_education = res.getString("date_of_issing_education");
+                    String date_of_birthday = res.getString("date_of_birthday");
+
                     new Handler(Looper.getMainLooper()).post(() -> {
                                 fio.setText(resFio);
                                 emailPhone.setText(resEmailPhone);
-                                HomeFragment.homeViewModel.setTextLogin(getIntent().getStringExtra("login"));
-                                HomeFragment.homeViewModel.setTextSnills(sniils);
-                                HomeFragment.homeViewModel.setTextSex(sex);
-                                HomeFragment.homeViewModel.setTextNationality(nationality);
-                                HomeFragment.homeViewModel.setTextPassport(passport);
+                                HomeFragment.getHomeViewModel().setTextLogin(getIntent().getStringExtra("login"));
+                                HomeFragment.getHomeViewModel().setTextSnills(sniils);
+                                HomeFragment.getHomeViewModel().setTextSex(sex);
+                                HomeFragment.getHomeViewModel().setTextNationality(nationality);
+                                HomeFragment.getHomeViewModel().setTextPassport(passport);
+                                HomeFragment.getHomeViewModel().setDepartamentCode(departament_code);
+                                HomeFragment.getHomeViewModel().setDateOfIssingEducation(date_of_issing_education);
+                                HomeFragment.getHomeViewModel().setDateOfIssingPassport(date_of_issing_passport);
+                                HomeFragment.getHomeViewModel().setConstAddress(const_address);
+                                HomeFragment.getHomeViewModel().setActualAddress(actual_address);
+                                HomeFragment.getHomeViewModel().setIdEducation(id_education);
+                                HomeFragment.getHomeViewModel().setNumberEducation(number_education);
+                                HomeFragment.getHomeViewModel().setRegNumberEducation(reg_number_education);
+                                HomeFragment.getHomeViewModel().setDateOfBirthday(date_of_birthday);
                             });
                 }
                 res.close();
