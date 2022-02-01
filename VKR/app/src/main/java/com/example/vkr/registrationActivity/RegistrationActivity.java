@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 
+import com.example.vkr.support_class.ConvertClass;
 import com.example.vkr.support_class.HideKeyboardClass;
 import com.example.vkr.R;
 import com.example.vkr.support_class.CorrectText;
@@ -155,7 +156,8 @@ public class RegistrationActivity extends AppCompatActivity {
         email = findViewById(R.id.textbox_email);
 
         nextButton = findViewById(R.id.button1);
-
+        nextButton.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_next_btn, 100, 100)));
         radioButton_isAgree = findViewById(R.id.radioButton_isAgree);
 
         sharedPreferences = getPreferences(MODE_PRIVATE);

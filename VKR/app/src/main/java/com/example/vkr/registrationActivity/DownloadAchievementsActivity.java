@@ -134,6 +134,11 @@ public class DownloadAchievementsActivity extends AppCompatActivity {
         buttonPrevious = findViewById(R.id.button_achievements_previous);
         buttonAddAchievements = findViewById(R.id.button_add_achievements);
 
+        buttonPrevious.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_previous_btn, 100, 100)));
+        buttonNext.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_next_btn, 100, 100)));
+
         layoutForImagesAchievements = findViewById(R.id.layout_for_images_achievements);
 
         sharedPreferences = getPreferences(MODE_PRIVATE);

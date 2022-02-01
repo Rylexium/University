@@ -203,7 +203,14 @@ public class Passport2Activity extends AppCompatActivity {
         sharedPreferences = getPreferences(MODE_PRIVATE);
 
         buttonPrevious = findViewById(R.id.button7);
+
+        buttonPrevious.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_previous_btn, 100, 100)));
+
         buttonNext = findViewById(R.id.button3);
+        buttonNext.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_next_btn, 100, 100)));
+
         buttonPhoto = findViewById(R.id.button10);
 
         layoutForImagePassport2 = findViewById(R.id.layout_for_image_passport2);

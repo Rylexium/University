@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -138,143 +139,146 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
             String withHonors = EducationDocumentActivity.sharedPreferences.getString(EducationDocumentActivity.KEY_WITH_HONORS, null);
             String imageEducation1 = EducationDocumentActivity.sharedPreferences.getString(EducationDocumentActivity.KEY_EDUCATION_PICTURE1, null);
             String imageEducation2 = EducationDocumentActivity.sharedPreferences.getString(EducationDocumentActivity.KEY_EDUCATION_PICTURE2, null);
-            if(family.equals("") || name.equals("") || patronymic.equals("") || dateIssingBirthday.equals("")
-                    || sex.equals("Пол:") || nationality.equals("0") || nationality.equals("-1")
-                    || passportSeries.equals("") || passportNumber.equals("") || codeUnit.equals("")
-                    || dateIssuingPassport.equals("") || idEducation.equals("")){
-                Toast.makeText(this, "Введите данные в пустые поля", Toast.LENGTH_SHORT).show();
-                return;
-            }
 
-
-            new Thread(()->{
-
-                Connection connection = new Database().connect();
-                try {
-                    PreparedStatement statement = connection.prepareStatement("SELECT id, phone, email, passport, number_education, login\n" +
-                            "\tFROM abit, users where id_abit=id;");
-                    ResultSet res = statement.executeQuery();
-                    while(res.next()){
-                        if(phone.replace("-", "").equals(res.getString("phone"))){
-                            showToast("Такой телефон уже существует");
-                            return;
-                        }
-                        else if(email.equals(res.getString("email"))){
-                            showToast("Такой email уже существует");
-                            return;
-                        }
-                        else if(login.equals(res.getString("login"))){
-                            showToast("Такой логин уже существует");
-                            return;
-                        }
-                        else if(Long.parseLong(passportNumber + passportSeries.replace(" ", "")) == res.getLong("passport")){
-                            showToast("Такой паспорт уже существует");
-                            return;
-                        }
-                        else if(snills.replace(" ", "").replace("-", "").equals(res.getString("id"))){
-                            showToast("Такой СНИЛС уже существует");
-                            return;
-                        }
-                        else if(Long.parseLong(idEducation.replace(" ", "")) == res.getLong("number_education")){
-                            showToast("Такой номер документа уже существует");
-                            return;
-                        }
-                    }
-                    statement.close();
-
-                    new Thread(()->{
-                        try {
-                            PreparedStatement insertToAbit = connection.prepareStatement("INSERT INTO public.abit(\n" +
-                                    "\tid, phone, email, " +
-                                    "family, name, patronymic, sex, " +
-                                    "id_nationality, passport, departament_code, date_of_issing_passport, " +
-                                    "const_address, actual_address, " +
-                                    "id_education, number_education, reg_number_education, date_of_issing_education, " +
-                                    "date_of_birthday)\n" +
-                                    "\tVALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-                            insertToAbit.setLong(1, Long.parseLong(snills.replace(" ", "").replace("-", "")));
-                            insertToAbit.setString(2, phone.replace("-", ""));
-                            insertToAbit.setString(3, email);
-
-                            insertToAbit.setString(4, family);
-                            insertToAbit.setString(5, name);
-                            insertToAbit.setString(6, patronymic);
-                            insertToAbit.setBoolean(7, sex.equals("Пол: Мужской"));
-
-                            insertToAbit.setInt(8, Integer.parseInt(nationality));
-                            insertToAbit.setLong(9, Long.parseLong(passportNumber + passportSeries.replace(" ", "")));
-                            insertToAbit.setInt(10, Integer.parseInt(codeUnit.replace("-", "")));
-                            insertToAbit.setDate(11, new java.sql.Date(new SimpleDateFormat("dd.MM.yyyy").parse(dateIssuingPassport).getTime()));
-
-                            insertToAbit.setString(12, postIndexReg + ", " + subjectReg + ", " + cityReg + ", " + residenceStreetReg);
-                            insertToAbit.setString(13, postIndexActual + ", " + subjectActual + ", " + cityActual + ", " + residenceStreetActual);
-
-                            insertToAbit.setInt(14, Integer.parseInt(typeEducationPosition) +  (withHonors.equals("true") ? 1 : 0) );
-                            insertToAbit.setLong(15, Long.parseLong(idEducation.replace(" ", "")));
-                            insertToAbit.setLong(16, Long.parseLong(registrationNumber.equals("")? "0" : registrationNumber.replace("-", "")));
-                            insertToAbit.setDate(17, new java.sql.Date(new SimpleDateFormat("dd.MM.yyyy").parse(dateOfIssueOfEducation).getTime()));
-
-                            insertToAbit.setDate(18, new java.sql.Date(new SimpleDateFormat("dd.MM.yyyy").parse(dateIssingBirthday).getTime()));
-
-                            insertToAbit.execute();
-                            insertToAbit.close();
-                        } catch (SQLException | ParseException e) {
-                            showToast("Что-то пошло не так, проверьте корректность введённых данных");
-                        }
-                    }).start();
-
-                    new Thread(()->{
-                        try {
-                            PreparedStatement insertToUsers = connection.prepareStatement("INSERT INTO public.users(\n" +
-                                    "\tlogin, password, salt1, salt2, id_abit, is_entry)\n" +
-                                    "\tVALUES (?, ?, ?, ?, ?, false);");
-                            insertToUsers.setString(1, login);
-                            String salt1 = generateSalt().toString();
-                            String salt2 = generateSalt().toString();
-                            insertToUsers.setString(2, sha256(sha256(   sha256(pass) + salt1)+ salt2));
-                            insertToUsers.setString(3, salt1);
-                            insertToUsers.setString(4, salt2);
-                            insertToUsers.setLong(5, Long.parseLong(snills.replace("-", "").replace(" ", "")));
-
-                            insertToUsers.execute();
-                            insertToUsers.close();
-                        } catch (SQLException throwables) {
-                            throwables.printStackTrace();
-                        }
-                    }).start();
-
-                    //Прописать загрузку фотографий
-                    new Thread(()->{
-                        try{
-                            PreparedStatement insertToAbitPassport = connection.prepareStatement("INSERT INTO public.abit_passport(\n" +
-                                    "\tid_abit, passport1, passport2, snills)\n" +
-                                    "\tVALUES (?, ?, ?, ?);");
-                            insertToAbitPassport.setLong(1, Long.parseLong(snills.replace("-", "").replace(" ", "")));
-                            insertToAbitPassport.setString(2, imagePassport1);
-                            insertToAbitPassport.setString(3, imagePassport2);
-                            insertToAbitPassport.setString(4, imageSnills);
-
-                            insertToAbitPassport.execute();
-                            insertToAbitPassport.close();
-                        }
-                        catch (SQLException e){
-                            showToast("Что-то пошло не так, проверьте корректность введённых данных");
-                        }
-                    }).start();
-
-
-                    connection.close();
-                } catch (SQLException e) {
-                    showToast("Что-то пошло не так, проверьте корректность введённых данных");
-                }
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    Toast.makeText(this, "Регистрация произошла успешна!!!", Toast.LENGTH_SHORT).show();
-                    finish();
-                    RegistrationActivity.clearComponents();
-                    startActivity(new Intent(this, AuthorizationActivity.class)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
-                });
-            }).start();
+            Log.e("", typeEducationPosition + " " + withHonors);
+            return;
+//            if(family.equals("") || name.equals("") || patronymic.equals("") || dateIssingBirthday.equals("")
+//                    || sex.equals("Пол:") || nationality.equals("0") || nationality.equals("-1")
+//                    || passportSeries.equals("") || passportNumber.equals("") || codeUnit.equals("")
+//                    || dateIssuingPassport.equals("") || idEducation.equals("")){
+//                Toast.makeText(this, "Введите данные в пустые поля", Toast.LENGTH_SHORT).show();
+//                return;
+//            }
+//
+//
+//            new Thread(()->{
+//
+//                Connection connection = new Database().connect();
+//                try {
+//                    PreparedStatement statement = connection.prepareStatement("SELECT id, phone, email, passport, number_education, login\n" +
+//                            "\tFROM abit, users where id_abit=id;");
+//                    ResultSet res = statement.executeQuery();
+//                    while(res.next()){
+//                        if(phone.replace("-", "").equals(res.getString("phone"))){
+//                            showToast("Такой телефон уже существует");
+//                            return;
+//                        }
+//                        else if(email.equals(res.getString("email"))){
+//                            showToast("Такой email уже существует");
+//                            return;
+//                        }
+//                        else if(login.equals(res.getString("login"))){
+//                            showToast("Такой логин уже существует");
+//                            return;
+//                        }
+//                        else if(Long.parseLong(passportNumber + passportSeries.replace(" ", "")) == res.getLong("passport")){
+//                            showToast("Такой паспорт уже существует");
+//                            return;
+//                        }
+//                        else if(snills.replace(" ", "").replace("-", "").equals(res.getString("id"))){
+//                            showToast("Такой СНИЛС уже существует");
+//                            return;
+//                        }
+//                        else if(Long.parseLong(idEducation.replace(" ", "")) == res.getLong("number_education")){
+//                            showToast("Такой номер документа уже существует");
+//                            return;
+//                        }
+//                    }
+//                    statement.close();
+//
+//                    new Thread(()->{
+//                        try {
+//                            PreparedStatement insertToAbit = connection.prepareStatement("INSERT INTO public.abit(\n" +
+//                                    "\tid, phone, email, " +
+//                                    "family, name, patronymic, sex, " +
+//                                    "id_nationality, passport, departament_code, date_of_issing_passport, " +
+//                                    "const_address, actual_address, " +
+//                                    "id_education, number_education, reg_number_education, date_of_issing_education, " +
+//                                    "date_of_birthday)\n" +
+//                                    "\tVALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+//                            insertToAbit.setLong(1, Long.parseLong(snills.replace(" ", "").replace("-", "")));
+//                            insertToAbit.setString(2, phone.replace("-", ""));
+//                            insertToAbit.setString(3, email);
+//
+//                            insertToAbit.setString(4, family);
+//                            insertToAbit.setString(5, name);
+//                            insertToAbit.setString(6, patronymic);
+//                            insertToAbit.setBoolean(7, sex.equals("Пол: Мужской"));
+//
+//                            insertToAbit.setInt(8, Integer.parseInt(nationality));
+//                            insertToAbit.setLong(9, Long.parseLong(passportNumber + passportSeries.replace(" ", "")));
+//                            insertToAbit.setInt(10, Integer.parseInt(codeUnit.replace("-", "")));
+//                            insertToAbit.setDate(11, new java.sql.Date(new SimpleDateFormat("dd.MM.yyyy").parse(dateIssuingPassport).getTime()));
+//
+//                            insertToAbit.setString(12, postIndexReg + ", " + subjectReg + ", " + cityReg + ", " + residenceStreetReg);
+//                            insertToAbit.setString(13, postIndexActual + ", " + subjectActual + ", " + cityActual + ", " + residenceStreetActual);
+//
+//                            insertToAbit.setInt(14, Integer.parseInt(typeEducationPosition) +  (withHonors.equals("true") ? 1 : 0) );
+//                            insertToAbit.setLong(15, Long.parseLong(idEducation.replace(" ", "")));
+//                            insertToAbit.setLong(16, Long.parseLong(registrationNumber.equals("")? "0" : registrationNumber.replace("-", "")));
+//                            insertToAbit.setDate(17, new java.sql.Date(new SimpleDateFormat("dd.MM.yyyy").parse(dateOfIssueOfEducation).getTime()));
+//
+//                            insertToAbit.setDate(18, new java.sql.Date(new SimpleDateFormat("dd.MM.yyyy").parse(dateIssingBirthday).getTime()));
+//
+//                            insertToAbit.execute();
+//                            insertToAbit.close();
+//                        } catch (SQLException | ParseException e) {
+//                            showToast("Что-то пошло не так, проверьте корректность введённых данных");
+//                        }
+//                    }).start();
+//
+//                    new Thread(()->{
+//                        try {
+//                            PreparedStatement insertToUsers = connection.prepareStatement("INSERT INTO public.users(\n" +
+//                                    "\tlogin, password, salt1, salt2, id_abit, is_entry)\n" +
+//                                    "\tVALUES (?, ?, ?, ?, ?, false);");
+//                            insertToUsers.setString(1, login);
+//                            String salt1 = generateSalt().toString();
+//                            String salt2 = generateSalt().toString();
+//                            insertToUsers.setString(2, sha256(sha256(   sha256(pass) + salt1)+ salt2));
+//                            insertToUsers.setString(3, salt1);
+//                            insertToUsers.setString(4, salt2);
+//                            insertToUsers.setLong(5, Long.parseLong(snills.replace("-", "").replace(" ", "")));
+//
+//                            insertToUsers.execute();
+//                            insertToUsers.close();
+//                        } catch (SQLException throwables) {
+//                            throwables.printStackTrace();
+//                        }
+//                    }).start();
+//
+//                    //Прописать загрузку фотографий
+//                    new Thread(()->{
+//                        try{
+//                            PreparedStatement insertToAbitPassport = connection.prepareStatement("INSERT INTO public.abit_passport(\n" +
+//                                    "\tid_abit, passport1, passport2, snills)\n" +
+//                                    "\tVALUES (?, ?, ?, ?);");
+//                            insertToAbitPassport.setLong(1, Long.parseLong(snills.replace("-", "").replace(" ", "")));
+//                            insertToAbitPassport.setString(2, imagePassport1);
+//                            insertToAbitPassport.setString(3, imagePassport2);
+//                            insertToAbitPassport.setString(4, imageSnills);
+//
+//                            insertToAbitPassport.execute();
+//                            insertToAbitPassport.close();
+//                        }
+//                        catch (SQLException e){
+//                            showToast("Что-то пошло не так, проверьте корректность введённых данных");
+//                        }
+//                    }).start();
+//
+//
+//                    connection.close();
+//                } catch (SQLException e) {
+//                    showToast("Что-то пошло не так, проверьте корректность введённых данных");
+//                }
+//                new Handler(Looper.getMainLooper()).post(() -> {
+//                    Toast.makeText(this, "Регистрация произошла успешна!!!", Toast.LENGTH_SHORT).show();
+//                    finish();
+//                    RegistrationActivity.clearComponents();
+//                    startActivity(new Intent(this, AuthorizationActivity.class)
+//                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
+//                });
+//            }).start();
 
         });
 
@@ -354,6 +358,11 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
         buttonNext = findViewById(R.id.button_next_privileges);
         buttonPrevious = findViewById(R.id.button_previous_privileges);
         buttonAddPrivileges = findViewById(R.id.button_add_privileges);
+
+        buttonPrevious.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_previous_btn, 100, 100)));
+        buttonNext.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_next_btn, 100, 100)));
 
         layoutForImagesPrivileges = findViewById(R.id.layout_for_images_privileges);
 

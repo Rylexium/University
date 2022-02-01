@@ -18,6 +18,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -42,6 +43,8 @@ public class Passport3Activity extends AppCompatActivity {
     private AutoCompleteTextView subjectActual;
     private AutoCompleteTextView cityActual;
     private AutoCompleteTextView residenceStreetActual;
+
+    private Button buttonPrevious, buttonNext;
 
     private ImageView imagePassport3;
 
@@ -88,11 +91,11 @@ public class Passport3Activity extends AppCompatActivity {
     @SuppressLint("ClickableViewAccessibility")
     private void ApplyEvents() {
 
-        findViewById(R.id.button12).setOnClickListener(view -> {
+        buttonNext.setOnClickListener(view -> {
             saveLastState();
             startActivity(new Intent(Passport3Activity.this, SnillsActivity.class));
         });
-        findViewById(R.id.button13).setOnClickListener(view -> onBackPressed());
+        buttonPrevious.setOnClickListener(view -> onBackPressed());
         findViewById(R.id.button11).setOnClickListener(view -> SelectImageClass.showMenu(this, false));
         postIndexActual.setOnTouchListener((view, motionEvent) -> showYesNoDialog(motionEvent));
         subjectActual.setOnTouchListener((view, motionEvent) -> showYesNoDialog(motionEvent));
@@ -210,6 +213,14 @@ public class Passport3Activity extends AppCompatActivity {
         residenceStreetActual = findViewById(R.id.textbox_residence_street_actual);
 
         imagePassport3 = findViewById(R.id.imageViewPassport3);
+        imagePassport3.setImageBitmap(ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.passport_registration, 100, 100));
+
+        buttonNext = findViewById(R.id.button12);
+        buttonNext.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_next_btn, 100, 100)));
+        buttonPrevious = findViewById(R.id.button13);
+        buttonPrevious.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_previous_btn, 100, 100)));
 
         sharedPreferences = getPreferences(MODE_PRIVATE);
 

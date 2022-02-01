@@ -15,9 +15,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -41,14 +39,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 public class EducationDocumentActivity extends AppCompatActivity {
-    private Button nextButton;
-    private Button previousButton;
+    private Button buttonNext;
+    private Button buttonPrevious;
     private Button buttonMakePhoto;
     private Spinner dropDownList;
 
@@ -111,11 +108,11 @@ public class EducationDocumentActivity extends AppCompatActivity {
             SelectImageClass.showMenu(this, false);
         });
 
-        nextButton.setOnClickListener(view -> {
+        buttonNext.setOnClickListener(view -> {
             saveLastState();
             startActivity(new Intent(this, DownloadAchievementsActivity.class));
         });
-        previousButton.setOnClickListener(view -> onBackPressed());
+        buttonPrevious.setOnClickListener(view -> onBackPressed());
 
         dropDownList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -246,30 +243,34 @@ public class EducationDocumentActivity extends AppCompatActivity {
         educationPicture1 = findViewById(R.id.education_document1);
         educationPicture2 = findViewById(R.id.education_document2);
 
-        nextButton = findViewById(R.id.button16);
-        previousButton = findViewById(R.id.button15);
+        buttonNext = findViewById(R.id.button16);
+        buttonPrevious = findViewById(R.id.button15);
         buttonMakePhoto = findViewById(R.id.button14);
         dropDownList = findViewById(R.id.listbox_documents_of_education);
-
+        
+        buttonPrevious.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_previous_btn, 100, 100)));
+        buttonNext.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_next_btn, 100, 100)));
+        
         withHonors = findViewById(R.id.checkBox_with_honors);
 
 
-        nextButton.setEnabled(false);
+        buttonNext.setEnabled(false);
         if(listRes == null) new Thread(()->{
                 Connection connection = new Database().connect();
                 try {
                     ResultSet res = connection.createStatement().executeQuery("select DISTINCT name from education");
                     listRes = new ArrayList<>();
                     listRes.add("Выберите образование");
-                    while(res.next())
-                        listRes.add(res.getString("name"));
+                    while(res.next()) listRes.add(res.getString("name"));
                     new Handler(Looper.getMainLooper()).post(() -> {
                         dropDownList.setAdapter(new MySpinnerAdapter(this, R.layout.spinner_item, listRes));
                         String restoredText = sharedPreferences.getString(KEY_TYPE_EDUCATION_POSITION, null);
                         if(!TextUtils.isEmpty(restoredText)) {
                             dropDownList.setSelection(Integer.parseInt(restoredText));
                         }
-                        nextButton.setEnabled(true);
+                        buttonNext.setEnabled(true);
                     });
                     res.close();
                     connection.close();
@@ -279,7 +280,7 @@ public class EducationDocumentActivity extends AppCompatActivity {
             }).start();
         else{
             dropDownList.setAdapter(new MySpinnerAdapter(this, R.layout.spinner_item, listRes));
-            nextButton.setEnabled(true);
+            buttonNext.setEnabled(true);
         }
 
     }

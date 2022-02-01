@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
@@ -227,11 +228,16 @@ public class Passport1Activity extends AppCompatActivity {
         date_of_birth  = findViewById(R.id.textbox_date_of_birth);
         nationality = findViewById(R.id.listbox_nationality);
         imagePassport1 = findViewById(R.id.imageViewPassport1);
+        imagePassport1.setImageBitmap(ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.russian_passport, 100, 100));
 
         sharedPreferences = getPreferences(MODE_PRIVATE);
 
         buttonPrevious  = findViewById(R.id.button5);
+        buttonPrevious.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_previous_btn, 100, 100)));
         buttonNext      = findViewById(R.id.button4);
+        buttonNext.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_next_btn, 100, 100)));
         buttonMakePhoto = findViewById(R.id.button8);
 
         buttonNext.setEnabled(false);

@@ -1,14 +1,10 @@
 package com.example.vkr.personal_cabinet;
 
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.support.design.widget.Snackbar;
@@ -27,12 +23,12 @@ import com.example.vkr.R;
 import com.example.vkr.authorizationActivity.AuthorizationActivity;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.databinding.PersonalCabinetActivityBinding;
+import com.example.vkr.personal_cabinet.ui.home.HomeFragment;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PersonalCabinetActivity extends AppCompatActivity {
     private NavigationView navigationView;
@@ -68,9 +64,6 @@ public class PersonalCabinetActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_personal_cabinet);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-
-
-
         initComponents();
     }
 
@@ -98,9 +91,7 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
                             dialog.dismiss();
                         })
-                .setNegativeButton("Нет", (dialog, which) -> {
-                    dialog.dismiss();
-                })
+                .setNegativeButton("Нет", (dialog, which) -> dialog.dismiss())
                 .setOnDismissListener(dialogInterface -> navigationView.getMenu().findItem(R.id.nav_home).setChecked(true))
                 .create()
                 .show();
@@ -115,22 +106,39 @@ public class PersonalCabinetActivity extends AppCompatActivity {
         View headerView = navigationView.getHeaderView(0);
         fio = headerView.findViewById(R.id.header_textView_FIO);
         emailPhone = headerView.findViewById(R.id.header_textView_email_phone);
-
         new Thread(()->{
             Connection connect = new Database().connect();
             try {
-                PreparedStatement statement = connect.prepareStatement("SELECT * FROM abit, users where id_abit = id and login=?");
+                PreparedStatement statement = connect
+                        .prepareStatement("SELECT id, phone, email, \n" +
+                                            "family, name, patronymic, \n" +
+                                            "(select name from sex where id=abit.sex) as sex, \n" +
+                                            "(select name from nationality where id=abit.id_nationality) as nationality, \n" +
+                                            "passport, departament_code, date_of_issing_passport, const_address, actual_address, \n" +
+                                            "id_education, number_education, reg_number_education, date_of_issing_education, date_of_birthday\n" +
+                                            "\tFROM abit, users where id_abit=id and login=?");
                 statement.setString(1, getIntent().getStringExtra("login"));
                 ResultSet res = statement.executeQuery();
+
+
                 if(res.next()){
                     String resFio = res.getString("family")
                             + " " + res.getString("name")
                             + " " + (res.getString("patronymic") != null ? res.getString("patronymic") : "");
                     String resEmailPhone = "Почта: " + (res.getString("email") != null ? res.getString("email") : "")
-                                + '\n' + "Телефон: " + (res.getString("phone") != null ? res.getString("phone") : "");
+                                + '\n' + "Телефон: " + (res.getString("phone") != null ? doNicePhone(res.getString("phone")) : "");
+                    String sniils = res.getString("id");
+                    String sex = res.getString("sex");
+                    String passport = res.getString("passport");
+                    String nationality = res.getString("nationality");
                     new Handler(Looper.getMainLooper()).post(() -> {
                                 fio.setText(resFio);
                                 emailPhone.setText(resEmailPhone);
+                                HomeFragment.homeViewModel.setTextLogin(getIntent().getStringExtra("login"));
+                                HomeFragment.homeViewModel.setTextSnills(sniils);
+                                HomeFragment.homeViewModel.setTextSex(sex);
+                                HomeFragment.homeViewModel.setTextNationality(nationality);
+                                HomeFragment.homeViewModel.setTextPassport(passport);
                             });
                 }
                 res.close();
@@ -140,5 +148,16 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                 throwables.printStackTrace();
             }
         }).start();
+    }
+
+    public StringBuilder doNicePhone(String phone){ // 89371727345 -> 8 (937) 17-27-345
+        StringBuilder res = new StringBuilder();
+        for(int i = 0; i<phone.length(); ++i){
+            if (i == 1) res.append(" (");
+            else if (i == 4) res.append(") ");
+            else if (i == 6 || i == 8) res.append("-");
+            res.append(phone.charAt(i));
+        }
+        return res;
     }
 }

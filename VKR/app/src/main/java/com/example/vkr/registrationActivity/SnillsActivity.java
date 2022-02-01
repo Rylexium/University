@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.provider.MediaStore;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -137,11 +138,16 @@ public class SnillsActivity extends AppCompatActivity {
     private void initComponents(){
         snills = findViewById(R.id.textbox_snills);
         imageSnills = findViewById(R.id.imageViewSnills);
+        imageSnills.setImageBitmap(ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.snills, 100, 100));
 
         sharedPreferences = getPreferences(MODE_PRIVATE);
 
         nextButton = findViewById(R.id.button);
+        nextButton.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_next_btn, 100, 100)));
         previousButton = findViewById(R.id.button2);
+        previousButton.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
+                ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_previous_btn, 100, 100)));
         buttonMakePhoto = findViewById(R.id.button9);
     }
 }
