@@ -173,7 +173,6 @@
                 android:layout_width="85dp"
                 android:layout_height="85dp"
                 android:layout_weight="1"
-                android:background="@drawable/image_previous_btn"
                 android:baselineAligned="false"
                 android:text="" />
 
@@ -192,7 +191,6 @@
                 android:layout_width="85dp"
                 android:layout_height="85dp"
                 android:layout_weight="1"
-                android:background="@drawable/image_next_btn"
                 android:text="" />
 
         </LinearLayout>

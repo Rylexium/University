@@ -34,8 +34,7 @@
             android:id="@+id/imageViewSnills"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_marginTop="12dp"
-            android:src="@drawable/snills" />
+            android:layout_marginTop="12dp" />
 
         <android.support.design.widget.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -80,7 +79,6 @@
                 android:layout_width="85dp"
                 android:layout_height="85dp"
                 android:layout_weight="1"
-                android:background="@drawable/image_previous_btn"
                 android:baselineAligned="false"
                 android:text="" />
 
@@ -99,7 +97,6 @@
                 android:layout_width="85dp"
                 android:layout_height="85dp"
                 android:layout_weight="1"
-                android:background="@drawable/image_next_btn"
                 android:text="" />
 
         </LinearLayout>

@@ -38,13 +38,13 @@
     <fragment
         android:id="@+id/nav_statement"
         android:name="com.example.vkr.personal_cabinet.ui.statement.StatementFragment"
-        android:label="Образование"
+        android:label="Подача заявления"
         tools:layout="@layout/fragment_statement" />
 
     <fragment
         android:id="@+id/nav_agreement"
         android:name="com.example.vkr.personal_cabinet.ui.agreement.AgreementFragment"
-        android:label="Образование"
+        android:label="Согласие на зачисление"
         tools:layout="@layout/fragment_agreement" />
 
     <fragment

@@ -123,8 +123,7 @@
                 android:id="@+id/imageViewPassport1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginRight="9dp"
-                android:src="@drawable/russian_passport" />
+                android:layout_marginRight="9dp" />
         </LinearLayout>
 
     <LinearLayout
@@ -200,7 +199,6 @@
                 android:layout_width="85dp"
                 android:layout_height="85dp"
                 android:layout_weight="1"
-                android:background="@drawable/image_previous_btn"
                 android:baselineAligned="false"
                 android:text="" />
 
@@ -219,7 +217,6 @@
                 android:layout_width="85dp"
                 android:layout_height="85dp"
                 android:layout_weight="1"
-                android:background="@drawable/image_next_btn"
                 android:text="" />
 
         </LinearLayout>
