@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
@@ -14,6 +15,7 @@ import java.util.Arrays;
 public class ConvertClass {
 
     public static Bitmap convertStringToBitmap(String encodedString) {
+        if(encodedString == null) return null;
         byte[] decodeString = Base64.decode(encodedString, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decodeString, 0, decodeString.length);
     }

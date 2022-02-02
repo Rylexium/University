@@ -135,7 +135,8 @@ public class AuthorizationActivity extends AppCompatActivity {
                                 new Handler(Looper.getMainLooper()).post(() -> { //в главном потоке что-то делаю
                                     Toast.makeText(AuthorizationActivity.this, "Успешно", Toast.LENGTH_SHORT).show();
                                     startActivity(new Intent(this, ExamsResultActivity.class)
-                                            .putExtra("id_abit", id_abit));
+                                            .putExtra("id_abit", id_abit)
+                                            .putExtra("login", textBoxLogin.getText().toString()));
                                 });
                             }
                         } else {

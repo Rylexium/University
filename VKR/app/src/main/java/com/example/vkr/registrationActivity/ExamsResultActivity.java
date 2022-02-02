@@ -149,7 +149,8 @@ public class ExamsResultActivity extends AppCompatActivity {
                     }).start();
                     finish();
                     startActivity(new Intent(ExamsResultActivity.this, PersonalCabinetActivity.class)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK)
+                            .putExtra("login", getIntent().getStringExtra("login")));
                 }
             }
             else

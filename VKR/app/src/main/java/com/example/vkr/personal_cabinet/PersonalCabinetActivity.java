@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.support.design.widget.Snackbar;
@@ -24,6 +25,7 @@ import com.example.vkr.authorizationActivity.AuthorizationActivity;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.databinding.PersonalCabinetActivityBinding;
 import com.example.vkr.personal_cabinet.ui.home.HomeFragment;
+import com.example.vkr.personal_cabinet.ui.result_egu.ResultEguFragment;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -128,37 +130,25 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                             + " " + (res.getString("patronymic") != null ? res.getString("patronymic") : "");
                     String resEmailPhone = "Почта: " + (res.getString("email") != null ? res.getString("email") : "")
                                 + '\n' + "Телефон: " + (res.getString("phone") != null ? doNicePhone(res.getString("phone")) : "");
-                    String sniils = res.getString("id");
-                    String sex = res.getString("sex");
-                    String passport = res.getString("passport");
-                    String nationality = res.getString("nationality");
-                    String departament_code = res.getString("departament_code");
-                    String date_of_issing_passport = res.getString("date_of_issing_passport");
-                    String const_address = res.getString("const_address");
-                    String actual_address = res.getString("actual_address");
-                    String id_education = res.getString("id_education");
-                    String number_education = res.getString("number_education");
-                    String reg_number_education = res.getString("reg_number_education");
-                    String date_of_issing_education = res.getString("date_of_issing_education");
-                    String date_of_birthday = res.getString("date_of_birthday");
 
+                    sendDataToHomeFragment(getIntent().getStringExtra("login"),
+                                                        res.getString("id"),
+                                                        res.getString("sex"),
+                                                        res.getString("nationality"),
+                                                        res.getString("passport"),
+                                                        res.getString("departament_code"),
+                                                        res.getString("date_of_issing_education"),
+                                                        res.getString("date_of_issing_passport"),
+                                                        res.getString("const_address"),
+                                                        res.getString("actual_address"),
+                                                        res.getString("id_education"),
+                                                        res.getString("number_education"),
+                                                        res.getString("reg_number_education"),
+                                                        res.getString("date_of_birthday"));
+                    sendIdAbitToResultEguFragment(res.getString("id"));
                     new Handler(Looper.getMainLooper()).post(() -> {
                                 fio.setText(resFio);
                                 emailPhone.setText(resEmailPhone);
-                                HomeFragment.getHomeViewModel().setTextLogin(getIntent().getStringExtra("login"));
-                                HomeFragment.getHomeViewModel().setTextSnills(sniils);
-                                HomeFragment.getHomeViewModel().setTextSex(sex);
-                                HomeFragment.getHomeViewModel().setTextNationality(nationality);
-                                HomeFragment.getHomeViewModel().setTextPassport(passport);
-                                HomeFragment.getHomeViewModel().setDepartamentCode(departament_code);
-                                HomeFragment.getHomeViewModel().setDateOfIssingEducation(date_of_issing_education);
-                                HomeFragment.getHomeViewModel().setDateOfIssingPassport(date_of_issing_passport);
-                                HomeFragment.getHomeViewModel().setConstAddress(const_address);
-                                HomeFragment.getHomeViewModel().setActualAddress(actual_address);
-                                HomeFragment.getHomeViewModel().setIdEducation(id_education);
-                                HomeFragment.getHomeViewModel().setNumberEducation(number_education);
-                                HomeFragment.getHomeViewModel().setRegNumberEducation(reg_number_education);
-                                HomeFragment.getHomeViewModel().setDateOfBirthday(date_of_birthday);
                             });
                 }
                 res.close();
@@ -170,7 +160,34 @@ public class PersonalCabinetActivity extends AppCompatActivity {
         }).start();
     }
 
-    public StringBuilder doNicePhone(String phone){ // 89371727345 -> 8 (937) 17-27-345
+    private void sendDataToHomeFragment(String login, String snills, String sex, String nationality,
+                                        String passport, String departament_code, String date_of_issing_education,
+                                        String date_of_issing_passport, String const_address, String actual_address,
+                                        String id_education, String number_education, String reg_number_education,
+                                        String date_of_birthday) {
+
+        HomeFragment.getHomeViewModel().postTextLogin(login == null? "-" : login);
+        HomeFragment.getHomeViewModel().postTextSnills(snills == null? "-" : snills);
+        HomeFragment.getHomeViewModel().postTextSex(sex == null? "-" : sex);
+        HomeFragment.getHomeViewModel().postTextNationality(nationality == null? "-" : nationality);
+        HomeFragment.getHomeViewModel().postTextPassport(passport == null? "-" : passport);
+        HomeFragment.getHomeViewModel().postDepartamentCode(departament_code == null? "-" : departament_code);
+        HomeFragment.getHomeViewModel().postDateOfIssingEducation(date_of_issing_education == null? "-" : date_of_issing_education);
+        HomeFragment.getHomeViewModel().postDateOfIssingPassport(date_of_issing_passport == null? "-" : date_of_issing_passport);
+        HomeFragment.getHomeViewModel().postConstAddress(const_address == null? "-" : const_address);
+        HomeFragment.getHomeViewModel().postActualAddress(actual_address == null? "-" : actual_address);
+        HomeFragment.getHomeViewModel().postIdEducation(id_education == null? "-" : id_education);
+        HomeFragment.getHomeViewModel().postNumberEducation(number_education == null? "-" : number_education);
+        HomeFragment.getHomeViewModel().postRegNumberEducation(reg_number_education == null ? "-" : reg_number_education);
+        HomeFragment.getHomeViewModel().postDateOfBirthday(date_of_birthday == null? "-" : date_of_birthday);
+
+    }
+
+    private void sendIdAbitToResultEguFragment(String snills){
+        ResultEguFragment.setIdAbit(snills);
+    }
+
+    private StringBuilder doNicePhone(String phone){ // 89371727345 -> 8 (937) 17-27-345
         StringBuilder res = new StringBuilder();
         for(int i = 0; i<phone.length(); ++i){
             if (i == 1) res.append(" (");
