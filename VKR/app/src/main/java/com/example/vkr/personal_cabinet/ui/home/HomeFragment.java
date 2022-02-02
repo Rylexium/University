@@ -272,7 +272,22 @@ public class HomeFragment extends Fragment {
         if(isDownloadImagesPassport != null) isDownloadImagesPassport = true;
         if(isDownloadImagesEducation != null) isDownloadImagesEducation = true;
     }
-
+    public static void clearDate() {
+        loginString = null;
+        snillsString = null;
+        sexString = null;
+        passportString = null;
+        nationalityString = null;
+        departamentCode = null;
+        dateOfIssingPassport = null;
+        constAddress = null;
+        actualAddress = null;
+        idEducation = null;
+        numberEducation = null;
+        regNumberEducation = null;
+        dateOfIssingEducation = null;
+        dateOfBirthday = null;
+    }
     @Override
     public void onDestroyView() {
         super.onDestroyView();

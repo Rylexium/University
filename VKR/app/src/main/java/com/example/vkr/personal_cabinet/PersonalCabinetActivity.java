@@ -91,6 +91,8 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                         (dialog, which) -> {
                             startActivity(new Intent(this, AuthorizationActivity.class)
                                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
+                            HomeFragment.clearDate();
+                            ResultEguFragment.clearTable();
                             dialog.dismiss();
                         })
                 .setNegativeButton("Нет", (dialog, which) -> dialog.dismiss())

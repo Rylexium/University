@@ -14,12 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.Toast;
 
 import com.example.vkr.R;
 import com.example.vkr.connectDB.Database;
-import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,40 +31,39 @@ public class ResultEguFragment extends Fragment {
     private View binding;
     private LinearLayout layoutOfExams;
     private static String idAbit;
-    private List<List<String>> exams;
+    private static List<List<String>> exams;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
         binding = inflater.inflate(R.layout.fragment_result_egu, container, false);
         layoutOfExams = binding.findViewById(R.id.layout_of_exams);
-        exams = new ArrayList<>();
-        new Thread(()->{
-            Connection connect = new Database().connect();
-            try {
-                PreparedStatement statement = connect
-                        .prepareStatement("SELECT (select name from exams where id=id_exam) as name_exam, points, year\n" +
-                                        "\tFROM abit_exams where id_abit=?");
-                statement.setLong(1, Long.parseLong(idAbit));
-                ResultSet res = statement.executeQuery();
-
-                while(res.next()){
-                    exams.add(asList(res.getString("name_exam"), res.getString("points"), res.getString("year")));
+        if(exams == null) {
+            new Thread(() -> {
+                Connection connect = new Database().connect();
+                try {
+                    PreparedStatement statement = connect
+                            .prepareStatement("SELECT (select name from exams where id=id_exam) as name_exam, points, year\n" +
+                                    "\tFROM abit_exams where id_abit=?");
+                    statement.setLong(1, Long.parseLong(idAbit));
+                    ResultSet res = statement.executeQuery();
+                    exams = new ArrayList<>();
+                    while (res.next()) {
+                        exams.add(asList(res.getString("name_exam"), res.getString("points"), res.getString("year")));
+                    }
+                    connect.close();
+                    statement.close();
+                    res.close();
+                } catch (SQLException throwables) {
+                    throwables.printStackTrace();
                 }
-                connect.close();
-                statement.close();
-                res.close();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-            new Handler(Looper.getMainLooper()).post(() -> {
-                for(int i=0; i< exams.size(); ++i)
-                    onAddField(exams.get(i).get(0), exams.get(i).get(1), exams.get(i).get(2));
-            });
-        }).start();
+                new Handler(Looper.getMainLooper()).post(this::fillTable);
+            }).start();
+        }
+        else fillTable();
 
         return binding.getRootView();
     }
-    public void onAddField(String nameExam, String pointsExam, String yearExam) {
+    private void onAddField(String nameExam, String pointsExam, String yearExam) {
         LayoutInflater inflater = (LayoutInflater) Objects.requireNonNull(getActivity()).getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View rowView = inflater.inflate(R.layout.field_for_exam_noedit, null);
 
@@ -89,7 +85,14 @@ public class ResultEguFragment extends Fragment {
         layoutOfExams.addView(rowView);
 
     }
-
+    private void fillTable(){
+        for(int i=0; i< exams.size(); ++i)
+            onAddField(exams.get(i).get(0), exams.get(i).get(1), exams.get(i).get(2));
+    }
+    public static void clearTable(){
+        exams.clear();
+        exams = null;
+    }
     public static void setIdAbit(String snills){
         idAbit = snills;
     }
