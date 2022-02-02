@@ -167,7 +167,6 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                                         String date_of_issing_passport, String const_address, String actual_address,
                                         String id_education, String number_education, String reg_number_education,
                                         String date_of_birthday) {
-
         HomeFragment.getHomeViewModel().postTextLogin(login == null? "-" : login);
         HomeFragment.getHomeViewModel().postTextSnills(snills == null? "-" : snills);
         HomeFragment.getHomeViewModel().postTextSex(sex == null? "-" : sex);

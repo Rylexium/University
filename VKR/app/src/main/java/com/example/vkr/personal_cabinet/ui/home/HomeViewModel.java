@@ -67,7 +67,7 @@ public class HomeViewModel extends ViewModel {
         }
     }
     public void postDepartamentCode(String text) {
-        if(text.equals("-")) passport.postValue(text);
+        if(text.equals("-")) departament_code.postValue(text);
         else {
             StringBuilder textBuilder = new StringBuilder(text);
             textBuilder.insert(3, '-');
