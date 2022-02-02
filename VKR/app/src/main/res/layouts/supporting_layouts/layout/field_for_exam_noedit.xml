@@ -18,17 +18,20 @@
             android:textColor="@color/black"
             android:textSize="20dp" />
 
-        <Spinner
-            android:id="@+id/exam"
+        <EditText
+            android:id="@+id/exam_noedit"
             style="@android:style/Widget.Holo.Light.Spinner"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:textSize="24dp"
+            android:gravity="center"
             android:layout_weight="4.5"
-            android:background="@color/white" />
+            android:background="@color/white"
+            android:clickable="false"/>
 
         <EditText
-            android:id="@+id/text_points_of_exam"
-            style="@style/MyEditTextStyle"
+            android:id="@+id/text_points_of_exam_noedit"
+            style="@android:style/Widget.Holo.Light.Spinner"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
@@ -36,17 +39,12 @@
             android:maxLength="3"
             android:inputType="phone"
             android:singleLine="true"
+            android:clickable="false"
             android:textColorHint="@color/silver"
+            android:textSize="24dp"
+            android:gravity="center"
             android:hint="Баллы"
-            android:textColor="@color/black"
-            android:textSize="16dp" />
-        <Button
-            android:id="@+id/delete_button"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@android:drawable/ic_delete"
-            android:onClick="onDelete" />
+            android:textColor="@color/black" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -60,28 +58,24 @@
             android:gravity="center"
             android:textColor="@color/black"
             android:textSize="20dp" />
-        <Spinner
-            android:id="@+id/spinner_date_exam"
+        <EditText
+            android:id="@+id/spinner_date_exam_noedit"
             style="@android:style/Widget.Holo.Light.Spinner"
             android:layout_width="0dp"
             android:layout_weight="4.5"
             android:layout_height="match_parent"
+            android:textSize="24dp"
+            android:gravity="center"
             android:background="@color/white"
-            android:entries="@array/date_of_exams"/>
+            android:clickable="false" />
         <TextView
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="48dp"
             android:layout_weight="2"
             android:gravity="center"
             android:textColor="@color/black"
             android:textSize="20dp" />
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:textColor="@color/black"
-            android:textSize="20dp" />
+
     </LinearLayout>
 
 
