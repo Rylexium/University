@@ -24,13 +24,13 @@
             android:name=".authorizationActivity.QuestionsActivity"
             android:exported="false" />
         <activity
-            android:name=".personal_cabinet.ExamsResultActivity"
+            android:name=".registrationActivity.ExamsResultActivity"
             android:exported="false" />
         <activity
             android:name=".registrationActivity.DownloadPrivilegesActivity"
             android:exported="false" />
         <activity
-            android:name=".registrationActivity.EducationdocumentActivity"
+            android:name=".registrationActivity.EducationDocumentActivity"
             android:exported="false"
             android:hardwareAccelerated="false" />
         <activity
