@@ -287,6 +287,14 @@ public class HomeFragment extends Fragment {
         regNumberEducation = null;
         dateOfIssingEducation = null;
         dateOfBirthday = null;
+        
+        bitmapPassport1 = null;
+        bitmapPassport2 = null; 
+        isDownloadImagesPassport = null;
+
+        bitmapEducation1 = null;
+        bitmapEducation2 = null;
+        isDownloadImagesEducation = null;
     }
     @Override
     public void onDestroyView() {
