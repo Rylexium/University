@@ -1,0 +1,18 @@
+package com.example.vkr.support_class;
+
+import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+
+public class HideKeyboardClass {
+
+    public static void hideKeyboard(AppCompatActivity activity) { //метод убирает клавиатуру
+        final InputMethodManager inputMethodManager = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (inputMethodManager != null && inputMethodManager.isActive()) {
+            if (activity.getCurrentFocus() != null) {
+                inputMethodManager.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+            }
+        }
+    }
+}
