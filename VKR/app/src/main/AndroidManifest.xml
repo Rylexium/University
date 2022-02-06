@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.vkr" >
+    package="com.example.vkr">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -14,7 +14,13 @@
         android:noHistory="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.VKR" >
+        android:theme="@style/Theme.VKR">
+        <activity
+            android:name=".personal_cabinet.moreAbout.MoreAboutTheInstitut"
+            android:exported="false" />
+        <activity
+            android:name=".personal_cabinet.moreAbout.MoreAboutTheSpecialityActivity"
+            android:exported="false" />
         <activity
             android:name=".personal_cabinet.PersonalCabinetActivity"
             android:exported="false"
@@ -53,7 +59,7 @@
             android:exported="false" />
         <activity
             android:name=".authorizationActivity.AuthorizationActivity"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
