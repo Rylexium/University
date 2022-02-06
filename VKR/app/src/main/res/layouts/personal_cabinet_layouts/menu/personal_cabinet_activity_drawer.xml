@@ -9,10 +9,6 @@
             android:icon="@drawable/ic_baseline_home_24"
             android:title="Профиль" />
         <item
-            android:id="@+id/nav_education"
-            android:icon="@drawable/ic_baseline_book_online_24"
-            android:title="Образование" />
-        <item
             android:id="@+id/nav_egu"
             android:icon="@drawable/ic_baseline_book_24"
             android:title="Результаты ЕГЭ" />
