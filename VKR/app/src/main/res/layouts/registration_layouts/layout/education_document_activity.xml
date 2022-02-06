@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/education_document_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/blue_200"
+    android:fillViewport="true"
+    tools:context=".registrationActivity.EducationDocumentActivity">
+
+    <LinearLayout
+        android:id="@+id/education_document_layout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="9dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="9dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:gravity="center"
+        >
+        <Button
+            android:id="@+id/button14"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginStart="9dp"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="9dp"
+            android:background="@drawable/round_btn"
+            android:text="Введите данные и\n загрузите документ об образовании"
+            android:textColor="@color/white"
+            android:textColorHint="@color/grey"
+            android:textSize="15sp" />
+
+        <Spinner
+            android:id="@+id/listbox_documents_of_education"
+            android:layout_marginTop="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textAlignment="center"
+            android:background="@color/white"
+            />
+
+        <android.support.design.widget.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:hint="Номер документа"
+            android:textColorHint="@color/grey"
+            app:boxStrokeColor="@color/blue_700"
+            app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout"
+            >
+
+            <AutoCompleteTextView
+                android:textCursorDrawable="@drawable/cursor_black"
+                android:textColorHighlight="@color/blue_700"
+                android:id="@+id/textbox_id_education"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:digits="@string/only_numbers"
+                android:inputType="phone"
+                android:maxLength="14"
+                android:textColor="@color/white"
+                tools:ignore="TouchTargetSizeCheck" />
+        </android.support.design.widget.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="9dp"
+            android:orientation="horizontal">
+
+            <android.support.design.widget.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="179dp"
+                android:layout_height="wrap_content"
+                android:hint="Дата выдачи"
+                android:textColorHint="@color/grey"
+                app:boxStrokeColor="@color/blue_700"
+                app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout"
+                >
+
+                <AutoCompleteTextView
+                    android:textCursorDrawable="@drawable/cursor_black"
+                    android:textColorHighlight="@color/blue_700"
+                    android:id="@+id/textbox_date_of_issue_of_education"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="@string/only_numbers"
+                    android:inputType="phone"
+                    android:maxLength="10"
+                    android:textColor="@color/white"
+                    android:focusable="false"
+                    android:drawableStart="@drawable/calendar_icon"
+                    android:drawablePadding="8dp"
+                    tools:ignore="TouchTargetSizeCheck" />
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Регистрационный номер"
+                android:textColorHint="@color/grey"
+                app:boxStrokeColor="@color/blue_700"
+                app:hintTextAppearance="@style/TextAppearance.App.TextInputLayout"
+                >
+
+                <AutoCompleteTextView
+                    android:textCursorDrawable="@drawable/cursor_black"
+                    android:textColorHighlight="@color/blue_700"
+                    android:id="@+id/textbox_registration_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="@string/only_numbers"
+                    android:inputType="phone"
+                    android:maxLength="10"
+                    android:textColor="@color/white"
+                    tools:ignore="TouchTargetSizeCheck" />
+            </android.support.design.widget.TextInputLayout>
+
+        </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/checkBox_with_honors"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:text="Документ с отличием"
+            android:textSize="28dp"
+            android:theme="@style/SwitchTheme"
+            android:textColor="@color/white"
+            />
+
+        <ImageView
+            android:id="@+id/education_document1"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            />
+
+        <ImageView
+            android:id="@+id/education_document2"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            />
+
+         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="9dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginEnd="9dp"
+            android:layout_marginBottom="50dp"
+            android:layout_weight="3"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/button15"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:layout_weight="1"
+                android:baselineAligned="false"
+                android:text="" />
+
+            <TextView
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:layout_marginStart="35dp"
+                android:layout_marginEnd="35dp"
+                android:gravity="center"
+                android:text="@string/reg_step_6"
+                android:textColor="@color/white"
+                android:textSize="36dp" />
+
+            <Button
+                android:id="@+id/button16"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:layout_weight="1"
+                android:text="" />
+         </LinearLayout>
+
+
+    </LinearLayout>
+</ScrollView>
