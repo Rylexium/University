@@ -90,6 +90,7 @@ public class ResultEguFragment extends Fragment {
             onAddField(exams.get(i).get(0), exams.get(i).get(1), exams.get(i).get(2));
     }
     public static void clearTable(){
+        if(exams == null) return;
         exams.clear();
         exams = null;
     }

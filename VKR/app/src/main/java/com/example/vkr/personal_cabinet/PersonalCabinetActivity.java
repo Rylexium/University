@@ -56,7 +56,6 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                 R.id.nav_home,
                 R.id.nav_achievement,
                 R.id.nav_agreement,
-                R.id.nav_education,
                 R.id.nav_egu,
                 R.id.nav_speciality,
                 R.id.nav_statement,
@@ -148,6 +147,7 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                                                         res.getString("reg_number_education"),
                                                         res.getString("date_of_birthday"));
                     sendIdAbitToResultEguFragment(res.getString("id"));
+
                     new Handler(Looper.getMainLooper()).post(() -> {
                                 fio.setText(resFio);
                                 emailPhone.setText(resEmailPhone);

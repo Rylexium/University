@@ -52,6 +52,8 @@ public class HomeFragment extends Fragment {
 
     private static HomeViewModel homeViewModel;
 
+    private static Integer scrollY = 0;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -162,6 +164,7 @@ public class HomeFragment extends Fragment {
                     setImages(bitmapPassport1, bitmapPassport2, binding.layoutForPagesPassport);
                 }
                 else{
+                    binding.scrollviewHomeFragment.scrollTo(binding.textviewDateOfIssingPassport.getScrollX(), binding.textviewDateOfIssingPassport.getScrollY());
                     while(binding.layoutForPagesPassport.getChildCount() != 1){
                         binding.layoutForPagesPassport.removeViewAt(0);
                     }
@@ -271,6 +274,7 @@ public class HomeFragment extends Fragment {
         binding.textviewDateOfBirthday.setText(dateOfBirthday);
         if(isDownloadImagesPassport != null) isDownloadImagesPassport = true;
         if(isDownloadImagesEducation != null) isDownloadImagesEducation = true;
+        binding.scrollviewHomeFragment.post(()->binding.scrollviewHomeFragment.scrollTo(0, scrollY));
     }
     public static void clearDate() {
         loginString = null;
@@ -287,9 +291,9 @@ public class HomeFragment extends Fragment {
         regNumberEducation = null;
         dateOfIssingEducation = null;
         dateOfBirthday = null;
-        
+
         bitmapPassport1 = null;
-        bitmapPassport2 = null; 
+        bitmapPassport2 = null;
         isDownloadImagesPassport = null;
 
         bitmapEducation1 = null;
@@ -298,6 +302,7 @@ public class HomeFragment extends Fragment {
     }
     @Override
     public void onDestroyView() {
+        HomeFragment.scrollY = binding.scrollviewHomeFragment.getScrollY();
         super.onDestroyView();
         binding = null;
     }
