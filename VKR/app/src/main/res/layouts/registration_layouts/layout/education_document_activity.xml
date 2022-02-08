@@ -124,18 +124,6 @@
 
         </LinearLayout>
 
-        <CheckBox
-            android:id="@+id/checkBox_with_honors"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:text="Документ с отличием"
-            android:textSize="28dp"
-            android:theme="@style/SwitchTheme"
-            android:textColor="@color/white"
-            />
-
         <ImageView
             android:id="@+id/education_document1"
             android:layout_width="match_parent"

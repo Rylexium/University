@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView_activity_more_about_the_speciality"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -75,21 +76,24 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:orientation="horizontal"
-            android:paddingTop="9sp"
+            android:layout_weight="1"
             android:paddingStart="15sp"
+            android:paddingTop="9sp"
             android:paddingEnd="15sp"
+            android:gravity="center"
             >
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:paddingRight="9dp"
                 >
                 <TextView
                     android:id="@+id/studying_time_of_speciality"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/white"
                     android:gravity="center"
@@ -104,15 +108,12 @@
                     android:textSize="16sp"
                     />
             </LinearLayout>
-            <TextView
-                android:layout_width="20sp"
-                android:layout_height="wrap_content"
-                />
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
                 android:gravity="center"
+                android:paddingRight="9dp"
                 >
                 <TextView
                     android:id="@+id/type_of_study_of_speciality"
@@ -130,19 +131,15 @@
                     android:textSize="16sp"
                     />
             </LinearLayout>
-            <TextView
-                android:layout_width="20sp"
-                android:layout_height="wrap_content"
-                />
             <LinearLayout
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:gravity="center"
                 >
                 <TextView
                     android:id="@+id/budget_of_speciality"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:textColor="@color/white"
                     android:gravity="center"
@@ -285,69 +282,132 @@
 
         </LinearLayout>
 
-
         <LinearLayout
-            android:id="@+id/competencies_of_speciality"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingStart="9dp"
-            android:paddingTop="18dp"
-            android:gravity="center"
+            android:paddingEnd="9dp"
             >
-            <TextView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Компитенции"
-                android:gravity="center"
-                android:textSize="26sp"
-                android:textColor="@color/white"
-                />
-        </LinearLayout>
+                android:orientation="vertical"
+                >
+                <LinearLayout
+                    android:id="@+id/competencies_of_speciality"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="18dp"
+                    >
 
-        <LinearLayout
-            android:id="@+id/professions_of_speciality"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="9dp"
-            android:paddingTop="18dp"
-            android:gravity="center"
-            >
-            <TextView
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1.5"
+                        android:text="Компитенции"
+                        android:textColor="@color/white"
+                        android:textSize="26sp" />
+
+                    <ImageView
+                        android:id="@+id/arrow_downward1"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:src="@drawable/ic_baseline_arrow_downward_24"
+                        />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/competencies_of_speciality_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingBottom="18dp"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/professions_of_speciality"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Профессии"
-                android:gravity="center"
-                android:textSize="26sp"
-                android:textColor="@color/white"
-                />
-        </LinearLayout>
+                android:orientation="vertical"
+                >
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    >
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="Профессии"
+                        android:textSize="26sp"
+                        android:textColor="@color/white"
+                        android:layout_weight="1.5"
+                        />
 
-        <LinearLayout
-            android:id="@+id/partners_of_speciality"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="9dp"
-            android:paddingTop="18dp"
-            android:gravity="center"
-            >
-            <TextView
+                    <ImageView
+                        android:id="@+id/arrow_downward2"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:src="@drawable/ic_baseline_arrow_downward_24" />
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/professions_of_speciality_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingBottom="18dp"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Работодатели и партнеры"
-                android:gravity="center"
-                android:textSize="26sp"
-                android:textColor="@color/white"
-                />
+                android:orientation="vertical"
+                >
+                <LinearLayout
+                    android:id="@+id/partners_of_speciality"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    >
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:text="Работодатели и партнеры"
+                        android:textSize="26sp"
+                        android:textColor="@color/white"
+                        android:layout_weight="1.5"
+                        />
+                    <ImageView
+                        android:id="@+id/arrow_downward3"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:src="@drawable/ic_baseline_arrow_downward_24"
+                        />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/partners_of_speciality_info"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingBottom="18dp"
+                    >
+                </LinearLayout>
+
+            </LinearLayout>
+
+
         </LinearLayout>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
+                />
 
     </LinearLayout>
 </ScrollView>
