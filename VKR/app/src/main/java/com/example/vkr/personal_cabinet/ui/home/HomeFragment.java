@@ -135,7 +135,7 @@ public class HomeFragment extends Fragment {
                     try {
                         PreparedStatement statement = connect
                                 .prepareStatement("SELECT passport1, passport2 FROM abit_passport where id_abit=?");
-                        statement.setLong(1, Long.parseLong(snillsString));
+                        statement.setLong(1, Long.parseLong(snillsString.replace("-", "").replace(" ", "")));
                         ResultSet res = statement.executeQuery();
                         if(res.next()){
                             bitmapPassport1 = ConvertClass.convertStringToBitmap(res.getString("passport1"));
