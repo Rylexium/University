@@ -56,8 +56,6 @@ public class EducationDocumentActivity extends AppCompatActivity {
     private ImageView educationPicture1;
     private ImageView educationPicture2;
 
-    private CheckBox withHonors;
-
     private static Bitmap bitmap1;
     private static Bitmap bitmap2;
     public static SharedPreferences sharedPreferences;
@@ -69,7 +67,6 @@ public class EducationDocumentActivity extends AppCompatActivity {
     public static final String KEY_REGISTRATION_NUMBER = "registration_number";
     public static final String KEY_EDUCATION_PICTURE1 = "educationPicture1";
     public static final String KEY_EDUCATION_PICTURE2 = "educationPicture2";
-    public final static String KEY_WITH_HONORS = "with_honors";
 
 
     private static int PIC_CODE = 1;
@@ -199,7 +196,6 @@ public class EducationDocumentActivity extends AppCompatActivity {
                             .putString(KEY_REGISTRATION_NUMBER, registration_number.getText().toString())
                             .putString(KEY_EDUCATION_PICTURE1, ConvertClass.convertBitmapToString(bitmap1))
                             .putString(KEY_EDUCATION_PICTURE2, ConvertClass.convertBitmapToString(bitmap2))
-                            .putString(KEY_WITH_HONORS, String.valueOf(withHonors.isChecked()))
                             .apply();
                 })).start();
     }
@@ -221,10 +217,6 @@ public class EducationDocumentActivity extends AppCompatActivity {
             educationPicture2.setImageBitmap(ConvertClass.convertStringToBitmap(restoredText));
         }
 
-        restoredText = sharedPreferences.getString(KEY_WITH_HONORS, null);
-        if(!TextUtils.isEmpty(restoredText)) {
-            withHonors.setChecked(restoredText.equals("true"));
-        }
 
     }
 
@@ -252,15 +244,14 @@ public class EducationDocumentActivity extends AppCompatActivity {
                 ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_previous_btn, 100, 100)));
         buttonNext.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
                 ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_next_btn, 100, 100)));
-        
-        withHonors = findViewById(R.id.checkBox_with_honors);
+
 
 
         buttonNext.setEnabled(false);
         if(listRes == null) new Thread(()->{
                 Connection connection = new Database().connect();
                 try {
-                    ResultSet res = connection.createStatement().executeQuery("select DISTINCT name from education");
+                    ResultSet res = connection.createStatement().executeQuery("select name from education order by id");
                     listRes = new ArrayList<>();
                     listRes.add("Выберите образование");
                     while(res.next()) listRes.add(res.getString("name"));

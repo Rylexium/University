@@ -90,7 +90,7 @@ public class SpecialityFragment extends Fragment {
                         "\t(select name from type_of_study where id=type_of_study) as type_of_study, \n" +
                         "\tname, budget, pay, \n" +
                         "\t(select name from institutions where id=id_institut) as id_institut\n" +
-                        "\tFROM speciality where " + PersonalCabinetActivity.filter +
+                        "\tFROM speciality where " + PersonalCabinetActivity.filter + " order by id " +
                         " OFFSET " + start  +" ROWS FETCH NEXT " + next + " ROWS ONLY;").executeQuery();
 
                 int previousSize = speciality.size();

@@ -5,12 +5,15 @@ import static java.util.Arrays.asList;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.vkr.R;
@@ -67,30 +70,37 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
 
     private void applyEvents() {
         competenciesOfSpeciality.setOnClickListener(view-> {
-            setTextForQuestion(isCompetencies, competenciesOfSpeciality, competencies);
+            setTextForTitle(isCompetencies, findViewById(R.id.competencies_of_speciality_info),
+                    competencies, view.findViewById(R.id.arrow_downward1));
             isCompetencies = !isCompetencies;
         });
 
         professionsOfSpeciality.setOnClickListener(view-> {
-            setTextForQuestion(isProfessions, professionsOfSpeciality, professions);
+            setTextForTitle(isProfessions, findViewById(R.id.professions_of_speciality_info),
+                    professions, view.findViewById(R.id.arrow_downward2));
             isProfessions = !isProfessions;
         });
 
         partnersOfSpeciality.setOnClickListener(view-> {
-            setTextForQuestion(isPartners, partnersOfSpeciality, partners);
+            setTextForTitle(isPartners, findViewById(R.id.partners_of_speciality_info),
+                    partners, view.findViewById(R.id.arrow_downward3));
             isPartners = !isPartners;
         });
     }
 
-    private void setTextForQuestion(boolean isPressed, LinearLayout linearLayout, String text){
+    private void setTextForTitle(boolean isPressed, LinearLayout linearLayout, String text, ImageView status){
         if(!isPressed){
             LayoutInflater inflater=(LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             final View rowView=inflater.inflate(R.layout.field_for_questions, null);
             TextView textQuestion = rowView.findViewById(R.id.text_question);
             textQuestion.setText(text);
             linearLayout.addView(rowView);
+            status.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_arrow_back_24));
         }
-        else linearLayout.removeViewAt(linearLayout.getChildCount() - 1);
+        else {
+            linearLayout.removeViewAt(linearLayout.getChildCount() - 1);
+            status.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_arrow_downward_24));
+        }
     }
 
     private void initComponents() {
@@ -116,6 +126,7 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
         professionsOfSpeciality = findViewById(R.id.professions_of_speciality);
         partnersOfSpeciality = findViewById(R.id.partners_of_speciality);
 
+
         new Thread(()->{
             Connection connection = new Database().connect();
             try {
@@ -129,7 +140,7 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                         "\tpay_per_year, contact_number, \n" +
                         "\t(select name from faculties where id=id_facult) as id_facult, \n" +
                         "\tpassing_score " +
-                        "\tFROM public.speciality where id='" + id+ "' and " +
+                        "\tFROM public.speciality where id='" + id + "' and " +
                         "type_of_study=" + getTypeOfStudy()).executeQuery();
                 if(!res.next()) return;
 

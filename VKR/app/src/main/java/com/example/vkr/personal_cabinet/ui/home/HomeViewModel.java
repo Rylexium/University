@@ -55,7 +55,13 @@ public class HomeViewModel extends ViewModel {
 
     public void postTextLogin(String text) { login.postValue(text); }
     public void postTextSex(String text) { sex.postValue(text);}
-    public void postTextSnills(String text) { snills.postValue(text); }
+    public void postTextSnills(String text) {
+        StringBuilder textBuilder = new StringBuilder(text);
+        textBuilder.insert(3, '-');
+        textBuilder.insert(7, '-');
+        textBuilder.insert(11, ' ');
+        snills.postValue(textBuilder.toString());
+    }
     public void postTextNationality(String text) { nationality.postValue(text); }
     public void postTextPassport(String text) {
         if(text.equals("-")) passport.postValue(text);
@@ -74,14 +80,14 @@ public class HomeViewModel extends ViewModel {
             departament_code.postValue(textBuilder.toString());
         }
     }
-    public void postDateOfIssingPassport(String text) { date_of_issing_passport.postValue(text);  }
+    public void postDateOfIssingPassport(String text) { date_of_issing_passport.postValue(text.replace("+00", ""));  }
     public void postConstAddress(String text) { const_address.postValue(text);  }
     public void postActualAddress(String text) { actual_address.postValue(text);  }
     public void postIdEducation(String text) {  id_education.postValue(text);  }
     public void postNumberEducation(String text) {  number_education.postValue(text);  }
-    public void postRegNumberEducation(String text) {  reg_number_education.postValue(text);  }
-    public void postDateOfIssingEducation(String text) {  date_of_issing_education.postValue(text);  }
-    public void postDateOfBirthday(String text) {  date_of_birthday.postValue(text);  }
+    public void postRegNumberEducation(String text) {  reg_number_education.postValue(text.equals("0")? "-": text);  }
+    public void postDateOfIssingEducation(String text) {  date_of_issing_education.postValue(text.replace("+00", ""));  }
+    public void postDateOfBirthday(String text) {  date_of_birthday.postValue(text.replace("+00", ""));  }
 
 
 }

@@ -25,6 +25,7 @@ import com.example.vkr.activity.authorization.AuthorizationActivity;
 import com.example.vkr.activity.authorization.QuestionsActivity;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.databinding.PersonalCabinetActivityBinding;
+import com.example.vkr.personal_cabinet.moreAbout.MoreAboutTheInstitutActivity;
 import com.example.vkr.personal_cabinet.ui.home.HomeFragment;
 import com.example.vkr.personal_cabinet.ui.result_egu.ResultEguFragment;
 import com.example.vkr.personal_cabinet.ui.speciality.SpecialityFragment;
@@ -168,17 +169,17 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                     switch (Integer.parseInt(res.getString("id_education"))){
                         case 1:
                         case 2:
-                            filter = "id like '%.03.%' or id like '%.05.%' order by id";
+                            filter = "id like '%.03.%' or id like '%.05.%'";
                             break;
                         case 5:
                         case 6:
-                            filter = "id like '%.04.%' order by id";
+                            filter = "id like '%.04.%'";
                             break;
                         case 7:
                         case 8:
                         case 9:
                         case 10:
-                            filter = "id like '%.06.%' order by id";
+                            filter = "id like '%.06.%'";
                             break;
                     }
 

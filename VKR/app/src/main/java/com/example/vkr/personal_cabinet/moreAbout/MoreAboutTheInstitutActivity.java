@@ -11,11 +11,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.vkr.R;
 import com.example.vkr.connectDB.Database;
+import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -31,10 +33,11 @@ public class MoreAboutTheInstitutActivity extends AppCompatActivity {
     private TextView directorOfInstitut;
     private TextView contactPhoneOfInstitut;
     private TextView discriptionOfInstitut;
-    private TextView areasOfTraining;
+    private LinearLayout layoutSpecialityInfo;
     private LinearLayout layoutSpeciality;
     private List<List<String>> specialitys;
     private boolean isPressed = false;
+    private int sizeOfSpeciality = 0;
 
 
     @Override
@@ -56,53 +59,73 @@ public class MoreAboutTheInstitutActivity extends AppCompatActivity {
     }
 
     private void applyEvents(){
-        areasOfTraining.setOnClickListener(view -> {
+        layoutSpeciality.setOnClickListener(view -> {
             if(specialitys == null) {
+                layoutSpeciality.setEnabled(false);
                 new Thread(() -> {
                     Connection connect = new Database().connect();
                     try {
                         PreparedStatement statement = connect.prepareStatement("select distinct id, name from speciality " +
-                                "where id_institut=? and (id like '%.03.%'  or id like '%.05.%') order by id");
+                                "where id_institut=? and (" + PersonalCabinetActivity.filter + ") order by id");
                         statement.setInt(1, id);
                         ResultSet res = statement.executeQuery();
                         specialitys = new ArrayList<>();
+
                         while (res.next())
                             specialitys.add(asList(res.getString("id"), res.getString("name")));
+                        sizeOfSpeciality = specialitys.size();
                         connect.close();
                         res.close();
                         statement.close();
 
-                        new Handler(Looper.getMainLooper()).post(this::fillSpeciality);
+                        new Handler(Looper.getMainLooper()).post(()->{
+                            isPressed = true;
+                            fillSpeciality(isPressed, findViewById(R.id.arrow_downward4));
+                            layoutSpeciality.setEnabled(true);
+                        });
 
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
                     }
                 }).start();
             }
-            else{
-                if(isPressed) fillSpeciality();
-                else layoutSpeciality.removeAllViews();
+            else {
+                fillSpeciality(isPressed, findViewById(R.id.arrow_downward4));
                 isPressed = !isPressed;
             }
         });
     }
-    private void fillSpeciality() {
-        for(int i=0; i<specialitys.size(); i++){
-            LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View rowView = inflater.inflate(R.layout.field_for_questions, null);
-            TextView text = rowView.findViewById(R.id.text_question);
-            text.setText(String.format("%s %s", specialitys.get(i).get(0), specialitys.get(i).get(1)));
-            layoutSpeciality.addView(rowView);
+    private void fillSpeciality(boolean isPress, ImageView status) {
+        if(isPress) {
+            for (int i = 0; i < specialitys.size(); i++) {
+                LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                View rowView = inflater.inflate(R.layout.field_for_questions, null);
+                TextView text = rowView.findViewById(R.id.text_question);
+                text.setText(String.format("%s %s", specialitys.get(i).get(0), specialitys.get(i).get(1)));
+                layoutSpecialityInfo.addView(rowView);
+            }
+            status.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_arrow_back_24));
+
+            if(layoutSpecialityInfo != null && layoutSpecialityInfo.getChildCount() > sizeOfSpeciality){ //защита от двойного нажатия
+                for(int i = layoutSpecialityInfo.getChildCount() - 1; i >= sizeOfSpeciality; --i)
+                    layoutSpecialityInfo.removeViewAt(i);
+            }
+        }
+        else {
+            layoutSpecialityInfo.removeAllViews();
+            status.setImageDrawable(ContextCompat.getDrawable(this, R.drawable.ic_baseline_arrow_downward_24));
         }
     }
+
+
     private void initComponents() {
 
         nameOfInstitut = findViewById(R.id.name_of_institut);
         directorOfInstitut = findViewById(R.id.director_of_institut);
         contactPhoneOfInstitut = findViewById(R.id.contact_phone_of_institut);
         discriptionOfInstitut = findViewById(R.id.discription_of_institut);
-        areasOfTraining = findViewById(R.id.textview_areas_of_training);
         layoutSpeciality = findViewById(R.id.layout_of_specialitys);
+        layoutSpecialityInfo = findViewById(R.id.layout_of_specialitys_info);
 
         new Thread(()-> {
             Connection connect = new Database().connect();

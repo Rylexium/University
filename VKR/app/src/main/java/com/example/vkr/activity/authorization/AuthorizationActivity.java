@@ -8,6 +8,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.AutoCompleteTextView;
@@ -99,7 +100,8 @@ public class AuthorizationActivity extends AppCompatActivity {
                         }
                         //от sql-инъекций PreparedStatement
 
-                        PreparedStatement statement = connection.prepareStatement("select * from users where login=?");
+                        PreparedStatement statement = connection.prepareStatement("select login, password, salt1, salt2, id_abit, is_entry, id_education " +
+                                "from users, abit where login=? and id_abit=id;");
                         statement.setString(1, textBoxLogin.getText().toString());
                         ResultSet res = statement.executeQuery();
                         if(!res.next()){ //ничего не пришло
@@ -122,12 +124,13 @@ public class AuthorizationActivity extends AppCompatActivity {
 
 
                         if (res.getString("password").equals(hashPass)) { //что-то пришло
-                            if(res.getString("is_entry") != null && res.getString("is_entry").equals("t")){
-                                new Handler(Looper.getMainLooper()).post(() -> {
-                                    Toast.makeText(AuthorizationActivity.this, "Успешно", Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(this, PersonalCabinetActivity.class)
-                                            .putExtra("login", textBoxLogin.getText().toString()));
-                                });
+                            if( (res.getString("is_entry") != null && res.getString("is_entry").equals("t"))
+                                    || Integer.parseInt(res.getString("id_education")) > 4){
+                                        new Handler(Looper.getMainLooper()).post(() -> {
+                                            Toast.makeText(AuthorizationActivity.this, "Успешно", Toast.LENGTH_SHORT).show();
+                                            startActivity(new Intent(this, PersonalCabinetActivity.class)
+                                                    .putExtra("login", textBoxLogin.getText().toString()));
+                                        });
                             }
                             else {
                                 String id_abit = res.getString("id_abit");
@@ -147,10 +150,8 @@ public class AuthorizationActivity extends AppCompatActivity {
                         connection.close();
                     }
                     catch (Exception e) {
-                        e.printStackTrace();
-                        new Handler(Looper.getMainLooper()).post(() -> {
-                            Toast.makeText(AuthorizationActivity.this, "Что-то с сервером", Toast.LENGTH_SHORT).show();
-                        });
+                        Log.e("", e.getMessage());
+                        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(AuthorizationActivity.this, "Что-то с сервером", Toast.LENGTH_SHORT).show());
                     }
                 });
                 threadConnectToBD.start();
