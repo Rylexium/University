@@ -243,9 +243,9 @@
             android:gravity="center"
             >
             <TextView
+                android:id="@+id/passing_score_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="226"
                 android:gravity="center"
                 android:textSize="26sp"
                 android:textColor="@color/white"

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_faq"
         android:orderInCategory="100"
-        android:title="Настройки"
-        app:showAsAction="never" />
+        android:title="Часто задаваемые вопросы" />
+    <item
+        android:id="@+id/action_contact_with_developer"
+        android:orderInCategory="100"
+        android:title="Связь с разработчиком" />
 </menu>

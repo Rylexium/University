@@ -17,6 +17,10 @@
         android:gravity="center"
         android:focusableInTouchMode="true" >
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            />
     </LinearLayout>
 
 </ScrollView>
