@@ -9,7 +9,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +23,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class ResultEguFragment extends Fragment {
@@ -33,6 +34,8 @@ public class ResultEguFragment extends Fragment {
     private LinearLayout layoutOfExams;
     private static String idAbit;
     private static List<List<String>> exams;
+    private static Map<String, String> minPointsExams;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -44,16 +47,30 @@ public class ResultEguFragment extends Fragment {
                 try {
                     PreparedStatement statement = connect
                             .prepareStatement("SELECT (select name from exams where id=id_exam) as name_exam, points, year\n" +
-                                    "\tFROM abit_exams where id_abit=?");
+                                    "\tFROM abit_exams where id_abit=? order by id_exam desc");
                     statement.setLong(1, Long.parseLong(idAbit));
                     ResultSet res = statement.executeQuery();
                     exams = new ArrayList<>();
-                    while (res.next()) {
+                    while (res.next())
                         exams.add(asList(res.getString("name_exam"), res.getString("points"), res.getString("year")));
-                    }
-                    connect.close();
+
+
                     statement.close();
                     res.close();
+
+                    PreparedStatement statMinPointsExams = connect.prepareStatement("select distinct \n" +
+                                                        "\t(select name from exams where id=id_exam) as exam, min_points\n" +
+                                                        "\tfrom speciality_exams order by min_points desc;");
+                    ResultSet resMinPointsExams = statMinPointsExams.executeQuery();
+                    minPointsExams = new HashMap<>();
+                    while(resMinPointsExams.next())
+                        minPointsExams.put(resMinPointsExams.getString("exam"), resMinPointsExams.getString("min_points"));
+
+
+                    resMinPointsExams.close();
+                    statMinPointsExams.close();
+
+                    connect.close();
                 } catch (SQLException throwables) {
                     throwables.printStackTrace();
                 }
@@ -74,8 +91,15 @@ public class ResultEguFragment extends Fragment {
 
         exam.setText(nameExam);
         points.setText(pointsExam);
+        if(Integer.parseInt(pointsExam) < Integer.parseInt(Objects.requireNonNull(minPointsExams.get(nameExam))))
+            points.setTextColor(Color.RED);
+        else
+            points.setTextColor(Color.BLACK);
+        //if pointsExams < 39 color.red
+        //else color.black
         year.setText(yearExam);
-        layoutOfExams.addView(rowView);
+
+        layoutOfExams.addView(rowView, 0);
 
     }
 
@@ -92,14 +116,13 @@ public class ResultEguFragment extends Fragment {
         LinearLayout ll1 = rowView.findViewById(R.id.field_for_exam_noedit_layout2);
         ll.removeView(ll1);
 
-        layoutOfExams.addView(rowView);
+        layoutOfExams.addView(rowView, 0);
     }
 
     private void fillTable(){
-        addFieldSumExams();
-        for(int i=0; i< exams.size(); ++i)
+        for(int i=0; i < exams.size(); ++i)
             onAddField(exams.get(i).get(0), exams.get(i).get(1), exams.get(i).get(2));
-
+        addFieldSumExams();
     }
     public static void clearTable(){
         if(exams == null) return;

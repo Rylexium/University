@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +16,10 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.vkr.R;
 import com.example.vkr.connectDB.Database;
+import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
 import com.example.vkr.personal_cabinet.moreAbout.MoreAboutTheInstitutActivity;
 import com.example.vkr.personal_cabinet.moreAbout.MoreAboutTheSpecialityActivity;
 
@@ -36,7 +37,7 @@ public class SpecialityFragment extends Fragment {
     private ScrollView scrollView;
     private static List<List<String>> speciality;
     private static Integer start = 0;
-    private final Integer next = 13;
+    private final Integer next = 26;
     private static boolean isBottom = false; // дошли до конца
     private static boolean isAllSpecialityDownload = false;
 
@@ -89,7 +90,7 @@ public class SpecialityFragment extends Fragment {
                         "\t(select name from type_of_study where id=type_of_study) as type_of_study, \n" +
                         "\tname, budget, pay, \n" +
                         "\t(select name from institutions where id=id_institut) as id_institut\n" +
-                        "\tFROM speciality where (id like '%.03.%') or (id like '%.05.%') order by id\n" +
+                        "\tFROM speciality where " + PersonalCabinetActivity.filter +
                         " OFFSET " + start  +" ROWS FETCH NEXT " + next + " ROWS ONLY;").executeQuery();
 
                 int previousSize = speciality.size();
@@ -138,7 +139,8 @@ public class SpecialityFragment extends Fragment {
         scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
             int bottom = (scrollView.getChildAt(scrollView.getChildCount() - 1)).getHeight() - scrollView.getHeight() - scrollY;
             if (bottom == 0 && !isBottom && !isAllSpecialityDownload) {
-                Toast.makeText(binding.getContext(), "Подождите, идёт загрузка...", Toast.LENGTH_LONG).show();
+                Snackbar.make(scrollView, "Подождите, идёт загрузка...", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
                 isBottom = true;
                 downloadSpeciality();
             } else{
@@ -148,6 +150,16 @@ public class SpecialityFragment extends Fragment {
         });
 
         scrollView.post(() -> scrollView.scrollTo(0, scrollY)); //возвращаем предыдущую позицию в scrollView
+    }
+
+    public static void clearTable() {
+        if(speciality != null){
+            speciality.clear();
+            speciality = null;
+        }
+        start = 0;
+        isBottom = false;
+        isAllSpecialityDownload = false;
     }
 
     @Override

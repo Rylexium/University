@@ -1,13 +1,14 @@
 package com.example.vkr.personal_cabinet;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AlertDialog;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.NavigationView;
 
 import androidx.navigation.NavController;
@@ -21,10 +22,12 @@ import android.widget.TextView;
 
 import com.example.vkr.R;
 import com.example.vkr.activity.authorization.AuthorizationActivity;
+import com.example.vkr.activity.authorization.QuestionsActivity;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.databinding.PersonalCabinetActivityBinding;
 import com.example.vkr.personal_cabinet.ui.home.HomeFragment;
 import com.example.vkr.personal_cabinet.ui.result_egu.ResultEguFragment;
+import com.example.vkr.personal_cabinet.ui.speciality.SpecialityFragment;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,6 +41,8 @@ public class PersonalCabinetActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private PersonalCabinetActivityBinding binding;
 
+    public static String filter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,12 +50,11 @@ public class PersonalCabinetActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         setSupportActionBar(binding.appBarPersonalCabinet.toolbar);
-        binding.appBarPersonalCabinet.fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
+        binding.appBarPersonalCabinet.fab.setOnClickListener(view -> startActivity(new Intent(Intent.ACTION_VIEW)
+                                                                                .setData(Uri.parse("https://vk.com/moais_samara"))));
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
+
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_home,
                 R.id.nav_achievement,
@@ -69,11 +73,23 @@ public class PersonalCabinetActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.personal_cabinet, menu);
         return true;
     }
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_contact_with_developer:
+                startActivity(new Intent(Intent.ACTION_VIEW)
+                        .setData(Uri.parse("https://vk.com/rylexium")));
+                return true;
+            case R.id.action_faq:
+                startActivity(new Intent(this, QuestionsActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
     @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_personal_cabinet);
@@ -91,6 +107,7 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
                             HomeFragment.clearDate();
                             ResultEguFragment.clearTable();
+                            SpecialityFragment.clearTable();
                             dialog.dismiss();
                         })
                 .setNegativeButton("Нет", (dialog, which) -> dialog.dismiss())
@@ -117,7 +134,8 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                                             "(select name from sex where id=abit.sex) as sex, \n" +
                                             "(select name from nationality where id=abit.id_nationality) as nationality, \n" +
                                             "passport, departament_code, date_of_issing_passport, const_address, actual_address, \n" +
-                                            "(select name from education where id=id_education) as id_education, \n" +
+                                            "(select name from education where id=id_education) as education, \n" +
+                                            "id_education, \n" +
                                             "number_education, reg_number_education, date_of_issing_education, date_of_birthday\n" +
                                             "\tFROM abit, users where id_abit=id and login=?");
                 statement.setString(1, getIntent().getStringExtra("login"));
@@ -141,11 +159,29 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                                                         res.getString("date_of_issing_passport"),
                                                         res.getString("const_address"),
                                                         res.getString("actual_address"),
-                                                        res.getString("id_education"),
+                                                        res.getString("education"),
                                                         res.getString("number_education"),
                                                         res.getString("reg_number_education"),
                                                         res.getString("date_of_birthday"));
                     sendIdAbitToResultEguFragment(res.getString("id"));
+
+                    switch (Integer.parseInt(res.getString("id_education"))){
+                        case 1:
+                        case 2:
+                            filter = "id like '%.03.%' or id like '%.05.%' order by id";
+                            break;
+                        case 5:
+                        case 6:
+                            filter = "id like '%.04.%' order by id";
+                            break;
+                        case 7:
+                        case 8:
+                        case 9:
+                        case 10:
+                            filter = "id like '%.06.%' order by id";
+                            break;
+                    }
+
 
                     new Handler(Looper.getMainLooper()).post(() -> {
                                 fio.setText(resFio);
@@ -186,6 +222,7 @@ public class PersonalCabinetActivity extends AppCompatActivity {
     private void sendIdAbitToResultEguFragment(String snills){
         ResultEguFragment.setIdAbit(snills);
     }
+
 
     private StringBuilder doNicePhone(String phone){ // 89371727345 -> 8 (937) 17-27-345
         StringBuilder res = new StringBuilder();

@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,16 +16,14 @@ import android.widget.TextView;
 import com.example.vkr.R;
 import com.example.vkr.connectDB.Database;
 
-import org.w3c.dom.Text;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
 
@@ -44,6 +41,7 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
     private TextView payPerYearOfSpeciality;
     private TextView payOfSpeciality;
     private TextView descriptionOfSpeciality;
+    private TextView passingScoreOfSpeciality;
 
     private LinearLayout mainLayout;
     private LinearLayout layoutOfExamsForSpeciality;
@@ -109,6 +107,7 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
         payPerYearOfSpeciality = findViewById(R.id.pay_per_year_of_speciality);
         payOfSpeciality = findViewById(R.id.pay_of_speciality);
         descriptionOfSpeciality = findViewById(R.id.description_of_speciality);
+        passingScoreOfSpeciality = findViewById(R.id.passing_score_number);
 
         mainLayout = findViewById(R.id.layout_more_about_the_speciality);
         layoutOfExamsForSpeciality = findViewById(R.id.layout_of_exams_for_speciality);
@@ -128,7 +127,8 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                         "\tcompetencies, professions, partners, direction, studying_time, \n" +
                         "\t(select (family || ' ' || name || ' ' || patronymic) from employees where id=curator) as curator, \n" +
                         "\tpay_per_year, contact_number, \n" +
-                        "\t(select name from faculties where id=id_facult) as id_facult\n" +
+                        "\t(select name from faculties where id=id_facult) as id_facult, \n" +
+                        "\tpassing_score " +
                         "\tFROM public.speciality where id='" + id+ "' and " +
                         "type_of_study=" + getTypeOfStudy()).executeQuery();
                 if(!res.next()) return;
@@ -145,7 +145,7 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                 String payPerYearSpeciality = res.getString("pay_per_year");
                 String paySpeciality = res.getString("pay");
                 String descriptionSpeciality = res.getString("description");
-
+                String passingScoreSpeciality = res.getString("passing_score");
                 competencies = res.getString("competencies");
                 professions = res.getString("professions");
                 partners = res.getString("partners");
@@ -158,15 +158,19 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                     if(facultSpeciality == null) mainLayout.removeView(facultOfSpeciality);
                     else facultOfSpeciality.setText(facultSpeciality);
 
-                    fioCuratorOfSpeciality.setText(String.format("Куратор: %s", fioCuratorSpeciality));
-                    phoneOfSpeciality.setText(String.format("Номер для связи: %s", phoneSpeciality));
-                    studyingTimeOfSpeciality.setText(String.format("%s %s", studyingTimeSpeciality, Integer.parseInt(studyingTimeSpeciality) < 5 ? "года" : "лет"));
+                    fioCuratorOfSpeciality.setText(String.format("Куратор: %s", fioCuratorSpeciality == null? '-' :  fioCuratorSpeciality));
+                    phoneOfSpeciality.setText(String.format("Номер для связи: %s", phoneSpeciality == null? '-': phoneSpeciality));
+                    if(studyingTimeSpeciality != null)
+                            studyingTimeOfSpeciality.setText(String.format("%s %s", studyingTimeSpeciality, Integer.parseInt(studyingTimeSpeciality) < 5 ? "года" : "лет"));
                     typeOfStudyOfSpeciality.setText(typeOfStudySpeciality);
                     budgetOfSpeciality.setText(budgetSpeciality);
-                    payPerYearOfSpeciality.setText(payPerYearSpeciality.length() == 5? new StringBuilder(payPerYearSpeciality).insert(2, ' ').toString():
-                                                                                       new StringBuilder(payPerYearSpeciality).insert(3, ' ').toString());
+
+                    if(payPerYearSpeciality != null)
+                        payPerYearOfSpeciality.setText(payPerYearSpeciality.length() == 5? new StringBuilder(payPerYearSpeciality).insert(2, ' ').toString():
+                                                                                           new StringBuilder(payPerYearSpeciality).insert(3, ' ').toString());
                     payOfSpeciality.setText(paySpeciality);
                     descriptionOfSpeciality.setText(descriptionSpeciality);
+                    passingScoreOfSpeciality.setText(passingScoreSpeciality == null? "-" : passingScoreSpeciality);
                 });
                 res.close();
                 connection.close();
@@ -183,7 +187,6 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                         "\t(select name from exams where id=id_exam) as exam,\n" +
                         "\tmin_points\n" +
                         "\tfrom speciality_exams where id_spec=? order by id_exam");
-                Log.e("", id);
                 statement.setString(1, id);
                 ResultSet res = statement.executeQuery();
 
