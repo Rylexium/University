@@ -21,6 +21,8 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_personal_cabinet"
+        app:itemTextAppearance="@style/TextAppearance.App.TextInputLayout"
+        app:itemTextColor="#000000"
         app:menu="@menu/personal_cabinet_activity_drawer" />
 
 </android.support.v4.widget.DrawerLayout>
