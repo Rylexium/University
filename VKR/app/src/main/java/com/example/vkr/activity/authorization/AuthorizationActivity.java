@@ -98,7 +98,6 @@ public class AuthorizationActivity extends AppCompatActivity {
                             });
                             return;
                         }
-                        //от sql-инъекций PreparedStatement
 
                         PreparedStatement statement = connection.prepareStatement("select login, password, salt1, salt2, id_abit, is_entry, id_education " +
                                 "from users, abit where login=? and id_abit=id;");

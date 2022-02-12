@@ -25,7 +25,6 @@ import com.example.vkr.activity.authorization.AuthorizationActivity;
 import com.example.vkr.activity.authorization.QuestionsActivity;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.databinding.PersonalCabinetActivityBinding;
-import com.example.vkr.personal_cabinet.moreAbout.MoreAboutTheInstitutActivity;
 import com.example.vkr.personal_cabinet.ui.home.HomeFragment;
 import com.example.vkr.personal_cabinet.ui.result_egu.ResultEguFragment;
 import com.example.vkr.personal_cabinet.ui.speciality.SpecialityFragment;
@@ -70,6 +69,7 @@ public class PersonalCabinetActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
         initComponents();
+
     }
 
     @Override

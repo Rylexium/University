@@ -90,8 +90,8 @@ public class MoreAboutTheInstitutActivity extends AppCompatActivity {
                 }).start();
             }
             else {
-                fillSpeciality(isPressed, findViewById(R.id.arrow_downward4));
                 isPressed = !isPressed;
+                fillSpeciality(isPressed, findViewById(R.id.arrow_downward4));
             }
         });
     }

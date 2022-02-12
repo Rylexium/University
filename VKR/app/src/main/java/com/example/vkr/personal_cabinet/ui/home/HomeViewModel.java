@@ -56,11 +56,15 @@ public class HomeViewModel extends ViewModel {
     public void postTextLogin(String text) { login.postValue(text); }
     public void postTextSex(String text) { sex.postValue(text);}
     public void postTextSnills(String text) {
-        StringBuilder textBuilder = new StringBuilder(text);
-        textBuilder.insert(3, '-');
-        textBuilder.insert(7, '-');
-        textBuilder.insert(11, ' ');
-        snills.postValue(textBuilder.toString());
+        if(text.length() < 11)
+            snills.postValue(text);
+        else{
+            StringBuilder textBuilder = new StringBuilder(text);
+            textBuilder.insert(3, '-');
+            textBuilder.insert(7, '-');
+            textBuilder.insert(11, ' ');
+            snills.postValue(textBuilder.toString());
+        }
     }
     public void postTextNationality(String text) { nationality.postValue(text); }
     public void postTextPassport(String text) {

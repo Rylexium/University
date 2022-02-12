@@ -1,5 +1,6 @@
 package com.example.vkr.personal_cabinet.ui.home;
 
+import android.app.ActionBar;
 import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -217,6 +219,7 @@ public class HomeFragment extends Fragment {
                 isDownloadImagesEducation = !isDownloadImagesEducation;
             }
         });
+
     }
 
     private void setImages(Bitmap bitmap1, Bitmap bitmap2, LinearLayout linearLayout){
