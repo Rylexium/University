@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 
 import com.example.vkr.R;
 import com.example.vkr.connectDB.Database;
+import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -48,7 +49,7 @@ public class ResultEguFragment extends Fragment {
                     PreparedStatement statement = connect
                             .prepareStatement("SELECT (select name from exams where id=id_exam) as name_exam, points, year\n" +
                                     "\tFROM abit_exams where id_abit=? order by id_exam desc");
-                    statement.setLong(1, Long.parseLong(idAbit));
+                    statement.setLong(1, Long.parseLong(PersonalCabinetActivity.idAbit));
                     ResultSet res = statement.executeQuery();
                     exams = new ArrayList<>();
                     while (res.next())

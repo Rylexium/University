@@ -1,11 +1,14 @@
 package com.example.vkr.personal_cabinet;
 
+import static java.util.Arrays.asList;
+
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
@@ -25,6 +28,7 @@ import com.example.vkr.activity.authorization.AuthorizationActivity;
 import com.example.vkr.activity.authorization.QuestionsActivity;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.databinding.PersonalCabinetActivityBinding;
+import com.example.vkr.personal_cabinet.moreAbout.MoreAboutTheSpecialityActivity;
 import com.example.vkr.personal_cabinet.ui.home.HomeFragment;
 import com.example.vkr.personal_cabinet.ui.result_egu.ResultEguFragment;
 import com.example.vkr.personal_cabinet.ui.speciality.SpecialityFragment;
@@ -33,6 +37,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class PersonalCabinetActivity extends AppCompatActivity {
     private NavigationView navigationView;
@@ -41,7 +52,11 @@ public class PersonalCabinetActivity extends AppCompatActivity {
     private AppBarConfiguration mAppBarConfiguration;
     private PersonalCabinetActivityBinding binding;
 
+
+    public static String idAbit;
     public static String filter;
+    public static Set<List<String>> specialitysAbit;
+    public static Map<String, String> typeOfStudy;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +92,7 @@ public class PersonalCabinetActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.personal_cabinet, menu);
         return true;
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -106,6 +122,8 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                         (dialog, which) -> {
                             startActivity(new Intent(this, AuthorizationActivity.class)
                                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
+                            sendSpeciality();
+                            clearData();
                             HomeFragment.clearDate();
                             ResultEguFragment.clearTable();
                             SpecialityFragment.clearTable();
@@ -115,6 +133,38 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                 .setOnDismissListener(dialogInterface -> navigationView.getMenu().findItem(R.id.nav_home).setChecked(true))
                 .create()
                 .show();
+    }
+
+
+    public static void sendSpeciality() {
+        if(PersonalCabinetActivity.specialitysAbit == null) return;
+        StringBuilder resQuery = new StringBuilder("");
+        PersonalCabinetActivity.specialitysAbit.forEach(e->{
+            resQuery.append("INSERT INTO public.abit_spec(id_abit, id_spec, type_of_study) VALUES (" + e.get(0) + ", '" + e.get(1) + "', " + e.get(2) + ");\n");
+        });
+        new Thread(()->{
+            Connection connection = new Database().connect();
+            List<String> arr = Arrays.asList(resQuery.toString().split("\n"));
+            try {
+                for(int i=0; i<arr.size(); i++){
+                    try{
+                        connection.prepareStatement(arr.get(i)).execute();
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                }
+                connection.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void clearData(){
+        idAbit = null;
+        filter = null;
+        if(specialitysAbit != null)specialitysAbit.clear();
+        specialitysAbit = null;
     }
 
     private void initComponents(){
@@ -164,7 +214,7 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                                                         res.getString("number_education"),
                                                         res.getString("reg_number_education"),
                                                         res.getString("date_of_birthday"));
-                    sendIdAbitToResultEguFragment(res.getString("id"));
+                    idAbit = res.getString("id");
 
                     switch (Integer.parseInt(res.getString("id_education"))){
                         case 1:
@@ -196,6 +246,36 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                 throwables.printStackTrace();
             }
         }).start();
+        new Thread(()->{
+            Connection connection = new Database().connect();
+            try {
+                ResultSet res = connection.prepareStatement("select * from type_of_study").executeQuery();
+                typeOfStudy = new HashMap<>();
+                while (res.next())
+                    typeOfStudy.put(res.getString("name"), res.getString("id"));
+                connection.close();
+                res.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+
+        }).start();
+
+        new Thread(()->{
+            Connection connection = new Database().connect();
+            try {
+                ResultSet res = connection.prepareStatement("SELECT * FROM abit_spec where id_abit=(select id_abit from users where login='"
+                        + getIntent().getStringExtra("login") + "')").executeQuery();
+                specialitysAbit = new HashSet<>();
+                while (res.next())
+                    specialitysAbit.add(asList(res.getString("id_abit"), res.getString("id_spec"), res.getString("type_of_study")));
+                connection.close();
+                res.close();
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }).start();
     }
 
     private void sendDataToHomeFragment(String login, String snills, String sex, String nationality,
@@ -220,10 +300,6 @@ public class PersonalCabinetActivity extends AppCompatActivity {
 
     }
 
-    private void sendIdAbitToResultEguFragment(String snills){
-        ResultEguFragment.setIdAbit(snills);
-    }
-
 
     private StringBuilder doNicePhone(String phone){ // 89371727345 -> 8 (937) 17-27-345
         StringBuilder res = new StringBuilder();
@@ -235,4 +311,5 @@ public class PersonalCabinetActivity extends AppCompatActivity {
         }
         return res;
     }
+
 }

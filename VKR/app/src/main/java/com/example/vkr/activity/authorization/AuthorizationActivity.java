@@ -43,8 +43,6 @@ public class AuthorizationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getSupportActionBar() != null) getSupportActionBar().hide(); //убираем action bar
-        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.blue_500));
         setContentView(R.layout.authorization_activity);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         initComponents();

@@ -2,23 +2,37 @@ package com.example.vkr.personal_cabinet.moreAbout;
 
 import static java.util.Arrays.asList;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.view.menu.ActionMenuItemView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.example.vkr.R;
+import com.example.vkr.activity.authorization.QuestionsActivity;
 import com.example.vkr.connectDB.Database;
+import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
+
+import org.w3c.dom.Text;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -30,7 +44,7 @@ import java.util.Objects;
 
 public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
 
-    private String id;
+    private String idSpec;
 
     private TextView institutOfSpeciality;
     private TextView facultOfSpeciality;
@@ -46,6 +60,8 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
     private TextView descriptionOfSpeciality;
     private TextView passingScoreOfSpeciality;
 
+    private Toolbar toolbar;
+
     private LinearLayout mainLayout;
     private LinearLayout layoutOfExamsForSpeciality;
 
@@ -55,6 +71,7 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
     private LinearLayout professionsOfSpeciality;
     private LinearLayout partnersOfSpeciality;
 
+    private boolean favorite = false;
 
     private String competencies, professions, partners;
     private boolean isCompetencies = false, isProfessions = false, isPartners = false;
@@ -64,9 +81,65 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_more_about_the_speciality);
+        setSupportActionBar(findViewById(R.id.toolbar_speciality));
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         initComponents();
         applyEvents();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu){
+        getMenuInflater().inflate(R.menu.menu_speciality, menu);
+        MenuItem menuItem = menu.findItem(R.id.add_speciality);
+        Drawable icon = DrawableCompat.wrap(Objects.requireNonNull(favorite ? ContextCompat.getDrawable(this, R.drawable.ic_baseline_favorite_24) :
+                                                                              ContextCompat.getDrawable(this, R.drawable.ic_baseline_favorite_border_24)));
+        menuItem.setIcon(icon);
+        return true;
+    }
+
+    @SuppressLint("RestrictedApi")
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_contact_with_developer:
+                startActivity(new Intent(Intent.ACTION_VIEW)
+                        .setData(Uri.parse("https://vk.com/rylexium")));
+                return true;
+            case R.id.action_faq:
+                startActivity(new Intent(this, QuestionsActivity.class));
+                return true;
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.add_speciality:
+                ActionMenuItemView it = findViewById(R.id.add_speciality);
+                if(favorite){
+                    favorite = false;
+                    PersonalCabinetActivity.specialitysAbit.remove(asList(PersonalCabinetActivity.idAbit, idSpec, getTypeOfStudy()));
+                    it.setIcon(DrawableCompat.wrap(Objects.requireNonNull(ContextCompat.getDrawable(this, R.drawable.ic_baseline_favorite_border_24))));
+                    new Thread(()->{
+                        Connection connection = new Database().connect();
+                        try {
+                            connection.prepareStatement("DELETE FROM public.abit_spec " +
+                                    "WHERE id_abit=" + PersonalCabinetActivity.idAbit + " and id_spec='" + idSpec + "' and type_of_study=" + getTypeOfStudy()).execute();
+                        } catch (SQLException throwables) {
+                            throwables.printStackTrace();
+                        }
+                    }).start();
+                }
+                else if(PersonalCabinetActivity.specialitysAbit.size() < 3) {
+                    favorite = true;
+                    PersonalCabinetActivity.specialitysAbit.add(asList(PersonalCabinetActivity.idAbit, idSpec, getTypeOfStudy()));
+                    it.setIcon(DrawableCompat.wrap(Objects.requireNonNull(ContextCompat.getDrawable(this, R.drawable.ic_baseline_favorite_24))));
+                }
+                else {
+                    Snackbar.make(it, "Вы не можете выбрать больше 3 специальностей...", Snackbar.LENGTH_LONG)
+                            .setAction("Action", null).show();
+                }
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     private void applyEvents() {
@@ -87,6 +160,7 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                     partners, view.findViewById(R.id.arrow_downward3));
             isPartners = !isPartners;
         });
+
     }
 
     private void setTextForTitle(boolean isPressed, LinearLayout linearLayout, String text, ImageView status){
@@ -104,8 +178,9 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     private void initComponents() {
-        id = getIntent().getStringExtra("id");
+        idSpec = getIntent().getStringExtra("id");
         institutOfSpeciality = findViewById(R.id.institut_of_speciality);
         facultOfSpeciality = findViewById(R.id.facult_of_speciality);
         nameOfSpeciality = findViewById(R.id.name_of_speciality);
@@ -127,7 +202,6 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
         professionsOfSpeciality = findViewById(R.id.professions_of_speciality);
         partnersOfSpeciality = findViewById(R.id.partners_of_speciality);
 
-
         new Thread(()->{
             Connection connection = new Database().connect();
             try {
@@ -141,7 +215,7 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                         "\tpay_per_year, contact_number, \n" +
                         "\t(select name from faculties where id=id_facult) as id_facult, \n" +
                         "\tpassing_score " +
-                        "\tFROM public.speciality where id='" + id + "' and " +
+                        "\tFROM public.speciality where id='" + idSpec + "' and " +
                         "type_of_study=" + getTypeOfStudy()).executeQuery();
                 if(!res.next()) return;
 
@@ -191,7 +265,6 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                 throwables.printStackTrace();
             }
         }).start();
-
         new Thread(()-> {
             Connection connection = new Database().connect();
             try {
@@ -199,7 +272,7 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                         "\t(select name from exams where id=id_exam) as exam,\n" +
                         "\tmin_points\n" +
                         "\tfrom speciality_exams where id_spec=? order by id_exam");
-                statement.setString(1, id);
+                statement.setString(1, idSpec);
                 ResultSet res = statement.executeQuery();
 
                 exams = new ArrayList<>();
@@ -225,19 +298,12 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                 throwables.printStackTrace();
             }
         }).start();
+
+        favorite = PersonalCabinetActivity.specialitysAbit.contains(asList(PersonalCabinetActivity.idAbit, idSpec, getTypeOfStudy()));
     }
 
     private String getTypeOfStudy() {
-        if(getIntent().getStringExtra("type_of_study").equals("Очная")) return "1";
-        else if (getIntent().getStringExtra("type_of_study").equals("Заочная")) return "3";
-        else return "2";
+        return PersonalCabinetActivity.typeOfStudy.get(getIntent().getStringExtra("type_of_study"));
     }
 
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return false;
-    }
 }
