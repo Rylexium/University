@@ -38,17 +38,17 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
-            android:digits="0123456788"
-            android:maxLength="3"
-            android:inputType="phone"
-            android:singleLine="true"
             android:clickable="false"
-            android:textColorHint="@color/silver"
+            android:digits="0123456788"
             android:enabled="false"
-            android:textSize="24dp"
             android:gravity="center"
             android:hint="Баллы"
-            android:textColor="@color/black" />
+            android:inputType="phone"
+            android:maxLength="3"
+            android:singleLine="true"
+            android:textColor="@color/black"
+            android:textColorHint="@color/silver"
+            android:textSize="24dp" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/field_for_exam_noedit_layout2"

@@ -15,4 +15,8 @@
         android:id="@+id/action_contact_with_developer"
         android:orderInCategory="2"
         android:title="Связь с разработчиком" />
+    <item
+        android:id="@+id/action_we_on_maps"
+        android:orderInCategory="3"
+        android:title="Где мы находимся?" />
 </menu>

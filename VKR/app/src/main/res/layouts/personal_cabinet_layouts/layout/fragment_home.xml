@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:fillViewport="true"
+    android:background="@drawable/neutral_cradient"
     android:nestedScrollingEnabled="true"
     tools:context=".personal_cabinet.ui.home.HomeFragment">
     <LinearLayout
@@ -201,7 +202,8 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="15dp"
                 android:text="Страницы с изображением вашего паспорта"
-                android:background="@color/silver"
+                android:textColor="@color/white"
+                android:background="@drawable/round_btn"
                 />
         </LinearLayout>
         <TextView
@@ -353,7 +355,8 @@
                 android:layout_height="match_parent"
                 android:layout_marginTop="15dp"
                 android:text="Страницы с изображением вашего документа об образовании"
-                android:background="@color/silver"
+                android:textColor="@color/white"
+                android:background="@drawable/round_btn"
                 />
         </LinearLayout>
 
