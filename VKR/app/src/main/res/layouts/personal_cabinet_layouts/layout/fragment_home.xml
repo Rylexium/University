@@ -28,7 +28,7 @@
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:text="Логин"
-                android:textColor="@color/black"
+                android:textStyle="bold"
                 android:textSize="24dp"
                 />
             <TextView
@@ -36,6 +36,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
+                android:textStyle="bold"
                 android:textSize="24dp"
                 />
         </LinearLayout>
@@ -44,6 +45,7 @@
             android:layout_height="match_parent"
             android:text="Персональные данные"
             android:textSize="26dp"
+            android:textStyle="bold"
             android:textColor="@color/black"
             />
         <LinearLayout
@@ -56,10 +58,12 @@
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:text="СНИЛС"
+                android:textStyle="bold"
                 android:textSize="20dp"
                 />
             <TextView
                 android:id="@+id/textview_snills"
+                android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
@@ -77,12 +81,14 @@
                 android:layout_height="wrap_content"
                 android:text="Дата рождения"
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
             <TextView
                 android:id="@+id/textview_date_of_birthday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
+                android:textStyle="bold"
                 android:textSize="20dp"
                 />
         </LinearLayout>
@@ -97,12 +103,14 @@
                 android:layout_height="wrap_content"
                 android:text="Пол"
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
             <TextView
                 android:id="@+id/textview_sex"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=""
+                android:textStyle="bold"
                 android:textSize="20dp"
                 />
         </LinearLayout>
@@ -118,6 +126,7 @@
                 android:layout_height="wrap_content"
                 android:text="Гражданство"
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
             <TextView
                 android:id="@+id/textview_nationality"
@@ -125,6 +134,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
         </LinearLayout>
 
@@ -139,6 +149,7 @@
                 android:layout_height="wrap_content"
                 android:text="Паспорт"
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
             <TextView
                 android:id="@+id/textview_passport"
@@ -146,6 +157,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
         </LinearLayout>
 
@@ -160,6 +172,7 @@
                 android:layout_height="wrap_content"
                 android:text="Код подразделения"
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
             <TextView
                 android:id="@+id/textview_departament_code"
@@ -167,6 +180,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
         </LinearLayout>
         <LinearLayout
@@ -179,6 +193,7 @@
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:text="Дата выдачи паспорта"
+                android:textStyle="bold"
                 android:textSize="20dp"
                 />
             <TextView
@@ -187,6 +202,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
         </LinearLayout>
         <LinearLayout
@@ -211,6 +227,7 @@
             android:layout_height="match_parent"
             android:text="Адрес"
             android:textSize="26dp"
+            android:textStyle="bold"
             android:textColor="@color/black"
             />
 
@@ -225,6 +242,7 @@
                 android:layout_height="wrap_content"
                 android:text="Место прописки"
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
             <TextView
                 android:id="@+id/textview_const_address"
@@ -232,6 +250,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
         </LinearLayout>
         <LinearLayout
@@ -245,6 +264,7 @@
                 android:layout_height="wrap_content"
                 android:text="Фактическое местопроживание"
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
             <TextView
                 android:id="@+id/textview_actual_address"
@@ -252,6 +272,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
         </LinearLayout>
         <TextView
@@ -259,6 +280,7 @@
             android:layout_height="match_parent"
             android:text="Образование"
             android:textSize="26dp"
+            android:textStyle="bold"
             android:textColor="@color/black"
             />
         <LinearLayout
@@ -272,6 +294,7 @@
                 android:layout_height="wrap_content"
                 android:text="Тип образования"
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
             <TextView
                 android:id="@+id/textview_id_education"
@@ -279,6 +302,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
         </LinearLayout>
         <LinearLayout
@@ -292,6 +316,7 @@
                 android:layout_height="wrap_content"
                 android:text="Номер образовательного документа"
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
             <TextView
                 android:id="@+id/textview_number_education"
@@ -299,6 +324,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
         </LinearLayout>
         <LinearLayout
@@ -312,6 +338,7 @@
                 android:layout_height="wrap_content"
                 android:text="Регистрационный номер"
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
             <TextView
                 android:id="@+id/textview_reg_number_education"
@@ -319,6 +346,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
         </LinearLayout>
         <LinearLayout
@@ -332,6 +360,7 @@
                 android:layout_height="wrap_content"
                 android:text="Дата выдачи документа об образовании"
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
             <TextView
                 android:id="@+id/textview_date_of_issing_education"
@@ -339,6 +368,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textSize="20dp"
+                android:textStyle="bold"
                 />
         </LinearLayout>
 

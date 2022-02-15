@@ -13,7 +13,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_weight="0.8"
+            android:layout_weight="0.5"
             android:gravity="center"
             android:text=""
             android:textColor="@color/black"
@@ -25,6 +25,7 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:textSize="24dp"
+            android:textStyle="italic"
             android:gravity="center"
             android:layout_weight="4.5"
             android:background="@color/white"
@@ -32,23 +33,31 @@
             android:enabled="false"
             android:clickable="false"/>
 
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="0.2"
+            android:gravity="center" />
         <EditText
             android:id="@+id/text_points_of_exam_noedit"
             style="@android:style/Widget.Holo.Light.Spinner"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="2"
+            android:layout_weight="1.8"
             android:clickable="false"
             android:digits="0123456788"
             android:enabled="false"
             android:gravity="center"
             android:hint="Баллы"
+            android:textStyle="bold"
             android:inputType="phone"
             android:maxLength="3"
+            android:background="@color/white"
             android:singleLine="true"
             android:textColor="@color/black"
             android:textColorHint="@color/silver"
             android:textSize="24dp" />
+
     </LinearLayout>
     <LinearLayout
         android:id="@+id/field_for_exam_noedit_layout2"
@@ -59,7 +68,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_weight="0.8"
+            android:layout_weight="0.5"
             android:gravity="center"
             android:textColor="@color/black"
             android:textSize="20dp" />
@@ -70,6 +79,7 @@
             android:layout_weight="4.5"
             android:layout_height="match_parent"
             android:textSize="24dp"
+            android:textStyle="italic"
             android:gravity="center"
             android:background="@color/white"
             android:textColor="@color/black"
@@ -78,10 +88,13 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_weight="2"
-            android:gravity="center"
-            android:textColor="@color/black"
-            android:textSize="20dp" />
+            android:layout_weight="0.2"
+            android:gravity="center" />
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1.8"
+            android:gravity="center" />
 
     </LinearLayout>
 
