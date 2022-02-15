@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.widget.Button;
 import android.widget.AutoCompleteTextView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +22,7 @@ import com.example.vkr.activity.registration.ExamsResultActivity;
 import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
 import com.example.vkr.activity.registration.RegistrationActivity;
 import com.example.vkr.utils.HideKeyboardClass;
+import com.example.vkr.utils.OpenActivity;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -49,11 +51,12 @@ public class AuthorizationActivity extends AppCompatActivity {
         comebackAfterOnBackPressed();
         ApplyEvents();
     }
-
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (getCurrentFocus() != null) {
             HideKeyboardClass.hideKeyboard(this);
+            LinearLayout ll = findViewById(R.id.authorization_layout);
+            ll.requestFocus();
         }
         return super.dispatchTouchEvent(ev);
     }
@@ -81,12 +84,15 @@ public class AuthorizationActivity extends AppCompatActivity {
 
         labelRememberPassword.setOnClickListener(view -> System.out.println("Типа помогаем восстановить логин или пароль"));
         labelRegistration.setOnClickListener(view -> startActivity(new Intent(this, RegistrationActivity.class)));
-        labelQuestions.setOnClickListener(view -> startActivity(new Intent(this, QuestionsActivity.class)));
+        labelQuestions.setOnClickListener(view -> OpenActivity.openPageWithQuestion(this));
 
         singInBtn.setOnClickListener(view -> {
             if(textBoxLogin.getText().length() == 0 || textBoxPassword.getText().length() == 0) return;
 
             if(threadConnectToBD == null || !threadConnectToBD.isAlive()) {
+                singInBtn.setEnabled(false);
+                String previousText = (String) singInBtn.getText();
+                singInBtn.setText("Входим...");
                 threadConnectToBD = new Thread(() -> { //в другом потоке коннект и проверяем есть ли юзер
                     try {
                         Connection connection = new Database().connect();
@@ -150,6 +156,10 @@ public class AuthorizationActivity extends AppCompatActivity {
                         Log.e("", e.getMessage());
                         new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(AuthorizationActivity.this, "Что-то с сервером", Toast.LENGTH_SHORT).show());
                     }
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        singInBtn.setEnabled(true);
+                        singInBtn.setText(previousText);
+                    });
                 });
                 threadConnectToBD.start();
                 saveLastState();

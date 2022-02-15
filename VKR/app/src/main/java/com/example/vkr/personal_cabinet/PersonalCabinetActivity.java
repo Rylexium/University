@@ -3,12 +3,12 @@ package com.example.vkr.personal_cabinet;
 import static java.util.Arrays.asList;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AlertDialog;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
@@ -25,19 +25,17 @@ import android.widget.TextView;
 
 import com.example.vkr.R;
 import com.example.vkr.activity.authorization.AuthorizationActivity;
-import com.example.vkr.activity.authorization.QuestionsActivity;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.databinding.PersonalCabinetActivityBinding;
-import com.example.vkr.personal_cabinet.moreAbout.MoreAboutTheSpecialityActivity;
 import com.example.vkr.personal_cabinet.ui.home.HomeFragment;
 import com.example.vkr.personal_cabinet.ui.result_egu.ResultEguFragment;
 import com.example.vkr.personal_cabinet.ui.speciality.SpecialityFragment;
+import com.example.vkr.utils.OpenActivity;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,18 +47,20 @@ public class PersonalCabinetActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private TextView fio;
     private TextView emailPhone;
+
     private AppBarConfiguration mAppBarConfiguration;
     private PersonalCabinetActivityBinding binding;
-
 
     public static String idAbit;
     public static String filter;
     public static Set<List<String>> specialitysAbit;
     public static Map<String, String> typeOfStudy;
+    public static Map<String, String> instituts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         binding = PersonalCabinetActivityBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -97,12 +97,11 @@ public class PersonalCabinetActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_contact_with_developer:
-                startActivity(new Intent(Intent.ACTION_VIEW)
-                        .setData(Uri.parse("https://vk.com/rylexium")));
-                return true;
+                return OpenActivity.openPageDeveloper(this);
             case R.id.action_faq:
-                startActivity(new Intent(this, QuestionsActivity.class));
-                return true;
+                return OpenActivity.openPageWithQuestion(this);
+            case R.id.action_we_on_maps:
+                return OpenActivity.openMapsWhereWe(this);
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -176,6 +175,7 @@ public class PersonalCabinetActivity extends AppCompatActivity {
         View headerView = navigationView.getHeaderView(0);
         fio = headerView.findViewById(R.id.header_textView_FIO);
         emailPhone = headerView.findViewById(R.id.header_textView_email_phone);
+
         new Thread(()->{
             Connection connect = new Database().connect();
             try {
@@ -246,36 +246,10 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                 throwables.printStackTrace();
             }
         }).start();
-        new Thread(()->{
-            Connection connection = new Database().connect();
-            try {
-                ResultSet res = connection.prepareStatement("select * from type_of_study").executeQuery();
-                typeOfStudy = new HashMap<>();
-                while (res.next())
-                    typeOfStudy.put(res.getString("name"), res.getString("id"));
-                connection.close();
-                res.close();
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
 
-        }).start();
-
-        new Thread(()->{
-            Connection connection = new Database().connect();
-            try {
-                ResultSet res = connection.prepareStatement("SELECT * FROM abit_spec where id_abit=(select id_abit from users where login='"
-                        + getIntent().getStringExtra("login") + "')").executeQuery();
-                specialitysAbit = new HashSet<>();
-                while (res.next())
-                    specialitysAbit.add(asList(res.getString("id_abit"), res.getString("id_spec"), res.getString("type_of_study")));
-                connection.close();
-                res.close();
-
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
-        }).start();
+        downloadTypeOfStudy();
+        downloadSpecialitysAbit();
+        downloadInstituts();
     }
 
     private void sendDataToHomeFragment(String login, String snills, String sex, String nationality,
@@ -300,7 +274,6 @@ public class PersonalCabinetActivity extends AppCompatActivity {
 
     }
 
-
     private StringBuilder doNicePhone(String phone){ // 89371727345 -> 8 (937) 17-27-345
         StringBuilder res = new StringBuilder();
         for(int i = 0; i<phone.length(); ++i){
@@ -312,4 +285,55 @@ public class PersonalCabinetActivity extends AppCompatActivity {
         return res;
     }
 
+    private void downloadSpecialitysAbit(){
+        new Thread(()->{
+            Connection connection = new Database().connect();
+            try {
+                ResultSet res = connection.prepareStatement("SELECT * FROM abit_spec where id_abit=(select id_abit from users where login='"
+                        + getIntent().getStringExtra("login") + "')").executeQuery();
+                specialitysAbit = new HashSet<>();
+                while (res.next())
+                    specialitysAbit.add(asList(res.getString("id_abit"), res.getString("id_spec"), res.getString("type_of_study")));
+                connection.close();
+                res.close();
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void downloadInstituts(){
+        new Thread(()->{
+            Connection connection = new Database().connect();
+            try {
+                ResultSet res = connection.prepareStatement("select id, name from institutions").executeQuery();
+                instituts = new HashMap<>();
+                while (res.next())
+                    instituts.put(res.getString("name"), res.getString("id"));
+                connection.close();
+                res.close();
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void downloadTypeOfStudy(){
+        new Thread(()->{
+            Connection connection = new Database().connect();
+            try {
+                ResultSet res = connection.prepareStatement("select * from type_of_study").executeQuery();
+                typeOfStudy = new HashMap<>();
+                while (res.next())
+                    typeOfStudy.put(res.getString("name"), res.getString("id"));
+                connection.close();
+                res.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+
+        }).start();
+    }
 }

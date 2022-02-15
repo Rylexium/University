@@ -1,30 +1,26 @@
 package com.example.vkr.personal_cabinet.ui.result_egu;
 
-import static java.util.Arrays.asList;
-
+import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 
 import com.example.vkr.R;
-import com.example.vkr.connectDB.Database;
-import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
+import com.example.vkr.personal_cabinet.ui.speciality.SpecialityFragment;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -33,53 +29,21 @@ public class ResultEguFragment extends Fragment {
 
     private View binding;
     private LinearLayout layoutOfExams;
-    private static String idAbit;
     private static List<List<String>> exams;
     private static Map<String, String> minPointsExams;
+    private ScrollView scrollView;
+    private FloatingActionButton fab;
+
+    private static ResultEguViewModel viewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
         binding = inflater.inflate(R.layout.fragment_result_egu, container, false);
         layoutOfExams = binding.findViewById(R.id.layout_of_exams);
-        if(exams == null) {
-            new Thread(() -> {
-                Connection connect = new Database().connect();
-                try {
-                    PreparedStatement statement = connect
-                            .prepareStatement("SELECT (select name from exams where id=id_exam) as name_exam, points, year\n" +
-                                    "\tFROM abit_exams where id_abit=? order by id_exam desc");
-                    statement.setLong(1, Long.parseLong(PersonalCabinetActivity.idAbit));
-                    ResultSet res = statement.executeQuery();
-                    exams = new ArrayList<>();
-                    while (res.next())
-                        exams.add(asList(res.getString("name_exam"), res.getString("points"), res.getString("year")));
-
-
-                    statement.close();
-                    res.close();
-
-                    PreparedStatement statMinPointsExams = connect.prepareStatement("select distinct \n" +
-                                                        "\t(select name from exams where id=id_exam) as exam, min_points\n" +
-                                                        "\tfrom speciality_exams order by min_points desc;");
-                    ResultSet resMinPointsExams = statMinPointsExams.executeQuery();
-                    minPointsExams = new HashMap<>();
-                    while(resMinPointsExams.next())
-                        minPointsExams.put(resMinPointsExams.getString("exam"), resMinPointsExams.getString("min_points"));
-
-
-                    resMinPointsExams.close();
-                    statMinPointsExams.close();
-
-                    connect.close();
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
-                }
-                new Handler(Looper.getMainLooper()).post(this::fillTable);
-            }).start();
-        }
-        else fillTable();
-
+        viewModel = new ViewModelProvider(this,  new ViewModelProvider.NewInstanceFactory()).get(ResultEguViewModel.class);
+        initComponents();
+        applyEvents();
         return binding.getRootView();
     }
     private void onAddField(String nameExam, String pointsExam, String yearExam) {
@@ -92,12 +56,8 @@ public class ResultEguFragment extends Fragment {
 
         exam.setText(nameExam);
         points.setText(pointsExam);
-        if(Integer.parseInt(pointsExam) < Integer.parseInt(Objects.requireNonNull(minPointsExams.get(nameExam))))
-            points.setTextColor(Color.RED);
-        else
-            points.setTextColor(Color.BLACK);
-        //if pointsExams < 39 color.red
-        //else color.black
+        //pointsExams < 39 ? color.red : color.black
+        points.setTextColor( Integer.parseInt(pointsExam) < Integer.parseInt(Objects.requireNonNull(minPointsExams.get(nameExam)))? Color.RED : Color.BLACK);
         year.setText(yearExam);
 
         layoutOfExams.addView(rowView, 0);
@@ -120,19 +80,45 @@ public class ResultEguFragment extends Fragment {
         layoutOfExams.addView(rowView, 0);
     }
 
+    private void applyEvents(){
+        scrollView = binding.findViewById(R.id.scrollview_result_egu_fragment);
+        fab = Objects.requireNonNull(getActivity()).findViewById(R.id.fab);
+        scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            //work with fab
+            if (scrollY > oldScrollY && fab.isShown()) {
+                fab.hide();
+            } else if (scrollY < oldScrollY && !fab.isShown()) {
+                fab.show();
+            }
+        });
+    }
+
     private void fillTable(){
         for(int i=0; i < exams.size(); ++i)
             onAddField(exams.get(i).get(0), exams.get(i).get(1), exams.get(i).get(2));
         addFieldSumExams();
     }
+
+    private void awaitData(){
+        new Thread(()->{
+            while (exams == null || minPointsExams == null) {
+                exams = viewModel.getExams();
+                minPointsExams = viewModel.getMinPointsExams();
+            }
+            new Handler(Looper.getMainLooper()).post(this::fillTable);
+        }).start();
+    }
+
     public static void clearTable(){
-        if(exams == null) return;
-        exams.clear();
-        exams = null;
+        ResultEguViewModel.clearExams();
     }
-    public static void setIdAbit(String snills){
-        idAbit = snills;
+
+    private void initComponents(){
+        scrollView = binding.findViewById(R.id.scrollview_result_egu_fragment);
+        fab = Objects.requireNonNull(getActivity()).findViewById(R.id.fab);
+        awaitData();
     }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();

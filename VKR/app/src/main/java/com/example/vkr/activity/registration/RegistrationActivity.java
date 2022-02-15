@@ -18,7 +18,6 @@ import com.example.vkr.utils.HideKeyboardClass;
 import com.example.vkr.R;
 import com.example.vkr.utils.CorrectText;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -36,7 +35,6 @@ public class RegistrationActivity extends AppCompatActivity {
     private boolean isAgree = true;
 
     public static SharedPreferences sharedPreferences;
-    public static List<String> nationalityList;
 
     public static final String KEY_PHONE = "phone";
     public static final String KEY_EMAIL = "email";
@@ -48,7 +46,6 @@ public class RegistrationActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(getSupportActionBar() != null) getSupportActionBar().hide(); //убираем action bar
-        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.blue_500));
         setContentView(R.layout.registration_activity);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         initComponents();

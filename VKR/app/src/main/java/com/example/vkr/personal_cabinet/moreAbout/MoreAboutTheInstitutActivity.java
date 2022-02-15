@@ -3,14 +3,11 @@ package com.example.vkr.personal_cabinet.moreAbout;
 import static java.util.Arrays.asList;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,9 +17,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.vkr.R;
-import com.example.vkr.activity.authorization.QuestionsActivity;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
+import com.example.vkr.utils.OpenActivity;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -65,12 +62,11 @@ public class MoreAboutTheInstitutActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_contact_with_developer:
-                startActivity(new Intent(Intent.ACTION_VIEW)
-                        .setData(Uri.parse("https://vk.com/rylexium")));
-                return true;
+                return OpenActivity.openPageDeveloper(this);
             case R.id.action_faq:
-                startActivity(new Intent(this, QuestionsActivity.class));
-                return true;
+                return OpenActivity.openPageWithQuestion(this);
+            case R.id.action_we_on_maps:
+                return OpenActivity.openMapsWhereWe(this);
             case android.R.id.home:
                 finish();
                 return true;
@@ -81,39 +77,8 @@ public class MoreAboutTheInstitutActivity extends AppCompatActivity {
 
     private void applyEvents(){
         layoutSpeciality.setOnClickListener(view -> {
-            if(specialitys == null) {
-                layoutSpeciality.setEnabled(false);
-                new Thread(() -> {
-                    Connection connect = new Database().connect();
-                    try {
-                        PreparedStatement statement = connect.prepareStatement("select distinct id, name from speciality " +
-                                "where id_institut=? and (" + PersonalCabinetActivity.filter + ") order by id");
-                        statement.setInt(1, id);
-                        ResultSet res = statement.executeQuery();
-                        specialitys = new ArrayList<>();
-
-                        while (res.next())
-                            specialitys.add(asList(res.getString("id"), res.getString("name")));
-                        sizeOfSpeciality = specialitys.size();
-                        connect.close();
-                        res.close();
-                        statement.close();
-
-                        new Handler(Looper.getMainLooper()).post(()->{
-                            isPressed = true;
-                            fillSpeciality(isPressed, findViewById(R.id.arrow_downward4));
-                            layoutSpeciality.setEnabled(true);
-                        });
-
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
-                    }
-                }).start();
-            }
-            else {
-                isPressed = !isPressed;
-                fillSpeciality(isPressed, findViewById(R.id.arrow_downward4));
-            }
+            isPressed = !isPressed;
+            fillSpeciality(isPressed, findViewById(R.id.arrow_downward4));
         });
     }
     private void fillSpeciality(boolean isPress, ImageView status) {
@@ -140,6 +105,7 @@ public class MoreAboutTheInstitutActivity extends AppCompatActivity {
 
 
     private void initComponents() {
+        id = Integer.parseInt(getIntent().getStringExtra("id"));
 
         nameOfInstitut = findViewById(R.id.name_of_institut);
         directorOfInstitut = findViewById(R.id.director_of_institut);
@@ -148,20 +114,51 @@ public class MoreAboutTheInstitutActivity extends AppCompatActivity {
         layoutSpeciality = findViewById(R.id.layout_of_specialitys);
         layoutSpecialityInfo = findViewById(R.id.layout_of_specialitys_info);
 
+        downloadInfoInstituts();
+        downloadSpecialitys();
+    }
+
+    private void downloadSpecialitys(){
+        new Thread(() -> {
+            Connection connect = new Database().connect();
+            try {
+                PreparedStatement statement = connect.prepareStatement("select distinct id, name from speciality " +
+                        "where id_institut=? and (" + PersonalCabinetActivity.filter + ") order by id");
+                statement.setInt(1, id);
+                ResultSet res = statement.executeQuery();
+                specialitys = new ArrayList<>();
+
+                while (res.next())
+                    specialitys.add(asList(res.getString("id"), res.getString("name")));
+                sizeOfSpeciality = specialitys.size();
+                connect.close();
+                res.close();
+                statement.close();
+
+                new Handler(Looper.getMainLooper()).post(()->{
+                    fillSpeciality(isPressed, findViewById(R.id.arrow_downward4));
+                    layoutSpeciality.setEnabled(true);
+                });
+
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }).start();
+    }
+    private void downloadInfoInstituts(){
         new Thread(()-> {
             Connection connect = new Database().connect();
             try {
-                PreparedStatement statement = connect.prepareStatement("select id, description, \n" +
-                                                "(select (family || ' ' || name || ' ' || patronymic) from employees where id=id_director) as director,\n" +
-                                                "\tcontact_phone\n" +
-                                                "\tfrom institutions where name = ?");
+                PreparedStatement statement = connect.prepareStatement("select description, \n" +
+                        "(select (family || ' ' || name || ' ' || patronymic) from employees where id=id_director) as director,\n" +
+                        "\tcontact_phone\n" +
+                        "\tfrom institutions where name = ?");
                 statement.setString(1, getIntent().getStringExtra("name_institut"));
                 ResultSet res = statement.executeQuery();
                 if(!res.next()) return;
                 String descriptionStr = res.getString("description");
                 String directorStr = res.getString("director");
                 String phoneStr = res.getString("contact_phone");
-                id = Integer.parseInt(res.getString("id"));
                 new Handler(Looper.getMainLooper()).post(() -> {
                     nameOfInstitut.setText(getIntent().getStringExtra("name_institut"));
                     discriptionOfInstitut.setText(descriptionStr);
@@ -200,4 +197,5 @@ public class MoreAboutTheInstitutActivity extends AppCompatActivity {
             }
         }).start();
     }
+
 }

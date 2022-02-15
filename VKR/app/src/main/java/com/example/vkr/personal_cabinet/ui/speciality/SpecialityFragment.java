@@ -9,9 +9,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +26,6 @@ import com.example.vkr.personal_cabinet.moreAbout.MoreAboutTheInstitutActivity;
 import com.example.vkr.personal_cabinet.moreAbout.MoreAboutTheSpecialityActivity;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -38,9 +37,13 @@ public class SpecialityFragment extends Fragment {
     private View binding;
     private LinearLayout specialityLayout;
     private ScrollView scrollView;
+
     private static List<List<String>> speciality;
     private static Integer start = 0;
     private final Integer next = 26;
+
+    private FloatingActionButton fab;
+
     private static boolean isBottom = false; // дошли до конца
     private static boolean isAllSpecialityDownload = false;
 
@@ -50,7 +53,7 @@ public class SpecialityFragment extends Fragment {
 
         binding = inflater.inflate(R.layout.fragment_speciality, container, false);
         initComponents();
-
+        applyEvents();
         return binding.getRootView();
     }
 
@@ -78,7 +81,8 @@ public class SpecialityFragment extends Fragment {
             institut.setEnabled(false);
             new Handler().postDelayed(() -> institut.setEnabled(true),2000);
             startActivity(new Intent(binding.getContext(), MoreAboutTheInstitutActivity.class)
-                    .putExtra("name_institut", nameInstitut));
+                    .putExtra("name_institut", nameInstitut)
+                    .putExtra("id", PersonalCabinetActivity.instituts.get(nameInstitut)));
         });
 
 
@@ -88,9 +92,67 @@ public class SpecialityFragment extends Fragment {
         generalCompetition.setText(valueGeneralCompetition);
         contract.setText(valueContract);
 
-
         specialityLayout.addView(rowView);
+    }
 
+    private void applyEvents(){
+        scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            int bottom = (scrollView.getChildAt(scrollView.getChildCount() - 1)).getHeight() - scrollView.getHeight() - scrollY;
+            if (bottom == 0 && !isBottom && !isAllSpecialityDownload) {
+                Snackbar.make(scrollView, "Подождите, идёт загрузка...", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                isBottom = true;
+                downloadSpeciality();
+            }
+            else{
+                isBottom = false;
+                SpecialityFragment.scrollY = scrollView.getScrollY();
+            }
+
+            if (scrollY > oldScrollY && fab.isShown())
+                fab.hide();
+             else if (scrollY < oldScrollY && !fab.isShown())
+                fab.show();
+        });
+    }
+
+    private void initComponents() {
+        scrollView = binding.findViewById(R.id.scrollview_speciality_fragment);
+        specialityLayout = binding.findViewById(R.id.layout_speciality);
+
+        scrollView = binding.findViewById(R.id.scrollview_speciality_fragment);
+
+        fab = Objects.requireNonNull(getActivity()).findViewById(R.id.fab);
+
+        if(speciality == null) { //первый раз зашли сюда
+            speciality = new ArrayList<>(); //инициализация
+            downloadSpeciality(); //подгружаем
+        }
+        else {
+            for(int i = 0; i < speciality.size(); i++) //уже были данные
+                onAddField(speciality.get(i).get(0), speciality.get(i).get(1),
+                        speciality.get(i).get(2), speciality.get(i).get(3),
+                        speciality.get(i).get(4), speciality.get(i).get(5));
+        }
+
+        scrollView.post(() -> scrollView.scrollTo(0, scrollY)); //возвращаем предыдущую позицию в scrollView
+    }
+
+    public static void clearTable() {
+        if(speciality != null){
+            speciality.clear();
+            speciality = null;
+        }
+        start = 0;
+        isBottom = false;
+        isAllSpecialityDownload = false;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        sendSpeciality();
+        binding = null;
     }
 
     private void downloadSpeciality(){
@@ -123,61 +185,13 @@ public class SpecialityFragment extends Fragment {
                 new Handler(Looper.getMainLooper()).post(() -> {
                     for(int i = start; i < speciality.size(); i++)
                         onAddField(speciality.get(i).get(0), speciality.get(i).get(1),
-                                    speciality.get(i).get(2), speciality.get(i).get(3),
-                                    speciality.get(i).get(4), speciality.get(i).get(5));
+                                speciality.get(i).get(2), speciality.get(i).get(3),
+                                speciality.get(i).get(4), speciality.get(i).get(5));
                     start += next;
                 });
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
         }).start();
-    }
-
-
-    private void initComponents() {
-        scrollView = binding.findViewById(R.id.scrollview_speciality_fragment);
-        specialityLayout = binding.findViewById(R.id.layout_speciality);
-
-        if(speciality == null) { //первый раз зашли сюда
-            speciality = new ArrayList<>(); //инициализация
-            downloadSpeciality(); //подгружаем
-        }
-        else {
-            for(int i = 0; i < speciality.size(); i++) //уже были данные
-                onAddField(speciality.get(i).get(0), speciality.get(i).get(1),
-                        speciality.get(i).get(2), speciality.get(i).get(3),
-                        speciality.get(i).get(4), speciality.get(i).get(5));
-        }
-        scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
-            int bottom = (scrollView.getChildAt(scrollView.getChildCount() - 1)).getHeight() - scrollView.getHeight() - scrollY;
-            if (bottom == 0 && !isBottom && !isAllSpecialityDownload) {
-                Snackbar.make(scrollView, "Подождите, идёт загрузка...", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                isBottom = true;
-                downloadSpeciality();
-            } else{
-                isBottom = false;
-                SpecialityFragment.scrollY = scrollView.getScrollY();
-            }
-        });
-
-        scrollView.post(() -> scrollView.scrollTo(0, scrollY)); //возвращаем предыдущую позицию в scrollView
-    }
-
-    public static void clearTable() {
-        if(speciality != null){
-            speciality.clear();
-            speciality = null;
-        }
-        start = 0;
-        isBottom = false;
-        isAllSpecialityDownload = false;
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        sendSpeciality();
-        binding = null;
     }
 }

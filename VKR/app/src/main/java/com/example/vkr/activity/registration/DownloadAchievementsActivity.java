@@ -40,12 +40,10 @@ public class DownloadAchievementsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.download_achievements_activity);
-        if(getSupportActionBar() != null) getSupportActionBar().hide(); //убираем action bar
-        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.blue_500));
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         initComponents();
-        comebackAfterOnBackPressed();
         ApplyEvents();
+        comebackAfterOnBackPressed();
     }
 
     @Override

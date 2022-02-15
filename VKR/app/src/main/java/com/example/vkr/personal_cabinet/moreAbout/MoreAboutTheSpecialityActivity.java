@@ -4,10 +4,7 @@ import static java.util.Arrays.asList;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.design.widget.Snackbar;
@@ -16,23 +13,18 @@ import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.view.menu.ActionMenuItemView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toolbar;
 
 import com.example.vkr.R;
-import com.example.vkr.activity.authorization.QuestionsActivity;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
-
-import org.w3c.dom.Text;
+import com.example.vkr.utils.OpenActivity;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -59,8 +51,6 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
     private TextView payOfSpeciality;
     private TextView descriptionOfSpeciality;
     private TextView passingScoreOfSpeciality;
-
-    private Toolbar toolbar;
 
     private LinearLayout mainLayout;
     private LinearLayout layoutOfExamsForSpeciality;
@@ -102,12 +92,11 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_contact_with_developer:
-                startActivity(new Intent(Intent.ACTION_VIEW)
-                        .setData(Uri.parse("https://vk.com/rylexium")));
-                return true;
+                return OpenActivity.openPageDeveloper(this);
             case R.id.action_faq:
-                startActivity(new Intent(this, QuestionsActivity.class));
-                return true;
+                return OpenActivity.openPageWithQuestion(this);
+            case R.id.action_we_on_maps:
+                return OpenActivity.openMapsWhereWe(this);
             case android.R.id.home:
                 finish();
                 return true;
@@ -160,7 +149,6 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                     partners, view.findViewById(R.id.arrow_downward3));
             isPartners = !isPartners;
         });
-
     }
 
     private void setTextForTitle(boolean isPressed, LinearLayout linearLayout, String text, ImageView status){

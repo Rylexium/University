@@ -1,18 +1,17 @@
 package com.example.vkr.personal_cabinet.ui.home;
 
-import android.app.ActionBar;
 import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.widget.AbsListView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -30,6 +29,7 @@ import java.util.Objects;
 
 public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
+    private FloatingActionButton fab;
 
     private static String loginString;
     private static String snillsString;
@@ -61,8 +61,7 @@ public class HomeFragment extends Fragment {
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
 
-        homeViewModel =
-                new ViewModelProvider(this,  new ViewModelProvider.NewInstanceFactory()).get(HomeViewModel.class);
+        homeViewModel = new ViewModelProvider(this,  new ViewModelProvider.NewInstanceFactory()).get(HomeViewModel.class);
         initHomeViewModel();
         initComponents();
         ApplyEvents();
@@ -132,6 +131,8 @@ public class HomeFragment extends Fragment {
         binding.buttonGetImagesPassport.setOnClickListener(view -> {
             if(isDownloadImagesPassport == null){
                 binding.buttonGetImagesPassport.setEnabled(false);
+                String previousString = (String) binding.buttonGetImagesPassport.getText();
+                binding.buttonGetImagesPassport.setText("Загрузка фото...");
                 new Thread(()->{
                     Connection connect = new Database().connect();
                     try {
@@ -153,6 +154,7 @@ public class HomeFragment extends Fragment {
                         connect.close();
                         new Handler(Looper.getMainLooper()).post(() -> {
                             binding.buttonGetImagesPassport.setEnabled(true); //данные загрузились кнопка включена
+                            binding.buttonGetImagesPassport.setText(previousString);
                             setImages(bitmapPassport1, bitmapPassport2, binding.layoutForPagesPassport);
                             isDownloadImagesPassport = false; //данные отобразились, поэтому след состояние будет не загружено на форму
                         });
@@ -178,6 +180,8 @@ public class HomeFragment extends Fragment {
         binding.buttonGetImagesEducation.setOnClickListener(view -> {
             if(isDownloadImagesEducation == null){
                 binding.buttonGetImagesEducation.setEnabled(false);
+                String previousText = (String) binding.buttonGetImagesEducation.getText();
+                binding.buttonGetImagesEducation.setText("Загрузка фото...");
                 new Thread(()->{
                     Connection connect = new Database().connect();
                     try {
@@ -199,6 +203,7 @@ public class HomeFragment extends Fragment {
                         connect.close();
                         new Handler(Looper.getMainLooper()).post(() -> {
                             binding.buttonGetImagesEducation.setEnabled(true); //данные загрузились кнопка включена
+                            binding.buttonGetImagesEducation.setText(previousText);
                             setImages(bitmapEducation1, bitmapEducation2, binding.layoutForPagesEducation);
                             isDownloadImagesEducation = false; //данные отобразились, поэтому след состояние будет не загружено на форму
                         });
@@ -220,6 +225,14 @@ public class HomeFragment extends Fragment {
             }
         });
 
+        binding.scrollviewHomeFragment.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            //work with fab
+            if (scrollY > oldScrollY && fab.isShown()) {
+                fab.hide();
+            } else if (scrollY < oldScrollY && !fab.isShown()) {
+                fab.show();
+            }
+        });
     }
 
     private void setImages(Bitmap bitmap1, Bitmap bitmap2, LinearLayout linearLayout){
@@ -278,6 +291,7 @@ public class HomeFragment extends Fragment {
         if(isDownloadImagesPassport != null) isDownloadImagesPassport = true;
         if(isDownloadImagesEducation != null) isDownloadImagesEducation = true;
         binding.scrollviewHomeFragment.post(()->binding.scrollviewHomeFragment.scrollTo(0, scrollY));
+        fab = Objects.requireNonNull(getActivity()).findViewById(R.id.fab);
     }
     public static void clearDate() {
         loginString = null;

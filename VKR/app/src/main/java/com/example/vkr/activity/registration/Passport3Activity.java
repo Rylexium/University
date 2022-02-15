@@ -48,8 +48,6 @@ public class Passport3Activity extends AppCompatActivity {
 
     private ImageView imagePassport3;
 
-    private String[] listOfSubject;
-
     private static Bitmap bitmap;
     public  static SharedPreferences sharedPreferences;
     private static boolean isYes = false;
@@ -70,12 +68,10 @@ public class Passport3Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.passport3_activity);
-        if(getSupportActionBar() != null) getSupportActionBar().hide(); //убираем action bar
-        getWindow().setStatusBarColor(ContextCompat.getColor(this, R.color.blue_500));
-        initComponents();
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        comebackAfterOnBackPressed();
+        initComponents();
         ApplyEvents();
+        comebackAfterOnBackPressed();
     }
 
     @Override
@@ -224,9 +220,11 @@ public class Passport3Activity extends AppCompatActivity {
 
         sharedPreferences = getPreferences(MODE_PRIVATE);
 
-        listOfSubject = Arrays.stream(getResources().getString(R.string.subject_of_russia).split(";")) //получаем все субъекты
-                        .map(e -> e.replaceFirst(" ", ""))  //получаем все субъекты
-                        .toArray(String[]::new);                           //убираем пустой символ и преобразуем в лист
+        //получаем все субъекты
+        //получаем все субъекты
+        String[] listOfSubject = Arrays.stream(getResources().getString(R.string.subject_of_russia).split(";")) //получаем все субъекты
+                .map(e -> e.replaceFirst(" ", ""))  //получаем все субъекты
+                .toArray(String[]::new);                           //убираем пустой символ и преобразуем в лист
 
         subjectReg.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, listOfSubject));
         subjectActual.setAdapter(new ArrayAdapter<>(this, R.layout.list_item, listOfSubject));
