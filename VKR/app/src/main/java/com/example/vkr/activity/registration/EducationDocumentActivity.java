@@ -8,7 +8,6 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.MediaStore;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -16,14 +15,13 @@ import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.vkr.R;
 import com.example.vkr.connectDB.Database;
@@ -33,6 +31,7 @@ import com.example.vkr.utils.HideKeyboardClass;
 import com.example.vkr.utils.MySpinnerAdapter;
 import com.example.vkr.utils.SelectDateClass;
 import com.example.vkr.utils.SelectImageClass;
+import com.example.vkr.utils.ShowToast;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -99,7 +98,7 @@ public class EducationDocumentActivity extends AppCompatActivity {
     private void ApplyEvents() {
         TextWatcher id_education_listener = new CorrectText(id_education, "###### #######");
         buttonMakePhoto.setOnClickListener(view ->{
-            Toast.makeText(getApplicationContext(), "Сфотографируйте или выберите " + PIC_CODE +" страницу документа", Toast.LENGTH_SHORT).show();
+            ShowToast.show(getApplicationContext(), "Сфотографируйте или выберите " + PIC_CODE +" страницу документа");
             SelectImageClass.showMenu(this, false);
         });
 
@@ -109,7 +108,7 @@ public class EducationDocumentActivity extends AppCompatActivity {
         });
         buttonPrevious.setOnClickListener(view -> onBackPressed());
 
-        dropDownList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        dropDownList.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position > 0) { //выбран какой
@@ -145,7 +144,7 @@ public class EducationDocumentActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if(PIC_CODE == 1)
-                Toast.makeText(getApplicationContext(), "Сфотографируйте или выберите 2 страницу документа", Toast.LENGTH_SHORT).show();
+                ShowToast.show(getApplicationContext(), "Сфотографируйте или выберите 2 страницу документа");
             switch (requestCode) {
                 case SelectImageClass.CAMERA:
                     if(PIC_CODE == 1) {

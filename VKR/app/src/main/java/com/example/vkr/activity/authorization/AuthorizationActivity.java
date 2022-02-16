@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -14,21 +13,19 @@ import android.widget.Button;
 import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.vkr.R;
 import com.example.vkr.connectDB.Database;
-import com.example.vkr.activity.registration.ExamsResultActivity;
-import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
 import com.example.vkr.activity.registration.RegistrationActivity;
+import com.example.vkr.utils.HashPass;
 import com.example.vkr.utils.HideKeyboardClass;
 import com.example.vkr.utils.OpenActivity;
+import com.example.vkr.utils.ShowToast;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AuthorizationActivity extends AppCompatActivity {
     private AutoCompleteTextView textBoxLogin;
@@ -41,6 +38,7 @@ public class AuthorizationActivity extends AppCompatActivity {
     private final String KEY_LOGIN = "login";
 
     private Thread threadConnectToBD;
+    private int delay = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,87 +79,22 @@ public class AuthorizationActivity extends AppCompatActivity {
     }
 
     private void ApplyEvents(){
-
         labelRememberPassword.setOnClickListener(view -> System.out.println("Типа помогаем восстановить логин или пароль"));
-        labelRegistration.setOnClickListener(view -> startActivity(new Intent(this, RegistrationActivity.class)));
+        labelRegistration.setOnClickListener(view -> OpenActivity.openRegistration(this));
         labelQuestions.setOnClickListener(view -> OpenActivity.openPageWithQuestion(this));
 
         singInBtn.setOnClickListener(view -> {
             if(textBoxLogin.getText().length() == 0 || textBoxPassword.getText().length() == 0) return;
-
             if(threadConnectToBD == null || !threadConnectToBD.isAlive()) {
                 singInBtn.setEnabled(false);
                 String previousText = (String) singInBtn.getText();
                 singInBtn.setText("Входим...");
-                threadConnectToBD = new Thread(() -> { //в другом потоке коннект и проверяем есть ли юзер
-                    try {
-                        Connection connection = new Database().connect();
-                        if(connection == null){
-                            new Handler(Looper.getMainLooper()).post(() -> {
-                                Toast.makeText(AuthorizationActivity.this, "Соединение с сервером не установлено", Toast.LENGTH_SHORT).show();
-                            });
-                            return;
-                        }
 
-                        PreparedStatement statement = connection.prepareStatement("select login, password, salt1, salt2, id_abit, is_entry, id_education " +
-                                "from users, abit where login=? and id_abit=id;");
-                        statement.setString(1, textBoxLogin.getText().toString());
-                        ResultSet res = statement.executeQuery();
-                        if(!res.next()){ //ничего не пришло
-                            new Handler(Looper.getMainLooper()).post(() -> {
-                                Toast.makeText(AuthorizationActivity.this, "Неверный логин или пароль", Toast.LENGTH_SHORT).show();
-                            });
-                            res.close();
-                            statement.close();
-                            connection.close();
-                            return;
-                        }
+                if(!authorization(textBoxLogin.getText().toString(), textBoxPassword.getText().toString())){
+                    singInBtn.setEnabled(true);
+                    singInBtn.setText(previousText);
+                }
 
-                        //солим пароль
-                        String hashPass = sha256(
-                                sha256(
-                                        sha256(textBoxPassword.getText().toString()) // hash(123)
-                                                + res.getString("salt1"))          // hash( hash(123) + salt1 )
-                                        + res.getString("salt2"));                 // hash( hash( hash(123) + salt1 ) + salt2 )
-
-
-
-                        if (res.getString("password").equals(hashPass)) { //что-то пришло
-                            if( (res.getString("is_entry") != null && res.getString("is_entry").equals("t"))
-                                    || Integer.parseInt(res.getString("id_education")) > 4){
-                                        new Handler(Looper.getMainLooper()).post(() -> {
-                                            Toast.makeText(AuthorizationActivity.this, "Успешно", Toast.LENGTH_SHORT).show();
-                                            startActivity(new Intent(this, PersonalCabinetActivity.class)
-                                                    .putExtra("login", textBoxLogin.getText().toString()));
-                                        });
-                            }
-                            else {
-                                String id_abit = res.getString("id_abit");
-                                new Handler(Looper.getMainLooper()).post(() -> { //в главном потоке что-то делаю
-                                    Toast.makeText(AuthorizationActivity.this, "Успешно", Toast.LENGTH_SHORT).show();
-                                    startActivity(new Intent(this, ExamsResultActivity.class)
-                                            .putExtra("id_abit", id_abit)
-                                            .putExtra("login", textBoxLogin.getText().toString()));
-                                });
-                            }
-                        } else {
-                            new Handler(Looper.getMainLooper()).post(() -> {
-                                Toast.makeText(AuthorizationActivity.this, "Неверный логин или пароль", Toast.LENGTH_SHORT).show();
-                            });
-                        }
-                        statement.close();
-                        connection.close();
-                    }
-                    catch (Exception e) {
-                        Log.e("", e.getMessage());
-                        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(AuthorizationActivity.this, "Что-то с сервером", Toast.LENGTH_SHORT).show());
-                    }
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        singInBtn.setEnabled(true);
-                        singInBtn.setText(previousText);
-                    });
-                });
-                threadConnectToBD.start();
                 saveLastState();
             }
         });
@@ -173,22 +106,6 @@ public class AuthorizationActivity extends AppCompatActivity {
                 .putString(KEY_LOGIN, textBoxLogin.getText().toString())
                 .apply();
     }
-    public static String sha256(final String base) {
-        try{
-            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            final byte[] hash = digest.digest(base.getBytes(StandardCharsets.UTF_8));
-            final StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                final String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1)
-                    hexString.append('0');
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch(Exception ex){
-            throw new RuntimeException(ex);
-        }
-    }
 
     private void initComponents() {
         textBoxLogin = findViewById(R.id.textbox_login);
@@ -199,5 +116,63 @@ public class AuthorizationActivity extends AppCompatActivity {
         labelRegistration = findViewById(R.id.registration);
     }
 
+    private boolean authorization(String login, String password){
+        AtomicBoolean isEntry = new AtomicBoolean(false);
+        threadConnectToBD = new Thread(() -> { //в другом потоке коннект и проверяем есть ли юзер
+            try {
+                Connection connection = new Database().connect();
+                if(connection == null){
+                    new Handler(Looper.getMainLooper()).post(() -> ShowToast.show(this, "Соединение с сервером не установлено"));
+                    return;
+                }
+
+                PreparedStatement statement = connection.prepareStatement("select login, password, salt1, salt2, id_abit, is_entry, id_education " +
+                        "from users, abit where login=? and id_abit=id;");
+                statement.setString(1, login);
+                ResultSet res = statement.executeQuery();
+                if(!res.next()){ //ничего не пришло
+                    new Handler(Looper.getMainLooper()).post(() -> ShowToast.show(this, "Неверный логин или пароль"));
+                    res.close();
+                    statement.close();
+                    connection.close();
+                    return;
+                }
+
+                //солим пароль
+                String hashPass = HashPass.getHashSha256(password, res.getString("salt1"), res.getString("salt2"));
+
+                if (res.getString("password").equals(hashPass)) { //что-то пришло
+                    if( (res.getString("is_entry") != null && res.getString("is_entry").equals("t"))
+                            || Integer.parseInt(res.getString("id_education")) > 4){
+                        isEntry.set(true);
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            ShowToast.show(this, "Успешно");
+                            OpenActivity.openPersonalCabinet(this, login);
+                        });
+                    }
+                    else {
+                        String id_abit = res.getString("id_abit");
+                        new Handler(Looper.getMainLooper()).post(() -> { //в главном потоке что-то делаю
+                            isEntry.set(true);
+                            ShowToast.show(this, "Успешно");
+                            OpenActivity.openExamsResult(this, id_abit, login);
+                        });
+                    }
+                } else {
+                    new Handler(Looper.getMainLooper()).post(() -> ShowToast.show(this, "Неверный логин или пароль"));
+                }
+                statement.close();
+                connection.close();
+            }
+            catch (Exception e) {
+                Log.e("", e.getMessage());
+                new Handler(Looper.getMainLooper()).post(() -> ShowToast.show(this, "Что-то с сервером"));
+            }
+        });
+        threadConnectToBD.start();
+        while(true){
+            if(!threadConnectToBD.isAlive()) return isEntry.get();
+        }
+    }
 
 }

@@ -1,7 +1,5 @@
 package com.example.vkr.activity.registration;
 
-import static com.example.vkr.activity.authorization.AuthorizationActivity.sha256;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
@@ -27,8 +25,10 @@ import com.example.vkr.activity.authorization.AuthorizationActivity;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.utils.ConvertClass;
 import com.example.vkr.utils.EditLinearLayout;
+import com.example.vkr.utils.HashPass;
 import com.example.vkr.utils.HideKeyboardClass;
 import com.example.vkr.utils.SelectImageClass;
+import com.example.vkr.utils.ShowToast;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -80,18 +80,18 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
             String pass = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_PASS, null);
             String pass2 = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_PASS2, null);
             if(!pass.equals(pass2)) {
-                Toast.makeText(this, "Пароли разные", Toast.LENGTH_SHORT).show();
+                ShowToast.show(this, "Пароли разные");
                 return;
             }
             String phone = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_PHONE, null);
             if(!RegistrationActivity.isCorrectPhone(phone)){
-                Toast.makeText(this, "Номер телефона некорректен", Toast.LENGTH_SHORT).show();
+                ShowToast.show(this, "Номер телефона некорректен");
                 return;
             }
 
             String email = RegistrationActivity.sharedPreferences.getString(RegistrationActivity.KEY_EMAIL, null);
             if(!RegistrationActivity.isCorrectEmail(email)){
-                Toast.makeText(this, "Почта некорректна", Toast.LENGTH_SHORT).show();
+                ShowToast.show(this, "Почта некорректна");
                 return;
             }
 
@@ -123,7 +123,7 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
 
             String snills = SnillsActivity.sharedPreferences.getString(SnillsActivity.KEY_SNILLS, null);
             if(!SnillsActivity.isCorrectSnills(snills)){
-                Toast.makeText(this, "СНИЛС некорректен", Toast.LENGTH_SHORT).show();
+                ShowToast.show(this, "СНИЛС некорректен");
                 return;
             }
 
@@ -141,7 +141,7 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
                     || sex.equals("Пол:") || nationality.equals("0") || nationality.equals("-1")
                     || passportSeries.equals("") || passportNumber.equals("") || codeUnit.equals("")
                     || dateIssuingPassport.equals("") || idEducation.equals("") || dateOfIssueOfEducation.equals("")){
-                Toast.makeText(this, "Введите данные в пустые поля", Toast.LENGTH_SHORT).show();
+                ShowToast.show(this, "Введите данные в пустые поля");
                 return;
             }
 
@@ -155,27 +155,27 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
                     ResultSet res = statement.executeQuery();
                     while(res.next()){
                         if(phone.replace("-", "").equals(res.getString("phone"))){
-                            showToast("Такой телефон уже существует");
+                            ShowToast.show(this, "Такой телефон уже существует");
                             return;
                         }
                         else if(email.equals(res.getString("email"))){
-                            showToast("Такой email уже существует");
+                            ShowToast.show(this, "Такой email уже существует");
                             return;
                         }
                         else if(login.equals(res.getString("login"))){
-                            showToast("Такой логин уже существует");
+                            ShowToast.show(this, "Такой логин уже существует");
                             return;
                         }
                         else if(Long.parseLong(passportNumber + passportSeries.replace(" ", "")) == res.getLong("passport")){
-                            showToast("Такой паспорт уже существует");
+                            ShowToast.show(this, "Такой паспорт уже существует");
                             return;
                         }
                         else if(snills.replace(" ", "").replace("-", "").equals(res.getString("id"))){
-                            showToast("Такой СНИЛС уже существует");
+                            ShowToast.show(this, "Такой СНИЛС уже существует");
                             return;
                         }
                         else if(Long.parseLong(idEducation.replace(" ", "")) == res.getLong("number_education")){
-                            showToast("Такой номер документа уже существует");
+                            ShowToast.show(this, "Такой номер документа уже существует");
                             return;
                         }
                     }
@@ -232,9 +232,9 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
                                         "\tlogin, password, salt1, salt2, id_abit, is_entry)\n" +
                                         "\tVALUES (?, ?, ?, ?, ?, false);");
                                 insertToUsers.setString(1, login);
-                                String salt1 = generateSalt().toString();
-                                String salt2 = generateSalt().toString();
-                                insertToUsers.setString(2, sha256(sha256(   sha256(pass) + salt1)+ salt2));
+                                String salt1 = HashPass.generateSalt().toString();
+                                String salt2 = HashPass.generateSalt().toString();
+                                insertToUsers.setString(2, HashPass.getHashSha256(pass, salt1, salt2));
                                 insertToUsers.setString(3, salt1);
                                 insertToUsers.setString(4, salt2);
                                 insertToUsers.setLong(5, Long.parseLong(snills.replace("-", "").replace(" ", "")));
@@ -263,21 +263,21 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
                             }
                             catch (SQLException e){
                                 Log.e("", e.getMessage());
-                                showToast("Что-то пошло не так, проверьте корректность введённых данных");
+                                ShowToast.show(this, "Что-то пошло не так, проверьте корректность введённых данных");
                             }
 
                         } catch (Exception e) {
                             Log.e("", e.getMessage());
-                            showToast("Что-то пошло не так, проверьте корректность введённых данных");
+                            ShowToast.show(this, "Что-то пошло не так, проверьте корректность введённых данных");
                         }
                     }).start();
                     connection.close();
                 } catch (SQLException e) {
                     Log.e("", e.getMessage());
-                    showToast("Что-то пошло не так, проверьте корректность введённых данных");
+                    ShowToast.show(this, "Что-то пошло не так, проверьте корректность введённых данных");
                 }
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    Toast.makeText(this, "Регистрация произошла успешна!!!", Toast.LENGTH_SHORT).show();
+                    ShowToast.show(this, "Регистрация произошла успешна!!!");
                     finish();
                     allActivityClear();
                     startActivity(new Intent(this, AuthorizationActivity.class)
@@ -291,12 +291,6 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
         buttonAddPrivileges.setOnClickListener(view -> SelectImageClass.showMenu(this, false));
     }
 
-    private void showToast(String text){
-        new Handler(Looper.getMainLooper()).post(() -> {
-            Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
-        });
-    }
-
     private static void allActivityClear(){
         RegistrationActivity.clearComponents();;
         SnillsActivity.clearComponents();
@@ -305,13 +299,6 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
         Passport3Activity.clearComponents();
         DownloadAchievementsActivity.clearComponents();
         DownloadPrivilegesActivity.clearComponents();
-    }
-    private static StringBuilder generateSalt(){
-        String alfavit = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ<,.>/?;:]}[{-=+*!1@2#3$4%5^6&78(9)0";
-        StringBuilder res = new StringBuilder();
-        for(int i=0; i<32; i++)
-            res.append(alfavit.charAt( (int) (Math.random() * alfavit.length()) ));
-        return res;
     }
 
     @Override

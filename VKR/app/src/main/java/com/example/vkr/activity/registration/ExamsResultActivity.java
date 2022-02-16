@@ -1,5 +1,7 @@
 package com.example.vkr.activity.registration;
 
+import static android.widget.AdapterView.OnItemSelectedListener;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -17,13 +19,13 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.vkr.R;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
 import com.example.vkr.utils.HideKeyboardClass;
 import com.example.vkr.utils.MySpinnerAdapter;
+import com.example.vkr.utils.ShowToast;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -58,7 +60,7 @@ public class ExamsResultActivity extends AppCompatActivity {
 
         Spinner spinnerYear = rowView.findViewById(R.id.spinner_date_exam);
         spinnerYear.setAdapter(new MySpinnerAdapter(this, R.layout.spinner_item, Arrays.asList(getResources().getStringArray(R.array.date_of_exams))));
-        spinnerYear.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinnerYear.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position > 0) { //выбран какой
@@ -70,7 +72,7 @@ public class ExamsResultActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> parent) { }
         });
-        spinnerExams.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinnerExams.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position > 0) { //выбран какой
@@ -154,7 +156,7 @@ public class ExamsResultActivity extends AppCompatActivity {
                 }
             }
             else
-                Toast.makeText(this, "Экзаменов не может быть меньше 3", Toast.LENGTH_SHORT).show();
+                ShowToast.show(this, "Экзаменов не может быть меньше 3");
         });
     }
 
@@ -166,14 +168,14 @@ public class ExamsResultActivity extends AppCompatActivity {
             if(exam.getSelectedItemPosition() == 0 //проверка на пустоту полей
                     || year.getSelectedItemPosition() == 0
                     || points.getText().toString().equals("")){
-                Toast.makeText(this, "Есть пустые поля", Toast.LENGTH_SHORT).show();
+                ShowToast.show(this, "Есть пустые поля");
                 return false;
             }
             else{
                 for(int j=i+1; j<examsLayout.getChildCount() - 1; ++j){
                     Spinner exam1 = examsLayout.getChildAt(j).findViewById(R.id.exam);
                     if(exam.getSelectedItemPosition() == exam1.getSelectedItemPosition()){
-                        Toast.makeText(this, "Одинаковые экзамены не могут быть", Toast.LENGTH_SHORT).show();
+                        ShowToast.show(this, "Одинаковые экзамены не могут быть");
                         return false;
                     }
                 }

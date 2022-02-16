@@ -17,21 +17,17 @@ public class MySpinnerAdapter extends ArrayAdapter {
     }
 
     @Override
-    public boolean isEnabled(int position) {
-        // Отключаем первый итем у спиннера
-        // Делаем его как hint
+    public boolean isEnabled(int position) { // Отключаем первый итем у спиннера и делаем его как hint
         return position != 0;
     }
 
     @Override
     public View getDropDownView(int position, View convertView,
-                                ViewGroup parent) {
+                                @NonNull ViewGroup parent) {
         View view = super.getDropDownView(position, convertView, parent);
         TextView tv = (TextView) view;
-        if(position == 0)// Set the hint text color gray
-            tv.setTextColor(Color.GRAY);
-        else
-            tv.setTextColor(Color.BLACK);
+        tv.setTextColor(position == 0? Color.GRAY : Color.BLACK);
+
         return view;
     }
 }
