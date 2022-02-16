@@ -86,15 +86,7 @@ public class AuthorizationActivity extends AppCompatActivity {
         singInBtn.setOnClickListener(view -> {
             if(textBoxLogin.getText().length() == 0 || textBoxPassword.getText().length() == 0) return;
             if(threadConnectToBD == null || !threadConnectToBD.isAlive()) {
-                singInBtn.setEnabled(false);
-                String previousText = (String) singInBtn.getText();
-                singInBtn.setText("Входим...");
-
-                if(!authorization(textBoxLogin.getText().toString(), textBoxPassword.getText().toString())){
-                    singInBtn.setEnabled(true);
-                    singInBtn.setText(previousText);
-                }
-
+                authorization(textBoxLogin.getText().toString(), textBoxPassword.getText().toString());
                 saveLastState();
             }
         });
@@ -116,8 +108,11 @@ public class AuthorizationActivity extends AppCompatActivity {
         labelRegistration = findViewById(R.id.registration);
     }
 
-    private boolean authorization(String login, String password){
+    private void authorization(String login, String password){
         AtomicBoolean isEntry = new AtomicBoolean(false);
+        singInBtn.setEnabled(false);
+        String previousText = (String) singInBtn.getText();
+        singInBtn.setText("Входим...");
         threadConnectToBD = new Thread(() -> { //в другом потоке коннект и проверяем есть ли юзер
             try {
                 Connection connection = new Database().connect();
@@ -168,11 +163,12 @@ public class AuthorizationActivity extends AppCompatActivity {
                 Log.e("", e.getMessage());
                 new Handler(Looper.getMainLooper()).post(() -> ShowToast.show(this, "Что-то с сервером"));
             }
+            if(!isEntry.get()) new Handler(Looper.getMainLooper()).post(() -> {
+                                    singInBtn.setEnabled(true);
+                                    singInBtn.setText(previousText);
+                                });
         });
         threadConnectToBD.start();
-        while(true){
-            if(!threadConnectToBD.isAlive()) return isEntry.get();
-        }
     }
 
 }
