@@ -26,7 +26,16 @@
             android:gravity="center"
             />
 
-
+        <Spinner
+            android:id="@+id/listbox_privileges"
+            android:layout_marginTop="15dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textAlignment="center"
+            android:background="@color/white"
+            />
+        
+        
         <LinearLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/layout_for_images_privileges"
