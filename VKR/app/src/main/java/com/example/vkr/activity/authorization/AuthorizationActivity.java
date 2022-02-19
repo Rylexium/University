@@ -1,6 +1,5 @@
 package com.example.vkr.activity.authorization;
 
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Handler;
 import android.os.Looper;
@@ -16,7 +15,6 @@ import android.widget.TextView;
 
 import com.example.vkr.R;
 import com.example.vkr.connectDB.Database;
-import com.example.vkr.activity.registration.RegistrationActivity;
 import com.example.vkr.utils.HashPass;
 import com.example.vkr.utils.HideKeyboardClass;
 import com.example.vkr.utils.OpenActivity;
@@ -38,7 +36,6 @@ public class AuthorizationActivity extends AppCompatActivity {
     private final String KEY_LOGIN = "login";
 
     private Thread threadConnectToBD;
-    private int delay = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

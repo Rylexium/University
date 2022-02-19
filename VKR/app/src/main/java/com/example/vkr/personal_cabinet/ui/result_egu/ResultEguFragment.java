@@ -29,8 +29,8 @@ public class ResultEguFragment extends Fragment {
 
     private View binding;
     private LinearLayout layoutOfExams;
-    private static List<List<String>> exams;
-    private static Map<String, String> minPointsExams;
+    private List<List<String>> exams;
+    private Map<String, String> minPointsExams;
     private ScrollView scrollView;
     private FloatingActionButton fab;
 
@@ -85,11 +85,10 @@ public class ResultEguFragment extends Fragment {
         fab = Objects.requireNonNull(getActivity()).findViewById(R.id.fab);
         scrollView.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
             //work with fab
-            if (scrollY > oldScrollY && fab.isShown()) {
-                fab.hide();
-            } else if (scrollY < oldScrollY && !fab.isShown()) {
+            if (scrollY == 0 || (scrollY < oldScrollY && !fab.isShown()))
                 fab.show();
-            }
+            else if (scrollY > oldScrollY && fab.isShown())
+                fab.hide();
         });
     }
 

@@ -48,6 +48,7 @@ public class SpecialityFragment extends Fragment {
     private static boolean isAllSpecialityDownload = false;
 
     private static Integer scrollY = 0;
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -109,10 +110,10 @@ public class SpecialityFragment extends Fragment {
                 SpecialityFragment.scrollY = scrollView.getScrollY();
             }
 
-            if (scrollY > oldScrollY && fab.isShown())
-                fab.hide();
-             else if (scrollY < oldScrollY && !fab.isShown())
+            if (scrollY == 0 || (scrollY < oldScrollY && !fab.isShown()))
                 fab.show();
+            else if (scrollY > oldScrollY && fab.isShown())
+                fab.hide();
         });
     }
 

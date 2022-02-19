@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.example.vkr.R;
 import com.example.vkr.connectDB.Database;
 import com.example.vkr.databinding.FragmentHomeBinding;
+import com.example.vkr.personal_cabinet.PersonalCabinetActivity;
 import com.example.vkr.utils.ConvertClass;
 
 import java.sql.Connection;
@@ -32,7 +33,6 @@ public class HomeFragment extends Fragment {
     private FloatingActionButton fab;
 
     private static String loginString;
-    private static String snillsString;
     private static String sexString;
     private static String passportString;
     private static String nationalityString;
@@ -45,12 +45,16 @@ public class HomeFragment extends Fragment {
     private static String regNumberEducation;
     private static String dateOfIssingEducation;
     private static String dateOfBirthday;
+    private static String privilege;
 
     private static Bitmap bitmapPassport1, bitmapPassport2; //своеобразный кэш картинок
     private static Boolean isDownloadImagesPassport = null;
 
     private static Bitmap bitmapEducation1, bitmapEducation2; //своеобразный кэш картинок
     private static Boolean isDownloadImagesEducation = null;
+
+    private static Bitmap bitmapPrivilege; //своеобразный кэш картинок
+    private static Boolean isDownloadImagePrivilege = null;
 
     private static HomeViewModel homeViewModel;
 
@@ -75,7 +79,6 @@ public class HomeFragment extends Fragment {
         binding.textviewLogin.setText(text);
     }
     private void setSnills(String text){
-        snillsString = text;
         binding.textviewSnills.setText(text);
     }
     private void setSex(String text){
@@ -126,6 +129,10 @@ public class HomeFragment extends Fragment {
         dateOfBirthday = text;
         binding.textviewDateOfBirthday.setText(text);
     }
+    private void setPrivilege(String text){
+        privilege = text;
+        binding.textviewPrivilege.setText(text);
+    }
 
     private void ApplyEvents() {
         binding.buttonGetImagesPassport.setOnClickListener(view -> {
@@ -138,7 +145,7 @@ public class HomeFragment extends Fragment {
                     try {
                         PreparedStatement statement = connect
                                 .prepareStatement("SELECT passport1, passport2 FROM abit_passport where id_abit=?");
-                        statement.setLong(1, Long.parseLong(snillsString.replace("-", "").replace(" ", "")));
+                        statement.setLong(1, Long.parseLong(PersonalCabinetActivity.idAbit));
                         ResultSet res = statement.executeQuery();
                         if(res.next()){
                             bitmapPassport1 = ConvertClass.convertStringToBitmap(res.getString("passport1"));
@@ -187,7 +194,7 @@ public class HomeFragment extends Fragment {
                     try {
                         PreparedStatement statement = connect
                                 .prepareStatement("SELECT education1, education2 FROM abit_education where id_abit=?");
-                        statement.setLong(1, Long.parseLong(snillsString));
+                        statement.setLong(1, Long.parseLong(PersonalCabinetActivity.idAbit));
                         ResultSet res = statement.executeQuery();
                         if(res.next()){
                             bitmapEducation1 = ConvertClass.convertStringToBitmap(res.getString("education1"));
@@ -224,14 +231,60 @@ public class HomeFragment extends Fragment {
                 isDownloadImagesEducation = !isDownloadImagesEducation;
             }
         });
+        binding.buttonGetImagePrivilege.setOnClickListener(view -> {
+            if(isDownloadImagePrivilege == null){
+                binding.buttonGetImagePrivilege.setEnabled(false);
+                String previousText = (String) binding.buttonGetImagePrivilege.getText();
+                binding.buttonGetImagePrivilege.setText("Загрузка фото...");
+                new Thread(()->{
+                    Connection connect = new Database().connect();
+                    try {
+                        PreparedStatement statement = connect
+                                .prepareStatement("select privilege from abit_privileges where id_abit=?");
+                        statement.setLong(1, Long.parseLong(PersonalCabinetActivity.idAbit));
+                        ResultSet res = statement.executeQuery();
+                        if(res.next()){
+                            bitmapPrivilege = ConvertClass.convertStringToBitmap(res.getString("privilege"));
+                        }
+                        else{
+                            new Handler(Looper.getMainLooper()).post(() -> {
+                                Toast.makeText(binding.getRoot().getContext(), "Изображений нет", Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                        res.close();
+                        statement.close();
+                        connect.close();
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            binding.buttonGetImagePrivilege.setEnabled(true); //данные загрузились кнопка включена
+                            binding.buttonGetImagePrivilege.setText(previousText);
+                            setImages(bitmapPrivilege, null, binding.layoutForPagePrivilege);
+                            isDownloadImagePrivilege = false; //данные отобразились, поэтому след состояние будет не загружено на форму
+                        });
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                }).start();
+            }
+            else {
+                if(isDownloadImagePrivilege){
+                    setImages(bitmapPrivilege, null, binding.layoutForPagePrivilege);
+                }
+                else{
+                    while(binding.layoutForPagePrivilege.getChildCount() != 1){
+                        binding.layoutForPagePrivilege.removeViewAt(0);
+                    }
+                }
+                isDownloadImagePrivilege = !isDownloadImagePrivilege;
+            }
+        });
+
 
         binding.scrollviewHomeFragment.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
             //work with fab
-            if (scrollY > oldScrollY && fab.isShown()) {
-                fab.hide();
-            } else if (scrollY < oldScrollY && !fab.isShown()) {
+            if (scrollY == 0 || (scrollY < oldScrollY && !fab.isShown()))
                 fab.show();
-            }
+            else if (scrollY > oldScrollY && fab.isShown())
+                fab.hide();
         });
     }
 
@@ -271,11 +324,12 @@ public class HomeFragment extends Fragment {
         homeViewModel.getRegNumberEducation().observe(getViewLifecycleOwner(), this::setRegNumberEducation);
         homeViewModel.getDateOfIssingEducation().observe(getViewLifecycleOwner(), this::setDateOfIssingEducation);
         homeViewModel.getDateOfBirthday().observe(getViewLifecycleOwner(), this::setDateOfBirthday);
+        homeViewModel.getPrivilege().observe(getViewLifecycleOwner(), this::setPrivilege);
     }
 
     private void initComponents() {
         binding.textviewLogin.setText(loginString);
-        binding.textviewSnills.setText(snillsString);
+        binding.textviewSnills.setText(PersonalCabinetActivity.idAbit);
         binding.textviewSex.setText(sexString);
         binding.textviewNationality.setText(nationalityString);
         binding.textviewPassport.setText(passportString);
@@ -288,14 +342,14 @@ public class HomeFragment extends Fragment {
         binding.textviewRegNumberEducation.setText(regNumberEducation);
         binding.textviewDateOfIssingEducation.setText(dateOfIssingEducation);
         binding.textviewDateOfBirthday.setText(dateOfBirthday);
+        binding.textviewPrivilege.setText(privilege);
         if(isDownloadImagesPassport != null) isDownloadImagesPassport = true;
         if(isDownloadImagesEducation != null) isDownloadImagesEducation = true;
         binding.scrollviewHomeFragment.post(()->binding.scrollviewHomeFragment.scrollTo(0, scrollY));
         fab = Objects.requireNonNull(getActivity()).findViewById(R.id.fab);
     }
-    public static void clearDate() {
+    public static void clearData() {
         loginString = null;
-        snillsString = null;
         sexString = null;
         passportString = null;
         nationalityString = null;
@@ -308,6 +362,7 @@ public class HomeFragment extends Fragment {
         regNumberEducation = null;
         dateOfIssingEducation = null;
         dateOfBirthday = null;
+        privilege = null;
 
         bitmapPassport1 = null;
         bitmapPassport2 = null;
@@ -316,6 +371,9 @@ public class HomeFragment extends Fragment {
         bitmapEducation1 = null;
         bitmapEducation2 = null;
         isDownloadImagesEducation = null;
+
+        isDownloadImagePrivilege = null;
+        bitmapPrivilege = null;
     }
     @Override
     public void onDestroyView() {

@@ -1,10 +1,10 @@
 package com.example.vkr.personal_cabinet.moreAbout;
 
+import static com.example.vkr.personal_cabinet.PersonalCabinetActivity.specialitysAbit;
 import static java.util.Arrays.asList;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.design.widget.Snackbar;
@@ -31,6 +31,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -62,10 +63,11 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
     private LinearLayout partnersOfSpeciality;
 
     private boolean favorite = false;
+    public static String typeOfStudy;
 
     private String competencies, professions, partners;
     private boolean isCompetencies = false, isProfessions = false, isPartners = false;
-
+    private MenuItem favoriteItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,10 +82,10 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
         getMenuInflater().inflate(R.menu.menu_speciality, menu);
-        MenuItem menuItem = menu.findItem(R.id.add_speciality);
-        Drawable icon = DrawableCompat.wrap(Objects.requireNonNull(favorite ? ContextCompat.getDrawable(this, R.drawable.ic_baseline_favorite_24) :
-                                                                              ContextCompat.getDrawable(this, R.drawable.ic_baseline_favorite_border_24)));
-        menuItem.setIcon(icon);
+        favoriteItem = menu.findItem(R.id.add_speciality);
+        favoriteItem.setEnabled(false);
+        favoriteItem.setIcon(DrawableCompat.wrap(Objects.requireNonNull(favorite ? ContextCompat.getDrawable(this, R.drawable.ic_baseline_favorite_24) :
+                                                                               ContextCompat.getDrawable(this, R.drawable.ic_baseline_favorite_border_24))));
         return true;
     }
 
@@ -104,21 +106,38 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                 ActionMenuItemView it = findViewById(R.id.add_speciality);
                 if(favorite){
                     favorite = false;
-                    PersonalCabinetActivity.specialitysAbit.remove(asList(PersonalCabinetActivity.idAbit, idSpec, getTypeOfStudy()));
+                    for(int i=0; i<specialitysAbit.size(); ++i) {
+                        if (Objects.equals(specialitysAbit.get(i).get("id_spec"), idSpec)
+                                && Objects.equals(specialitysAbit.get(i).get("id_abit"), PersonalCabinetActivity.idAbit)
+                                && Objects.equals(specialitysAbit.get(i).get("type_of_study"), typeOfStudy)) {
+                            specialitysAbit.remove(i);
+                            break;
+                        }
+                    }
                     it.setIcon(DrawableCompat.wrap(Objects.requireNonNull(ContextCompat.getDrawable(this, R.drawable.ic_baseline_favorite_border_24))));
                     new Thread(()->{
                         Connection connection = new Database().connect();
                         try {
                             connection.prepareStatement("DELETE FROM public.abit_spec " +
-                                    "WHERE id_abit=" + PersonalCabinetActivity.idAbit + " and id_spec='" + idSpec + "' and type_of_study=" + getTypeOfStudy()).execute();
+                                    "WHERE id_abit=" + PersonalCabinetActivity.idAbit + " and id_spec='" + idSpec + "' and type_of_study=" + typeOfStudy).execute();
                         } catch (SQLException throwables) {
                             throwables.printStackTrace();
                         }
                     }).start();
                 }
-                else if(PersonalCabinetActivity.specialitysAbit.size() < 3) {
+                else if(specialitysAbit.size() < 3) {
                     favorite = true;
-                    PersonalCabinetActivity.specialitysAbit.add(asList(PersonalCabinetActivity.idAbit, idSpec, getTypeOfStudy()));
+                    specialitysAbit.add(new HashMap<String, String>(){
+                        {
+                            put("id_abit", PersonalCabinetActivity.idAbit);
+                            put("id_spec", idSpec);
+                            put("type_of_study", typeOfStudy);
+                            put("priority", null);
+                            put("id_financing", null);
+                            put("date_filing", null);
+                            put("name_spec", nameOfSpeciality.getText().toString());
+                            put("institution", institutOfSpeciality.getText().toString());
+                        }});
                     it.setIcon(DrawableCompat.wrap(Objects.requireNonNull(ContextCompat.getDrawable(this, R.drawable.ic_baseline_favorite_24))));
                 }
                 else {
@@ -190,6 +209,8 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
         professionsOfSpeciality = findViewById(R.id.professions_of_speciality);
         partnersOfSpeciality = findViewById(R.id.partners_of_speciality);
 
+        typeOfStudy = PersonalCabinetActivity.typeOfStudy.get(getIntent().getStringExtra("type_of_study"));
+
         new Thread(()->{
             Connection connection = new Database().connect();
             try {
@@ -204,7 +225,7 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                         "\t(select name from faculties where id=id_facult) as id_facult, \n" +
                         "\tpassing_score " +
                         "\tFROM public.speciality where id='" + idSpec + "' and " +
-                        "type_of_study=" + getTypeOfStudy()).executeQuery();
+                        "type_of_study=" + typeOfStudy).executeQuery();
                 if(!res.next()) return;
 
                 String idSpeciality = getIntent().getStringExtra("id");
@@ -245,10 +266,11 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
                     payOfSpeciality.setText(paySpeciality);
                     descriptionOfSpeciality.setText(descriptionSpeciality);
                     passingScoreOfSpeciality.setText(passingScoreSpeciality == null? "-" : passingScoreSpeciality);
+
+                    favoriteItem.setEnabled(true);
                 });
                 res.close();
                 connection.close();
-
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
             }
@@ -287,11 +309,12 @@ public class MoreAboutTheSpecialityActivity extends AppCompatActivity {
             }
         }).start();
 
-        favorite = PersonalCabinetActivity.specialitysAbit.contains(asList(PersonalCabinetActivity.idAbit, idSpec, getTypeOfStudy()));
-    }
 
-    private String getTypeOfStudy() {
-        return PersonalCabinetActivity.typeOfStudy.get(getIntent().getStringExtra("type_of_study"));
+        for(int i=0; i<specialitysAbit.size() && !favorite; ++i)
+            if(Objects.equals(specialitysAbit.get(i).get("id_spec"), idSpec)
+                    && Objects.equals(specialitysAbit.get(i).get("id_abit"), PersonalCabinetActivity.idAbit)
+                    && Objects.equals(specialitysAbit.get(i).get("type_of_study"), typeOfStudy))
+                favorite = true;
     }
 
 }

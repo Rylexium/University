@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.vkr.R;
+import com.example.vkr.utils.ShowToast;
 
 public class AgreementFragment extends Fragment {
 
@@ -17,7 +18,6 @@ public class AgreementFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
 
         binding = inflater.inflate(R.layout.fragment_agreement, container, false);
-
         return binding.getRootView();
     }
 

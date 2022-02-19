@@ -15,9 +15,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.vkr.R;
@@ -27,6 +29,7 @@ import com.example.vkr.utils.ConvertClass;
 import com.example.vkr.utils.EditLinearLayout;
 import com.example.vkr.utils.HashPass;
 import com.example.vkr.utils.HideKeyboardClass;
+import com.example.vkr.utils.MySpinnerAdapter;
 import com.example.vkr.utils.SelectImageClass;
 import com.example.vkr.utils.ShowToast;
 
@@ -36,6 +39,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class DownloadPrivilegesActivity extends AppCompatActivity {
     private Button buttonNext;
@@ -43,6 +52,8 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
     private Button buttonAddPrivileges;
     private static Bitmap bitmap;
 
+    private Spinner spinner;
+    private static Map<String, String> privileges;
     private LinearLayout layoutForImagesPrivileges;
 
     public static SharedPreferences sharedPreferences;
@@ -154,7 +165,11 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
                             "\tFROM abit, users where id_abit=id;");
                     ResultSet res = statement.executeQuery();
                     while(res.next()){
-                        if(phone.replace("-", "").equals(res.getString("phone"))){
+                        if(phone.replace("-", "")
+                                .replace("(", "")
+                                .replace(")", "")
+                                .replace(" ", "")
+                                .equals(res.getString("phone"))){
                             ShowToast.show(this, "Такой телефон уже существует");
                             return;
                         }
@@ -194,10 +209,13 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
                                     "passport, departament_code, \n" + //9, 10
                                     "\tconst_address, actual_address, " + //11, 12
                                     "id_education, number_education, reg_number_education, \n" + //13, 14, 15
-                                    "\tdate_of_issing_passport, date_of_issing_education, date_of_birthday)\n" + //16, 17, 18
-                                    "\tVALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+                                    "\tdate_of_issing_passport, date_of_issing_education, date_of_birthday, id_privileges)\n" + //16, 17, 18
+                                    "\tVALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
                             insertToAbit.setLong(1, Long.parseLong(snills.replace(" ", "").replace("-", "")));
-                            insertToAbit.setString(2, phone);
+                            insertToAbit.setString(2, phone.replace("-", "")
+                                                                .replace("(", "")
+                                                                .replace(")", "")
+                                                                .replace(" ", ""));
                             insertToAbit.setString(3, email);
 
                             insertToAbit.setString(4, family);
@@ -220,6 +238,8 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
                             insertToAbit.setDate(16, new java.sql.Date(new SimpleDateFormat("dd.MM.yyyy").parse(dateIssuingPassport).getTime()));
                             insertToAbit.setDate(17, new java.sql.Date(new SimpleDateFormat("dd.MM.yyyy").parse(dateOfIssueOfEducation).getTime()));
                             insertToAbit.setDate(18, new java.sql.Date(new SimpleDateFormat("dd.MM.yyyy").parse(dateIssingBirthday).getTime()));
+
+                            insertToAbit.setInt(19, (int) (spinner.getSelectedItemId() + 1));
 
                             insertToAbit.execute();
                             insertToAbit.close();
@@ -360,6 +380,7 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
         buttonNext = findViewById(R.id.button_next_privileges);
         buttonPrevious = findViewById(R.id.button_previous_privileges);
         buttonAddPrivileges = findViewById(R.id.button_add_privileges);
+        spinner = findViewById(R.id.listbox_privileges);
 
         buttonPrevious.setBackground(ConvertClass.convertBitmapToDrawable(getResources(),
                 ConvertClass.decodeSampledBitmapFromResource(getResources(), R.drawable.image_previous_btn, 100, 100)));
@@ -369,5 +390,33 @@ public class DownloadPrivilegesActivity extends AppCompatActivity {
         layoutForImagesPrivileges = findViewById(R.id.layout_for_images_privileges);
 
         sharedPreferences = getPreferences(MODE_PRIVATE);
+        downloadPrivileges();
+    }
+
+    private void downloadPrivileges(){
+        buttonNext.setEnabled(false);
+        new Thread(()->{
+            Connection connection = new Database().connect();
+
+            try {
+                ResultSet res = connection.prepareStatement("SELECT id, name\n" +
+                        "\tFROM public.privileges").executeQuery();
+
+                privileges = new HashMap<>();
+                List<String> tmp = new ArrayList<>();
+                while(res.next()) {
+                    privileges.put(res.getString("name"), res.getString("id"));
+                    tmp.add(res.getString("name"));
+                }
+                res.close();
+                connection.close();
+                new Handler(getMainLooper()).post(()->{
+                    spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, tmp));
+                    buttonNext.setEnabled(true);
+                });
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }).start();
     }
 }

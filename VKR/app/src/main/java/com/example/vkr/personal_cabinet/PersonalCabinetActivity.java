@@ -1,7 +1,5 @@
 package com.example.vkr.personal_cabinet;
 
-import static java.util.Arrays.asList;
-
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
@@ -9,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
@@ -30,18 +29,18 @@ import com.example.vkr.databinding.PersonalCabinetActivityBinding;
 import com.example.vkr.personal_cabinet.ui.home.HomeFragment;
 import com.example.vkr.personal_cabinet.ui.result_egu.ResultEguFragment;
 import com.example.vkr.personal_cabinet.ui.speciality.SpecialityFragment;
+import com.example.vkr.personal_cabinet.ui.statement.StatementFragment;
 import com.example.vkr.utils.OpenActivity;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class PersonalCabinetActivity extends AppCompatActivity {
     private NavigationView navigationView;
@@ -53,7 +52,7 @@ public class PersonalCabinetActivity extends AppCompatActivity {
 
     public static String idAbit;
     public static String filter;
-    public static Set<List<String>> specialitysAbit;
+    public static List<Map<String, String>> specialitysAbit; //кэш
     public static Map<String, String> typeOfStudy;
     public static Map<String, String> instituts;
 
@@ -123,9 +122,10 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                                     .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
                             sendSpeciality();
                             clearData();
-                            HomeFragment.clearDate();
+                            HomeFragment.clearData();
                             ResultEguFragment.clearTable();
                             SpecialityFragment.clearTable();
+                            StatementFragment.clearData();
                             dialog.dismiss();
                         })
                 .setNegativeButton("Нет", (dialog, which) -> dialog.dismiss())
@@ -138,9 +138,15 @@ public class PersonalCabinetActivity extends AppCompatActivity {
     public static void sendSpeciality() {
         if(PersonalCabinetActivity.specialitysAbit == null) return;
         StringBuilder resQuery = new StringBuilder("");
-        PersonalCabinetActivity.specialitysAbit.forEach(e->{
-            resQuery.append("INSERT INTO public.abit_spec(id_abit, id_spec, type_of_study) VALUES (" + e.get(0) + ", '" + e.get(1) + "', " + e.get(2) + ");\n");
-        });
+        for(int i=0; i<specialitysAbit.size(); i++)
+            resQuery.append("INSERT INTO public.abit_spec(" +
+                    " id_abit, id_spec, type_of_study, priority, id_financing, date_filing)" +
+                    " VALUES (" + specialitysAbit.get(i).get("id_abit") + ", '"
+                            + specialitysAbit.get(i).get("id_spec") + "', "
+                            + specialitysAbit.get(i).get("type_of_study") + ", "
+                            + specialitysAbit.get(i).get("priority")+ ", "
+                            + specialitysAbit.get(i).get("id_financing") + ", null);\n");
+
         new Thread(()->{
             Connection connection = new Database().connect();
             List<String> arr = Arrays.asList(resQuery.toString().split("\n"));
@@ -149,12 +155,12 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                     try{
                         connection.prepareStatement(arr.get(i)).execute();
                     } catch (SQLException throwables) {
-                        throwables.printStackTrace();
+                        Log.e("", throwables.getMessage());
                     }
                 }
                 connection.close();
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                Log.e("", throwables.getMessage());
             }
         }).start();
     }
@@ -187,7 +193,8 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                                             "passport, departament_code, date_of_issing_passport, const_address, actual_address, \n" +
                                             "(select name from education where id=id_education) as education, \n" +
                                             "id_education, \n" +
-                                            "number_education, reg_number_education, date_of_issing_education, date_of_birthday\n" +
+                                            "number_education, reg_number_education, date_of_issing_education, date_of_birthday,\n" +
+                                            "(select name from privileges where id=id_privileges) as privileges\n" +
                                             "\tFROM abit, users where id_abit=id and login=?");
                 statement.setString(1, getIntent().getStringExtra("login"));
                 ResultSet res = statement.executeQuery();
@@ -213,25 +220,17 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                                                         res.getString("education"),
                                                         res.getString("number_education"),
                                                         res.getString("reg_number_education"),
-                                                        res.getString("date_of_birthday"));
+                                                        res.getString("date_of_birthday"),
+                                                        res.getString("privileges"));
                     idAbit = res.getString("id");
 
-                    switch (Integer.parseInt(res.getString("id_education"))){
-                        case 1:
-                        case 2:
-                            filter = "id like '%.03.%' or id like '%.05.%'";
-                            break;
-                        case 5:
-                        case 6:
-                            filter = "id like '%.04.%'";
-                            break;
-                        case 7:
-                        case 8:
-                        case 9:
-                        case 10:
-                            filter = "id like '%.06.%'";
-                            break;
-                    }
+                    int idEducation = Integer.parseInt(res.getString("id_education"));
+                    if(idEducation < 5)
+                        filter = "id like '%.03.%' or id like '%.05.%'";
+                    else if(idEducation < 7)
+                        filter = "id like '%.04.%'";
+                    else
+                        filter = "id like '%.06.%'";
 
 
                     new Handler(Looper.getMainLooper()).post(() -> {
@@ -256,7 +255,7 @@ public class PersonalCabinetActivity extends AppCompatActivity {
                                         String passport, String departament_code, String date_of_issing_education,
                                         String date_of_issing_passport, String const_address, String actual_address,
                                         String id_education, String number_education, String reg_number_education,
-                                        String date_of_birthday) {
+                                        String date_of_birthday, String privileges) {
         HomeFragment.getHomeViewModel().postTextLogin(login == null? "-" : login);
         HomeFragment.getHomeViewModel().postTextSnills(snills == null? "-" : snills);
         HomeFragment.getHomeViewModel().postTextSex(sex == null? "-" : sex);
@@ -271,6 +270,7 @@ public class PersonalCabinetActivity extends AppCompatActivity {
         HomeFragment.getHomeViewModel().postNumberEducation(number_education == null? "-" : number_education);
         HomeFragment.getHomeViewModel().postRegNumberEducation(reg_number_education == null ? "-" : reg_number_education);
         HomeFragment.getHomeViewModel().postDateOfBirthday(date_of_birthday == null? "-" : date_of_birthday);
+        HomeFragment.getHomeViewModel().postPrivilege(privileges);
 
     }
 
@@ -289,16 +289,35 @@ public class PersonalCabinetActivity extends AppCompatActivity {
         new Thread(()->{
             Connection connection = new Database().connect();
             try {
-                ResultSet res = connection.prepareStatement("SELECT * FROM abit_spec where id_abit=(select id_abit from users where login='"
-                        + getIntent().getStringExtra("login") + "')").executeQuery();
-                specialitysAbit = new HashSet<>();
-                while (res.next())
-                    specialitysAbit.add(asList(res.getString("id_abit"), res.getString("id_spec"), res.getString("type_of_study")));
+                ResultSet res = connection.prepareStatement("SELECT id_abit,\n" +
+                        "\tid_spec,\n" +
+                        "\t(select name from institutions where id=(select id_institut from speciality where id=id_spec and type_of_study=abit_spec.type_of_study)) as institution,\n" +
+                        "\t(select name from speciality where id=id_spec and type_of_study=abit_spec.type_of_study) as name_spec,\n" +
+                        "\ttype_of_study,\n" +
+                        "\tpriority,\n" +
+                        "\tid_financing,\n" +
+                        "\tdate_filing\n" +
+                        "FROM public.abit_spec where id_abit=(select id_abit from users where login='" + getIntent().getStringExtra("login") + "');").executeQuery();
+                specialitysAbit = new ArrayList<>();
+                while (res.next()) {
+                    specialitysAbit.add(new HashMap<String, String>() {
+                        {
+                            put("id_abit", res.getString("id_abit"));
+                            put("id_spec", res.getString("id_spec"));
+                            put("type_of_study", res.getString("type_of_study"));
+                            put("priority", res.getString("priority"));
+                            put("id_financing", res.getString("id_financing"));
+                            put("date_filing", res.getString("date_filing"));
+                            put("name_spec", res.getString("name_spec"));
+                            put("institution", res.getString("institution"));
+                        }
+                    });
+                }
                 connection.close();
                 res.close();
 
             } catch (SQLException throwables) {
-                throwables.printStackTrace();
+                Log.e("", throwables.getMessage());
             }
         }).start();
     }

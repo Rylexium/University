@@ -3,6 +3,7 @@ package com.example.vkr.personal_cabinet.ui.home;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
+import android.support.annotation.NonNull;
 
 public class HomeViewModel extends ViewModel {
     private MutableLiveData<String> login;
@@ -19,6 +20,7 @@ public class HomeViewModel extends ViewModel {
     private MutableLiveData<String> reg_number_education;
     private MutableLiveData<String> date_of_issing_education;
     private MutableLiveData<String> date_of_birthday;
+    private MutableLiveData<String> privilege;
 
     public HomeViewModel() {
         login = new MutableLiveData<>();
@@ -35,6 +37,7 @@ public class HomeViewModel extends ViewModel {
         reg_number_education = new MutableLiveData<>();
         date_of_issing_education = new MutableLiveData<>();
         date_of_birthday = new MutableLiveData<>();
+        privilege = new MutableLiveData<>();
     }
 
 
@@ -52,6 +55,7 @@ public class HomeViewModel extends ViewModel {
     public LiveData<String> getRegNumberEducation() { return reg_number_education; };
     public LiveData<String> getDateOfIssingEducation() { return date_of_issing_education; };
     public LiveData<String> getDateOfBirthday() { return date_of_birthday; };
+    public LiveData<String> getPrivilege() { return privilege; }
 
     public void postTextLogin(String text) { login.postValue(text); }
     public void postTextSex(String text) { sex.postValue(text);}
@@ -84,14 +88,19 @@ public class HomeViewModel extends ViewModel {
             departament_code.postValue(textBuilder.toString());
         }
     }
-    public void postDateOfIssingPassport(String text) { date_of_issing_passport.postValue(text.replace("+00", ""));  }
+    public void postDateOfIssingPassport(String text) { date_of_issing_passport.postValue(doCorrectDate(text));  }
     public void postConstAddress(String text) { const_address.postValue(text);  }
     public void postActualAddress(String text) { actual_address.postValue(text);  }
     public void postIdEducation(String text) {  id_education.postValue(text);  }
     public void postNumberEducation(String text) {  number_education.postValue(text);  }
     public void postRegNumberEducation(String text) {  reg_number_education.postValue(text.equals("0")? "-": text);  }
-    public void postDateOfIssingEducation(String text) {  date_of_issing_education.postValue(text.replace("+00", ""));  }
-    public void postDateOfBirthday(String text) {  date_of_birthday.postValue(text.replace("+00", ""));  }
+    public void postDateOfIssingEducation(String text) {  date_of_issing_education.postValue(doCorrectDate(text));  }
+    public void postDateOfBirthday(String text) {  date_of_birthday.postValue(doCorrectDate(text));  }
+    public void postPrivilege(String text) { privilege.postValue(text); }
 
 
+    private String doCorrectDate(@NonNull String text){
+        int index = text.indexOf('+');
+        return index == -1 ? text : text.substring(0, index);
+    }
 }
