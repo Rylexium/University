@@ -1,6 +1,7 @@
 #include <iostream>
 using namespace std;
 
+
 struct node{
 	int value;
 	node *left;
@@ -28,6 +29,9 @@ public:
 	}
 	node *search(int key){
 		return search(key, root);
+	}
+	node *deleteNode(int key){
+		return deleteNode(root, key);
 	}
 	void destroy_tree() {
 		destroy_tree(root);
@@ -88,6 +92,47 @@ private:
 			return nullptr;
 		}
 	}
+	
+	node * findMinimum(node *currentNode){
+		if(currentNode->left == nullptr)
+			return currentNode;
+
+		return findMinimum(currentNode->left);
+	}
+	
+    node * deleteNode(node *currentNode, int value)
+    {
+        if(currentNode == nullptr) 
+            return nullptr;
+        else if(value < currentNode->value) 
+            currentNode->left = deleteNode(currentNode->left, value);
+        else if(value > currentNode->value) 
+            currentNode->right = deleteNode(currentNode->right, value);
+        else 
+        {
+            if(currentNode->left == nullptr && currentNode->right == nullptr)
+            {
+                currentNode = nullptr;
+            }
+            else if(currentNode->left == nullptr) 
+            {
+                currentNode = currentNode->right;
+            }
+            else if(currentNode->right == nullptr) 
+            {
+                currentNode = currentNode->left;
+            }
+            else 
+            {
+                node *tempNode = findMinimum(currentNode->right);
+                currentNode->value = tempNode->value;
+                currentNode->right = deleteNode(currentNode->right, tempNode->value);
+            }
+    
+        }
+    
+        return currentNode;
+    }
 	void inorder_print(node *leaf){
 		if(leaf != nullptr){
 			inorder_print(leaf->left);
@@ -128,6 +173,11 @@ int main(){
 	tree->inorder_print();
 	tree->postorder_print();
 
-	delete tree;
+    	tree->deleteNode(10);
+    
+    	tree->insert(9);
+    
+	tree->inorder_print();
 
+	delete tree;
 }
