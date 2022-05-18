@@ -1,183 +1,183 @@
 #include <iostream>
 using namespace std;
 
-
 struct node{
-	int value;
-	node *left;
-	node *right;
+    int key;
+    string info;
+    node *left;
+    node *right;
+    node(int _key, string _value) : key(_key), info(_value), left(nullptr), right(nullptr){};
 };
 
 class BTree{
 public:
-	BTree(){
-		root = nullptr;
-	}
-	~BTree(){
-		destroy_tree();
-	}
+    BTree(){
+        root = nullptr;
+    }
+    ~BTree(){
+        destroy_tree();
+    }
 
-	void insert(int key) {
-		if(root != nullptr){
-			insert(key, root);
-		}else{
-			root = new node;
-			root->value = key;
-			root->left = nullptr;
-			root->right = nullptr;
-		}
-	}
-	node *search(int key){
-		return search(key, root);
-	}
-	node *deleteNode(int key){
-		return deleteNode(root, key);
-	}
-	void destroy_tree() {
-		destroy_tree(root);
-	}
-	void inorder_print() {
-		inorder_print(root);
-		cout << "\n";
-	}
-	void postorder_print() {
-		postorder_print(root);
-		cout << "\n";
-	}
-	void preorder_print() {
-		preorder_print(root);
-		cout << "\n";
-	}
+    void insert(int key, string value) {
+        if(root != nullptr) insert(key, value, root);
+        else root = new node(key, value);
+    }
+
+    node *searchByKey(int key){
+        return searchKey(key, root);
+    }
+
+    node *searchByInfo(string value){
+        return searchInfo(value, root);
+    }
+    node *deleteNode(int key){
+        return deleteNode(root, key);
+    }
+    void destroy_tree() {
+        destroy_tree(root);
+    }
+    void inorder_print() {
+        inorder_print(root);
+        cout << "\n";
+    }
+    void postorder_print() {
+        postorder_print(root);
+        cout << "\n";
+    }
+    void preorder_print() {
+        preorder_print(root);
+        cout << "\n";
+    }
 
 private:
-	void destroy_tree(node *leaf){
-		if(leaf != nullptr){
-			destroy_tree(leaf->left);
-			destroy_tree(leaf->right);
-			delete leaf;
-		}	
-	}
-	void insert(int key, node *leaf){
-		if(key < leaf->value){
-			if(leaf->left != nullptr){
-				insert(key, leaf->left);
-			}else{
-				leaf->left = new node;
-				leaf->left->value = key;
-				leaf->left->left = nullptr;
-				leaf->left->right = nullptr;
-			}
-		}else if(key >= leaf->value){
-			if(leaf->right != nullptr){
-				insert(key, leaf->right);
-			}else{
-				leaf->right = new node;
-				leaf->right->value = key;
-				leaf->right->right = nullptr;
-				leaf->right->left = nullptr;
-			}
-		}
-	}
-	node *search(int key, node *leaf) {
-		if(leaf != nullptr){
-			if(key == leaf->value){
-				return leaf;
-			}
-			if(key < leaf->value){
-				return search(key, leaf->left);
-			}else{
-				return search(key, leaf->right);
-			}
-		}else{
-			return nullptr;
-		}
-	}
-	
-	node * findMinimum(node *currentNode){
-		if(currentNode->left == nullptr)
-			return currentNode;
+    void destroy_tree(node *leaf){
+        if(leaf != nullptr){
+            destroy_tree(leaf->left);
+            destroy_tree(leaf->right);
+            delete leaf;
+        }
+    }
+    void insert(int key, string value, node *leaf){
+        if(key < leaf->key) {
+            if(leaf->left != nullptr)
+                insert(key, value, leaf->left);
+            else
+                leaf->left = new node(key, value);
 
-		return findMinimum(currentNode->left);
-	}
-	
+        }else if(key >= leaf->key) {
+            if(leaf->right != nullptr)
+                insert(key, value, leaf->right);
+            else
+                leaf->right = new node(key, value);
+        }
+    }
+    node *searchKey(int key, node *leaf) {
+        if(leaf != nullptr){
+            if(key == leaf->key)
+                return leaf;
+
+            if(key < leaf->key)
+                return searchKey(key, leaf->left);
+            else
+                return searchKey(key, leaf->right);
+
+        } else
+            return nullptr;
+
+    }
+
+    node* searchInfo(string value, node *leaf){
+        if(leaf != nullptr){
+            searchInfo(value, leaf->left);
+            if(leaf->info == value) return leaf;
+            searchInfo(value, leaf->right);
+        }
+        return nullptr;
+    }
+
+    node * findMinimum(node *currentNode){
+        if(currentNode->left == nullptr)
+            return currentNode;
+
+        return findMinimum(currentNode->left);
+    }
+
     node * deleteNode(node *currentNode, int value)
     {
-        if(currentNode == nullptr) 
+        if(currentNode == nullptr)
             return nullptr;
-        else if(value < currentNode->value) 
+        else if(value < currentNode->key)
             currentNode->left = deleteNode(currentNode->left, value);
-        else if(value > currentNode->value) 
+        else if(value > currentNode->key)
             currentNode->right = deleteNode(currentNode->right, value);
-        else 
+        else
         {
             if(currentNode->left == nullptr && currentNode->right == nullptr)
-            {
                 currentNode = nullptr;
-            }
-            else if(currentNode->left == nullptr) 
-            {
+            else if(currentNode->left == nullptr)
                 currentNode = currentNode->right;
-            }
-            else if(currentNode->right == nullptr) 
-            {
+            else if(currentNode->right == nullptr)
                 currentNode = currentNode->left;
-            }
-            else 
+            else
             {
                 node *tempNode = findMinimum(currentNode->right);
-                currentNode->value = tempNode->value;
-                currentNode->right = deleteNode(currentNode->right, tempNode->value);
+                currentNode->key = tempNode->key;
+                currentNode->right = deleteNode(currentNode->right, tempNode->key);
             }
-    
+
         }
-    
+
         return currentNode;
     }
-	void inorder_print(node *leaf){
-		if(leaf != nullptr){
-			inorder_print(leaf->left);
-			cout << leaf->value << " ";
-			inorder_print(leaf->right);
-		}
-	}
-	void postorder_print(node *leaf) {
-		if(leaf != nullptr){
-			postorder_print(leaf->left);
-			postorder_print(leaf->right);
-			cout << leaf->value << " ";
-		}
-	}
-	void preorder_print(node *leaf) {
-		if(leaf != nullptr){
-			cout << leaf->value << " ";
-			preorder_print(leaf->left);
-			preorder_print(leaf->right);
-		}
-	}
+    void inorder_print(node *leaf){
+        if(leaf != nullptr){
+            inorder_print(leaf->left);
+            cout << leaf->key << " ";
+            inorder_print(leaf->right);
+        }
+    }
+    void postorder_print(node *leaf) {
+        if(leaf != nullptr){
+            postorder_print(leaf->left);
+            postorder_print(leaf->right);
+            cout << leaf->key << " ";
+        }
+    }
+    void preorder_print(node *leaf) {
+        if(leaf != nullptr){
+            cout << leaf->key << " ";
+            preorder_print(leaf->left);
+            preorder_print(leaf->right);
+        }
+    }
 
-	node *root;
+    node *root{};
 };
 
 int main(){
-	BTree *tree = new BTree();
+    BTree *tree = new BTree();
 
-	tree->insert(10);
-	tree->insert(6);
-	tree->insert(14);
-	tree->insert(5);
-	tree->insert(8);
-	tree->insert(11);
-	tree->insert(18);
+    tree->insert(10, "apple");
+    tree->insert(6, "potato");
+    tree->insert(14, "milk");
+    tree->insert(5, "pear");
+    tree->insert(8, "banana");
+    tree->insert(11, "orange");
+    tree->insert(18, "peach");
 
-	tree->preorder_print();
-	tree->inorder_print();
-	tree->postorder_print();
+    tree->preorder_print();
+    tree->inorder_print();
+    tree->postorder_print();
 
-    	tree->deleteNode(10);
-    
-    	tree->insert(9);
-    
-	tree->inorder_print();
+    tree->deleteNode(10);
 
-	delete tree;
+    tree->insert(9, "mazafaka");
+
+    tree->inorder_print();
+
+
+
+    cout<<(tree->searchByKey(5) != nullptr)<<endl;
+    cout<<(tree->searchByInfo("mazafaka") != nullptr)<<endl;
+    delete tree;
 }
