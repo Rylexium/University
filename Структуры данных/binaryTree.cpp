@@ -9,12 +9,12 @@ struct node{
     node(int _key, string _value) : key(_key), info(_value), left(nullptr), right(nullptr){};
 };
 
-class BTree{
+class BinaryTree{
 public:
-    BTree(){
+    BinaryTree(){
         root = nullptr;
     }
-    ~BTree(){
+    ~BinaryTree(){
         destroy_tree();
     }
 
@@ -155,7 +155,7 @@ private:
 };
 
 int main(){
-    BTree *tree = new BTree();
+    BinaryTree *tree = new BinaryTree();
 
     tree->insert(10, "apple");
     tree->insert(6, "potato");
