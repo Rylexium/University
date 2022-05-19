@@ -1,0 +1,220 @@
+#include <iostream>
+using namespace std;
+
+typedef int ElementType;
+struct AvlNode
+{
+	ElementType key;
+	AvlNode* left;
+	AvlNode* right;
+	int Height;
+};
+
+class AVL_Tree
+{
+public:
+	AVL_Tree()
+	{
+		root = MakeEmpty(NULL);
+	}
+	~AVL_Tree()
+	{
+		MakeEmpty(0);
+	}
+	void add_balance(int key)
+	{
+		root=Insert(key, root);
+	}
+	void add(int key)
+	{
+		add_node(key, root);
+	}
+	void print()
+	{
+		printTree(root, 0);
+	}
+	void show()
+	{
+		show_t(root);
+	}
+	void create_balance_tree()
+	{
+		AVL_Tree tree;
+		create_balance_tree_r(root,tree);
+		this->~AVL_Tree();
+		root = tree.root;
+	}
+private:
+	AvlNode* root = nullptr;
+	AvlNode* MakeEmpty(AvlNode* T)
+	{
+		if (T != NULL)
+		{
+			MakeEmpty(T->left);
+			MakeEmpty(T->right);
+			free(T);
+		}
+		return NULL;
+	} 
+	//функция возвращает вес вершины  
+	int Height(AvlNode* P)
+	{
+		if (P == NULL)
+			return -1;
+		else
+			return P->Height;
+	}
+	//функция возвращает максимальное из двух чисел 
+	int Max(int Lhs, int Rhs)
+	{
+		if (Lhs > Rhs)
+			return Lhs;
+		return Rhs;
+	}
+	/*функция выполняет правый поворот между вершиной K2 и ее левым потомком*/
+	AvlNode* SingleRotateWithLeft(AvlNode* K2)
+	{
+		AvlNode* K1;
+		K1 = K2->left;//записываем левый указатель на потомка дерева   
+		K2->left = K1->right;
+		K1->right = K2;
+		K2->Height = Max(Height(K2->left), Height(K2->right)) + 1;
+		K1->Height = Max(Height(K1->left), K2->Height) + 1;
+		return K1;  //Новый корень 
+	}
+
+	/*функция выполняет левый поворот между вершиной K1 и ее правым потомком*/
+	AvlNode* SingleRotateWithRight(AvlNode* K1)
+	{
+		AvlNode* K2;
+		K2 = K1->right;/*записываем правый указатель на потомка дерева*/
+		K1->right = K2->left;
+		K2->left = K1;
+		K1->Height = Max(Height(K1->left), Height(K1->right)) + 1;
+		K2->Height = Max(Height(K2->right), K1->Height) + 1;
+		return K2;  //новый корень 
+	}
+
+	//функция выполняет двойной лево-правый поворот 
+	AvlNode* DoubleRotateWithLeft(AvlNode* K3)
+	{   // поворот между K1 и K2/   
+		K3->left = SingleRotateWithRight(K3->left);   // поворот между K3 и K2   
+		return SingleRotateWithLeft(K3);
+	}
+	//функция выполняет двойной право-левый поворот  
+	AvlNode* DoubleRotateWithRight(AvlNode* K1)
+	{   // поворот между K3 и K2   
+		K1->right = SingleRotateWithLeft(K1->right);   // поворот между K1 и K2   
+		return SingleRotateWithRight(K1);
+	}
+	//функция вставки вершины в АВЛ-дерево 
+	AvlNode* Insert(ElementType X, AvlNode* T)
+	{
+		if (T == NULL)
+		{
+			T = new AvlNode;
+			T->key = X; T->Height = 0;
+			T->left = T->right = NULL;			
+		}
+		else if (X < T->key)
+		{
+			T->left = Insert(X, T->left);
+			if (Height(T->left) - Height(T->right) == 2)
+				if (X < T->left->key)
+					T = SingleRotateWithLeft(T);
+				else
+					T = DoubleRotateWithLeft(T);
+		}
+		else if (X > T->key)
+		{
+			T->right = Insert(X, T->right);
+			if (Height(T->right) - Height(T->left) == 2)
+				if (X > T->right->key)
+					T = SingleRotateWithRight(T);
+				else
+					T = DoubleRotateWithRight(T);
+		}
+		T->Height = Max(Height(T->left), Height(T->right)) + 1;
+		return T;
+	}
+
+	//функция вывода АВЛ-дерева на печать 
+	void printTree(AvlNode* T, int l)
+	{
+		if (T != NULL)
+		{
+			printTree(T->right, l + 1);
+			for (int i = 0; i < l; i++)
+				cout<<"    ";
+			cout << T->key;
+			printTree(T->left, l + 1);
+		}
+		else cout<<"\n";
+	}
+	void show_t(AvlNode* T)
+	{
+		if (T != NULL)
+		{
+			show_t(T->left);
+			show_t(T->right);
+			cout << T->key << " ";
+		}
+	}
+	void create_balance_tree_r(AvlNode* T,AVL_Tree& tree)
+	{
+		if (T != NULL)
+		{
+			create_balance_tree_r(T->left, tree);
+			tree.root = tree.Insert(T->key, tree.root);
+			tree.print();
+			cout << "\n\n";
+			create_balance_tree_r(T->right, tree);
+		}
+	}
+
+	void add_node(int x, AvlNode *MyTree) //Фукция добавления звена в дерево
+	{
+		if (NULL == root)
+		{
+			root = new AvlNode; //Выделяем память под звено дерева
+			root->key = x;
+			root->left = root->right = NULL;
+			MyTree = root;
+		}
+		else if (x < MyTree->key) //Если новый элемент x меньше чем элемент x из семечка дерева, уходим влево
+		{
+			if (MyTree->left != NULL) { add_node(x, MyTree->left); } //до тех пор пока не выполнится наше условие
+			else //Если элемент получил свой участок, то
+			{
+				MyTree->left = new AvlNode; //Выделяем память левому подзвену
+				MyTree->left->left = MyTree->left->right = NULL; //инициализируем пустотой,лево и право
+				MyTree->left->key = x; //Записываем в левое подзвено записываемый элемент
+			}
+		}
+		else if (x > MyTree->key) //Если новый элемент x больше чем элемент x из семечка дерева, уходим вправо
+		{
+			if (MyTree->right != NULL) add_node(x, MyTree->right); //до тех пор пока не выполнится наше условие
+			else
+			{
+				MyTree->right = new AvlNode; //Выделяем память правому подзвену
+				MyTree->right->left = MyTree->right->right = NULL; //инициализируем пустотой,лево и право
+				MyTree->right->key = x; //Записываем в правое подзвено записываемый элемент
+			}
+		}
+	}
+};
+
+int main() {
+
+    AVL_Tree tree;
+    int arr[] = { 1,2,3,4,5,6 };
+    for (auto elem : arr)
+        tree.add(elem);
+        
+    tree.print();
+    tree.show();
+    
+    tree.create_balance_tree();
+    tree.print();
+    tree.show();
+}
