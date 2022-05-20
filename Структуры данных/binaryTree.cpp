@@ -28,7 +28,9 @@ public:
     }
 
     node *searchByInfo(string value){
-        return searchInfo(value, root);
+        target = nullptr;
+        searchInfo(value, root);
+        return target;
     }
     node *deleteNode(int key){
         return deleteNode(root, key);
@@ -86,10 +88,10 @@ private:
 
     }
 
-    node* searchInfo(string value, node *leaf){
+    void searchInfo(string value, node *leaf){
         if(leaf != nullptr){
+            if(leaf->info == value) target = leaf;
             searchInfo(value, leaf->left);
-            if(leaf->info == value) return leaf;
             searchInfo(value, leaf->right);
         }
         return nullptr;
@@ -152,6 +154,7 @@ private:
     }
 
     node *root{};
+    node *target = nullptr;
 };
 
 int main(){
@@ -178,6 +181,6 @@ int main(){
 
 
     cout<<(tree->searchByKey(5) != nullptr)<<endl;
-    cout<<(tree->searchByInfo("mazafaka") != nullptr)<<endl;
+    cout<<(tree->searchByInfo("orange") != nullptr)<<endl;
     delete tree;
 }
