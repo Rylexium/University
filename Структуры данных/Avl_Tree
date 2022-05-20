@@ -82,9 +82,7 @@ private:
     }
     //функция возвращает максимальное из двух чисел
     int Max(int Lhs, int Rhs) {
-        if (Lhs > Rhs)
-            return Lhs;
-        return Rhs;
+        returm Lhs > Rhs;
     }
     /*функция выполняет правый поворот между вершиной K2 и ее левым потомком*/
     AvlNode* singleRotateWithLeft(AvlNode* K2) {
