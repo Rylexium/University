@@ -3,6 +3,7 @@
 #include <windows.h>
 using namespace std;
 
+
 typedef string KeyType;
 typedef int InfoType;
 struct AvlNode
@@ -20,21 +21,24 @@ class AVL_Tree
 {
 public:
     AVL_Tree() {
-        root = makeEmpty(nullptr);
+        root = destroyTree(NULL);
     }
     ~AVL_Tree() {
-        makeEmpty(nullptr);
+        destroyTree(0);
     }
     AvlNode *searchByKey(KeyType key) {
+        if(root == nullptr) return nullptr;
         return searchKey(key, root);
     }
     AvlNode *searchByInfo(InfoType info) {
+        if(root == nullptr) return nullptr;
         target = nullptr;
         searchInfo(info, root);
         return target;
     }
     vector<AvlNode*> vectorByInfo(InfoType info) {
         targets.clear();
+        if(root == nullptr) return targets;
         searchInfos(info, root);
         return targets;
     }
@@ -42,10 +46,10 @@ public:
         return deleteNode(root, key);
     }
     void insertBalance(KeyType key, InfoType info) {
-        root = insert(key, info, root);
+        root = insertBalance(key, info, root);
     }
     void insert(KeyType key, InfoType info) {
-        insertNode(key, info, root);
+        insert(key, info, root);
     }
     void print() {
         printTree(root, 0);
@@ -55,24 +59,28 @@ public:
     }
     void createBalanceTree() {
         AVL_Tree tree;
-        create_balance_tree_r(root,tree);
-        this->~AVL_Tree();
+        create_balance_tree_r(root, tree);
+        destroyTree();
         root = tree.root;
+    }
+    void destroyTree() {
+        destroyTree(root);
+        root = nullptr;
     }
 private:
     AvlNode* root = nullptr;
     AvlNode* target = nullptr;
     vector<AvlNode*> targets;
 
-    AvlNode* makeEmpty(AvlNode* T)
-    {
-        if (T != nullptr) {
-            makeEmpty(T->left);
-            makeEmpty(T->right);
+    AvlNode* destroyTree(AvlNode* T) {
+        if (T != nullptr){
+            destroyTree(T->left);
+            destroyTree(T->right);
             free(T);
         }
         return nullptr;
     }
+
     //функция возвращает вес вершины
     int height(AvlNode* P) {
         if (P == nullptr)
@@ -81,8 +89,10 @@ private:
             return P->height;
     }
     //функция возвращает максимальное из двух чисел
-    int Max(int Lhs, int Rhs) {
-        returm Lhs > Rhs;
+    int max(int Lhs, int Rhs) {
+        if (Lhs > Rhs)
+            return Lhs;
+        return Rhs;
     }
     /*функция выполняет правый поворот между вершиной K2 и ее левым потомком*/
     AvlNode* singleRotateWithLeft(AvlNode* K2) {
@@ -90,22 +100,20 @@ private:
         K1 = K2->left;//записываем левый указатель на потомка дерева
         K2->left = K1->right;
         K1->right = K2;
-        K2->height = Max(height(K2->left), height(K2->right)) + 1;
-        K1->height = Max(height(K1->left), K2->height) + 1;
+        K2->height = max(height(K2->left), height(K2->right)) + 1;
+        K1->height = max(height(K1->left), K2->height) + 1;
         return K1;  //Новый корень
     }
-
     /*функция выполняет левый поворот между вершиной K1 и ее правым потомком*/
     AvlNode* singleRotateWithRight(AvlNode* K1) {
         AvlNode* K2;
         K2 = K1->right;/*записываем правый указатель на потомка дерева*/
         K1->right = K2->left;
         K2->left = K1;
-        K1->height = Max(height(K1->left), height(K1->right)) + 1;
-        K2->height = Max(height(K2->right), K1->height) + 1;
+        K1->height = max(height(K1->left), height(K1->right)) + 1;
+        K2->height = max(height(K2->right), K1->height) + 1;
         return K2;  //новый корень
     }
-
     //функция выполняет двойной лево-правый поворот
     AvlNode* doubleRotateWithLeft(AvlNode* K3) {   // поворот между K1 и K2/
         K3->left = singleRotateWithRight(K3->left);   // поворот между K3 и K2
@@ -117,11 +125,11 @@ private:
         return singleRotateWithRight(K1);
     }
     //функция вставки вершины в АВЛ-дерево
-    AvlNode* insert(KeyType key, InfoType info, AvlNode* T) {
+    AvlNode* insertBalance(KeyType key, InfoType info, AvlNode* T) {
         if (T == nullptr)
             T = new AvlNode(key, info);
         else if (key < T->key) {
-            T->left = insert(key, info, T->left);
+            T->left = insertBalance(key, info, T->left);
             if (height(T->left) - height(T->right) == 2)
                 if (key < T->left->key)
                     T = singleRotateWithLeft(T);
@@ -130,20 +138,19 @@ private:
         }
         else if (key > T->key)
         {
-            T->right = insert(key, info, T->right);
+            T->right = insertBalance(key, info, T->right);
             if (height(T->right) - height(T->left) == 2)
                 if (key > T->right->key)
                     T = singleRotateWithRight(T);
                 else
                     T = doubleRotateWithRight(T);
         }
-        T->height = Max(height(T->left), height(T->right)) + 1;
+        T->height = max(height(T->left), height(T->right)) + 1;
         return T;
     }
     AvlNode *findMinimum(AvlNode *currentNode){
         if(currentNode->left == nullptr)
             return currentNode;
-
         return findMinimum(currentNode->left);
     }
     AvlNode * deleteNode(AvlNode *currentNode, KeyType value)
@@ -170,7 +177,6 @@ private:
         }
         return currentNode;
     }
-
     //функция вывода АВЛ-дерева на печать
     void printTree(AvlNode* T, int l) {
         if (T != nullptr) {
@@ -193,17 +199,13 @@ private:
         if(leaf != nullptr){
             if(key == leaf->key)
                 return leaf;
-
             if(key < leaf->key)
                 return searchKey(key, leaf->left);
             else
                 return searchKey(key, leaf->right);
-
         } else
             return nullptr;
-
     }
-
     void searchInfo(InfoType info, AvlNode* T) {
         if (T != nullptr) {
             if(T->info == info) target = T;
@@ -211,7 +213,6 @@ private:
             searchInfo(info, T->right);
         }
     }
-
     void searchInfos(InfoType info, AvlNode* T) {
         if (T != nullptr) {
             if(T->info == info) targets.push_back(T);
@@ -219,31 +220,28 @@ private:
             searchInfos(info, T->right);
         }
     }
-
-    void create_balance_tree_r(AvlNode* T, AVL_Tree& tree)
-    {
+    void create_balance_tree_r(AvlNode* T, AVL_Tree& tree) {
         if (T != nullptr) {
             create_balance_tree_r(T->left, tree);
-            tree.root = tree.insert(T->key, T->info, tree.root);
+            tree.root = tree.insertBalance(T->key, T->info, tree.root);
             tree.print();
             cout << "\n\n";
             create_balance_tree_r(T->right, tree);
         }
     }
-
-    void insertNode(KeyType key, InfoType info, AvlNode *MyTree) //Фукция добавления звена в дерево
+    void insert(KeyType key, InfoType info, AvlNode *MyTree) //Фукция добавления звена в дерево
     {
         if (nullptr == root)
             root = new AvlNode(key, info); //Выделяем память под звено дерева
         else if (key < MyTree->key) { //Если новый элемент x меньше чем элемент x из семечка дерева, уходим влево
             if (MyTree->left != nullptr)
-                insertNode(key, info, MyTree->left);  //до тех пор пока не выполнится наше условие
+                insert(key, info, MyTree->left);  //до тех пор пока не выполнится наше условие
             else //Если элемент получил свой участок, то
                 MyTree->left = new AvlNode(key, info); //Выделяем память левому подзвену
         }
         else if (key > MyTree->key) { //Если новый элемент x больше чем элемент x из семечка дерева, уходим вправо
             if (MyTree->right != nullptr)
-                insertNode(key, info, MyTree->right); //до тех пор пока не выполнится наше условие
+                insert(key, info, MyTree->right); //до тех пор пока не выполнится наше условие
             else
                 MyTree->right = new AvlNode(key, info);
         }
@@ -251,42 +249,43 @@ private:
 };
 
 
-
 int main(){
     SetConsoleOutputCP(CP_UTF8);
-    AVL_Tree tree;
-    tree.insert("fa", 25);
-    tree.insert("fas", 12);
-    tree.insert("fda", 56);
-    tree.insert("fga", 100);
-    tree.insert("fdsa", 100);
-    tree.insert("afdsfasd", 100);
-    tree.print();
-    tree.createBalanceTree();
+    AVL_Tree* tree = new AVL_Tree();
+    tree->insert("fa", 25);
+    tree->insert("fas", 12);
+    tree->insert("fda", 56);
+    tree->insert("fga", 100);
+    tree->insert("fdsa", 100);
+    tree->insert("afdsfasd", 100);
 
-    tree.print();
+    tree->print();
+    tree->createBalanceTree();
+    tree->print();
 
-    auto *node1 = tree.searchByKey("fa");
+    auto *node1 = tree->searchByKey("fa");
     if(node1 != nullptr) cout << node1->info;
     else cout << "node1 not found!!!";
 
     cout << endl << endl;
-    auto *node2 = tree.searchByInfo(100);
+
+    auto *node2 = tree->searchByInfo(100);
     if(node2 != nullptr) cout << node2->key;
     else cout << "node2 not found!!!";
 
     cout << endl << endl;
-    auto *node3 = tree.searchByInfo(99);
+
+    auto *node3 = tree->searchByInfo(99);
     if(node3 != nullptr) cout << node3->key;
     else cout << "node3 not found!!!";
 
     cout << endl << endl;
 
-    auto nodes = tree.vectorByInfo(100);
+    auto nodes = tree->vectorByInfo(100);
     cout << "Удовлетворяет требованиям" << endl;
     if(nodes.size() != 0)
         for(auto node : nodes)
             cout << node->key << endl;
     else cout << "nodes not found!!!";
-    
+
 }
