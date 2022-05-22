@@ -32,8 +32,13 @@ public:
         searchInfo(value, root);
         return target;
     }
-    node *deleteNode(int key){
-        return deleteNode(root, key);
+    node *deleteNode(int key) {
+        if(root == nullptr || (root->left == nullptr && root->right == nullptr) ) {
+            delete root;
+            root = nullptr;
+            return root;
+        }
+        else return deleteNode(root, key);
     }
     void destroy_tree() {
         destroy_tree(root);
@@ -94,7 +99,6 @@ private:
             searchInfo(value, leaf->left);
             searchInfo(value, leaf->right);
         }
-        return nullptr;
     }
 
     node * findMinimum(node *currentNode){
@@ -104,33 +108,62 @@ private:
         return findMinimum(currentNode->left);
     }
 
-    node * deleteNode(node *currentNode, int value)
-    {
-        if(currentNode == nullptr)
-            return nullptr;
-        else if(value < currentNode->key)
-            currentNode->left = deleteNode(currentNode->left, value);
-        else if(value > currentNode->key)
-            currentNode->right = deleteNode(currentNode->right, value);
-        else
-        {
-            if(currentNode->left == nullptr && currentNode->right == nullptr)
-                currentNode = nullptr;
-            else if(currentNode->left == nullptr)
-                currentNode = currentNode->right;
-            else if(currentNode->right == nullptr)
-                currentNode = currentNode->left;
-            else
-            {
-                node *tempNode = findMinimum(currentNode->right);
-                currentNode->key = tempNode->key;
-                currentNode->right = deleteNode(currentNode->right, tempNode->key);
+    node * deleteNode(node *root, int key){
+        node *par = root, *cur = root;
+
+            while(cur && cur->key != key){
+                if(key < cur->key){
+                    par = cur;
+                    cur = cur->left;
+                }else{
+                    //key > cur->val
+                    par = cur;
+                    cur = cur->right;
+                }
             }
 
-        }
+            //cannot find key in tree
+            if(!cur) return root;
 
-        return currentNode;
-    }
+            if(!cur->left && !cur->right){
+                if(cur == root) return nullptr;
+                if(par->left == cur) par->left = nullptr;
+                else par->right = nullptr;
+            }else if(cur->left){
+                //predecessor of deleted node
+                node *pred = cur->left;
+                //parent of predecessor
+                par = pred;
+                while(pred->right){
+                    par = pred;
+                    pred = pred->right;
+                }
+                cur->key = pred->key;
+                /*
+                pred->right is always empty,
+                when predecessor is the left child of the node to be deleted,
+                we move pred's left subtree one level up
+                (set left subtree's parent as cur),
+                if not, pred is then it's parent's right child,
+                here we also move pred's left subtree one level up
+                (set left subtree's parent as par)
+                */
+                if(cur->left == pred) cur->left = pred->left;
+                else par->right = pred->left;
+            }else{
+                node *succ = cur->right;
+                par = succ;
+                while(succ->left){
+                    par = succ;
+                    succ = succ->left;
+                }
+                cur->key = succ->key;
+                if(cur->right == succ) cur->right = succ->right;
+                else par->left = succ->right;
+            }
+
+            return root;
+     }
     void inorder_print(node *leaf){
         if(leaf != nullptr){
             inorder_print(leaf->left);
@@ -167,16 +200,10 @@ int main(){
     tree->insert(8, "banana");
     tree->insert(11, "orange");
     tree->insert(18, "peach");
-
-    tree->preorder_print();
     tree->inorder_print();
-    tree->postorder_print();
-
     tree->deleteNode(10);
-
-    tree->insert(9, "mazafaka");
-
     tree->inorder_print();
+    tree->deleteNode(10);
 
 
 
