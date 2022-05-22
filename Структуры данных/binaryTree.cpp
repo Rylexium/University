@@ -33,7 +33,8 @@ public:
         return target;
     }
     node *deleteNode(int key) {
-        if(root == nullptr || (root->left == nullptr && root->right == nullptr) ) {
+        if(root == nullptr
+            || (root->key == key && root->left == nullptr && root->right == nullptr) ) {
             delete root;
             root = nullptr;
             return root;
@@ -127,8 +128,14 @@ private:
 
             if(!cur->left && !cur->right){
                 if(cur == root) return nullptr;
-                if(par->left == cur) par->left = nullptr;
-                else par->right = nullptr;
+                if(par->left == cur){
+                    delete par->left;
+                    par->left = nullptr;
+                }
+                else {
+                    delete par->right;
+                    par->right = nullptr;
+                }
             }else if(cur->left){
                 //predecessor of deleted node
                 node *pred = cur->left;
@@ -161,9 +168,8 @@ private:
                 if(cur->right == succ) cur->right = succ->right;
                 else par->left = succ->right;
             }
-
             return root;
-     }
+    }
     void inorder_print(node *leaf){
         if(leaf != nullptr){
             inorder_print(leaf->left);
@@ -203,7 +209,8 @@ int main(){
     tree->inorder_print();
     tree->deleteNode(10);
     tree->inorder_print();
-    tree->deleteNode(10);
+    tree->deleteNode(8);
+    tree->inorder_print();
 
 
 
