@@ -43,7 +43,13 @@ public:
         return targets;
     }
     AvlNode *deleteNode(KeyType key){
-        return deleteNode(root, key);
+        if(root == nullptr
+           || (root->key == key && root->left == nullptr && root->right == nullptr) ) {
+            delete root;
+            root = nullptr;
+            return root;
+        }
+        else return deleteNode(root, key);
     }
     void insertBalance(KeyType key, InfoType info) {
         root = insertBalance(key, info, root);
@@ -153,29 +159,54 @@ private:
             return currentNode;
         return findMinimum(currentNode->left);
     }
-    AvlNode * deleteNode(AvlNode *currentNode, KeyType value)
-    {
-        if(currentNode == nullptr)
-            return nullptr;
-        else if(value < currentNode->key)
-            currentNode->left = deleteNode(currentNode->left, value);
-        else if(value > currentNode->key)
-            currentNode->right = deleteNode(currentNode->right, value);
-        else
-        {
-            if(currentNode->left == nullptr && currentNode->right == nullptr)
-                currentNode = nullptr;
-            else if(currentNode->left == nullptr)
-                currentNode = currentNode->right;
-            else if(currentNode->right == nullptr)
-                currentNode = currentNode->left;
-            else {
-                AvlNode *tempNode = findMinimum(currentNode->right);
-                currentNode->key = tempNode->key;
-                currentNode->right = deleteNode(currentNode->right, tempNode->key);
+    AvlNode * deleteNode(AvlNode *root, KeyType key) {
+
+        AvlNode *par = root, *cur = root;
+
+        while(cur && cur->key != key){
+            if(key < cur->key){
+                par = cur;
+                cur = cur->left;
+            }else{
+                par = cur;
+                cur = cur->right;
             }
         }
-        return currentNode;
+
+        if(!cur) return root;
+
+        if(!cur->left && !cur->right){
+            if(cur == root) return nullptr;
+            if(par->left == cur){
+                delete par->left;
+                par->left = nullptr;
+            }
+            else {
+                delete par->right;
+                par->right = nullptr;
+            }
+        } else if(cur->left){
+            AvlNode *pred = cur->left;
+            par = pred;
+            while(pred->right){
+                par = pred;
+                pred = pred->right;
+            }
+            cur->key = pred->key;
+            if(cur->left == pred) cur->left = pred->left;
+            else par->right = pred->left;
+        } else{
+            AvlNode *succ = cur->right;
+            par = succ;
+            while(succ->left){
+                par = succ;
+                succ = succ->left;
+            }
+            cur->key = succ->key;
+            if(cur->right == succ) cur->right = succ->right;
+            else par->left = succ->right;
+        }
+        return root;
     }
     //функция вывода АВЛ-дерева на печать
     void printTree(AvlNode* T, int l) {
